@@ -1,0 +1,38 @@
+# Auto-normalize text; then enforce per-type
+* text=auto
+
+# Markdown & docs
+*.md  text diff=markdown eol=lf
+*.mdx text diff=markdown eol=lf
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+
+# Scripts
+*.sh   text eol=lf
+*.bash text eol=lf
+*.ps1  text eol=crlf
+*.psm1 text eol=crlf
+*.cmd  text eol=crlf
+*.bat  text eol=crlf
+
+# Locks (keep stable line endings)
+package-lock.json text eol=lf
+yarn.lock         text eol=lf
+pnpm-lock.yaml    text eol=lf
+
+# SVG as text for clean diffs
+*.svg text
+
+# Binaries
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.gz   binary
+*.tar  binary
+*.tgz  binary

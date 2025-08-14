@@ -1,0 +1,21 @@
+# Ignore everything by default
+**/*
+
+# Standard repo files
+!.gitignore
+!.gitattributes
+!LICENSE
+!README.md
+!CLAUDE.md
+
+# Settings (exclude credentials)
+!settings.json
+.credentials.json
+
+# Tracked directories and contents
+!agents/
+!agents/**
+!commands/
+!commands/**
+!skills/
+!skills/**
