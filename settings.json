@@ -26,10 +26,10 @@
     "command": "input=$(cat); current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model=$(echo \"$input\" | jq -r '.model.display_name'); if [ -d \"$current_dir/.git\" ]; then cd \"$current_dir\"; branch=$(git branch --show-current 2>/dev/null || echo 'detached'); status=$(git status --porcelain 2>/dev/null | wc -l); if [ \"$status\" -gt 0 ]; then git_info=\"\\033[0;33m$branch\\033[0m \\033[0;31m($status)\\033[0m\"; else git_info=\"\\033[0;32m$branch\\033[0m\"; fi; else git_info=\"\\033[0;37mno git\\033[0m\"; fi; dir_name=$(basename \"$current_dir\"); printf \"\\033[0;36m%s\\033[0m | %s | \\033[0;35m%s\\033[0m\" \"$dir_name\" \"$git_info\" \"$model\""
   },
   "enabledPlugins": {
-    "rust-analyzer-lsp@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "csharp-lsp@claude-plugins-official": true
+    "csharp-lsp@claude-plugins-official": true,
+    "frontend-design@claude-code-plugins": true
   },
+  "autoUpdatesChannel": "latest",
   "feedbackSurveyState": {
     "lastShownTime": 1754386890430
   },
