@@ -1,6 +1,7 @@
 ---
 name: dotnet-update-packages
 description: Use when user mentions updating NuGet packages, checking for outdated dependencies, upgrading .NET package versions, or asks about package updates in a .NET project.
+user-invocable: false
 ---
 
 # .NET Package Updates
