@@ -36,6 +36,8 @@ Constraints:
 - You do NOT write copy
 - You do NOT call MCPs directly
 - You store decisions, not artifacts
+- You never use `cat` to write files
+- You never use `nul` files
 
 Failure handling:
 - If uncertain → ask
