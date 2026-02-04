@@ -85,17 +85,7 @@ For ASP.NET Core projects:
     <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
   </PropertyGroup>
   ```
-- **Configure System.Text.Json source generator** - all parameter/return types must be registered:
-  ```csharp
-  builder.Services.ConfigureHttpJsonOptions(options =>
-  {
-      options.SerializerOptions.TypeInfoResolverChain.Insert(
-          0, AppJsonSerializerContext.Default);
-  });
-
-  [JsonSerializable(typeof(Todo[]))]
-  internal partial class AppJsonSerializerContext : JsonSerializerContext { }
-  ```
+- **System.Text.Json**: Handled by `dotnet-source-gen-json` skill
 - Warn about HTTPS/HTTP3 if needed (not included in `CreateSlimBuilder`)
 - Ask user if they want to see generated code. If so, add `<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>`
 
