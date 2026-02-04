@@ -1,7 +1,12 @@
 ---
 name: dotnet-update-packages
-description: Use when user mentions updating NuGet packages, checking for outdated dependencies, upgrading .NET package versions, or asks about package updates in a .NET project.
-user-invocable: false
+description: Lists and updates outdated NuGet packages in .NET projects. Use when the user mentions updating packages, checking for outdated dependencies, or upgrading package versions.
+license: MIT
+metadata:
+  author: Im5tu
+  version: "1.0"
+  repositoryUrl: https://github.com/im5tu/dotnet-skills
+allowed-tools: Bash(dotnet:*) Read Glob AskUserQuestion
 ---
 
 # .NET Package Updates
@@ -21,17 +26,22 @@ This skill applies when the user:
    dotnet package list --outdated --include-transitive --format json
    ```
 
-2. **Parse output** to identify:
+2. **Check for empty results** - If no outdated packages found, inform the user and stop
+
+3. **Parse output** to identify:
    - Projects with outdated packages
    - Whether each package is **direct** or **transitive**
 
-3. **Analyze project dependencies** by reading `<ProjectReference>` elements in each csproj
+4. **Analyze project dependencies** by reading `<ProjectReference>` elements in each csproj
 
-4. **Present findings** in a readable format showing project, package name, current → latest version
+5. **Present findings** in a readable format showing project, package name, current → latest version
 
-5. **Confirm with user** before making changes
+6. **Confirm with user** before making changes - ask which option:
+   - All packages
+   - Specific packages by name
+   - Cancel
 
-6. **Update packages per project** with `--project` parameter:
+7. **Update packages per project** with `--project` parameter:
    - Update leaf projects first (no dependencies)
    - Then update dependent projects
    - Independent branches can run in parallel
@@ -39,11 +49,13 @@ This skill applies when the user:
    dotnet package update <package> --project <path-to-csproj>
    ```
 
-7. **Verify** with `dotnet build`
+8. **Verify** with `dotnet build`
 
-8. **If build fails**, ask user:
+9. **If build fails**, ask user:
    - Fix automatically (review errors, apply fixes)
    - Fix manually (show errors, let user handle)
+
+10. **Report results** - summarize what was updated and the final build status
 
 ## Key Commands
 
@@ -58,6 +70,16 @@ This skill applies when the user:
 - **Direct**: Explicitly in csproj. Update directly.
 - **Transitive**: Pulled in by dependencies. Marked `[T]` in output.
   - To update: update the parent package, or add direct reference to pin version
+
+## Error Handling
+
+- **If `dotnet package list` fails**: Check if we're in a .NET project directory
+- **If `dotnet package update` fails for a specific package**: Report it and continue with others
+- **If build fails after updates**:
+  1. Parse the build errors
+  2. Ask user: fix automatically or manually?
+  3. If automatic: analyze errors and apply fixes
+  4. Re-run build to verify
 
 ## Notes
 

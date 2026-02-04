@@ -1,5 +1,12 @@
 ---
-description: Convert a .NET solution to use Central Package Management (CPM)
+name: dotnet-centralise-packages
+description: Converts a .NET solution to use Central Package Management (CPM). Use when the user wants to centralize, consolidate, or unify NuGet package versions across projects.
+license: MIT
+metadata:
+  author: Im5tu
+  version: "1.0"
+  repositoryUrl: https://github.com/im5tu/dotnet-skills
+allowed-tools: Bash(dotnet:*) Read Glob AskUserQuestion
 ---
 
 Convert the current .NET solution to use Central Package Management, centralizing all package versions in a single `Directory.Packages.props` file.
