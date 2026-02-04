@@ -80,7 +80,7 @@ Convert existing logging calls to use the `LoggerMessage` source generator for h
 - **Requires .NET 6+** - the source generator is built into the SDK
 - **Avoids boxing** - value types are not boxed when passed to the generated methods
 - **Template parsed once** - message template is parsed at compile time, not runtime
-- **Use PascalCase for placeholders** - `{EntityType}` not `{entityType}`
+- **Use PascalCase for placeholders** - `{EntityType}` not `{entityType}` (matching is case-insensitive, but PascalCase is the recommended convention)
 - **Extension methods** - allows fluent `logger.MethodName()` syntax
 - **Partial classes** - required for source generator to emit the implementation
 

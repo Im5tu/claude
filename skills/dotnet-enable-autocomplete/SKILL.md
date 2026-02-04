@@ -15,12 +15,13 @@ Enable tab autocomplete for the `dotnet` CLI in your preferred shell.
 
 ## Steps
 
-1. **Determine .NET version**
+1. **Determine .NET version** (CRITICAL - commands differ by version)
    ```bash
    dotnet sdk check
    ```
    - Parse output to identify installed SDK versions
-   - Note whether .NET 10+ is available (uses native completions)
+   - **.NET 10+**: Uses `dotnet completions script <shell>` (native completions)
+   - **Pre-.NET 10**: Uses `dotnet complete --position` (dynamic completions)
 
 2. **Ask user which shells** they use, allowing multi-select:
    - PowerShell

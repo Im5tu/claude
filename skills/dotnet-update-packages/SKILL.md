@@ -11,6 +11,8 @@ allowed-tools: Bash(dotnet:*) Read Glob AskUserQuestion
 
 # .NET Package Updates
 
+> **Note:** This skill requires .NET 10 SDK or later. The `dotnet package update` command does not exist in .NET 8-9.
+
 ## When to Use
 
 This skill applies when the user:

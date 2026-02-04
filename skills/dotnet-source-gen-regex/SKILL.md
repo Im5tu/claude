@@ -68,7 +68,7 @@ This skill applies when the user:
 | `RegexOptions.Compiled` | Ignored by source gen - remove it |
 | .NET Version | Requires .NET 7+ |
 | Caching | Generated method caches singleton internally |
-| Timeout | Use `[GeneratedRegex("pattern", RegexOptions.None, "00:00:01")]` for timeout |
+| Timeout | Use `[GeneratedRegex("pattern", RegexOptions.None, 1000)]` for timeout (milliseconds) |
 
 ## Pattern Conversion Examples
 
