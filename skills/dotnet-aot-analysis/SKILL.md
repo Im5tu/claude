@@ -44,9 +44,10 @@ Ask user: Continue with compatible projects or abort?
 ### Step 4: Invoke Sub-Skills
 
 For each compatible project, invoke:
-1. `dotnet-source-gen-options-validation` - Options pattern AOT readiness
-2. `dotnet-source-gen-regex` - Regex AOT readiness
-3. `dotnet-source-gen-logging` - Logging AOT readiness
+1. `dotnet-source-gen-json` - JSON serialization AOT readiness (includes polymorphic types)
+2. `dotnet-source-gen-options-validation` - Options pattern AOT readiness
+3. `dotnet-source-gen-regex` - Regex AOT readiness
+4. `dotnet-source-gen-logging` - Logging AOT readiness
 
 ### Step 5: Configure AOT Settings
 
