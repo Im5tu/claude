@@ -41,16 +41,28 @@ Slash commands triggered by `/command-name`:
 
 | Command | Description |
 |---------|-------------|
-| `/dotnet-update` | List and update outdated NuGet packages |
-| `/dotnet-centralise-packages` | Convert solution to Central Package Management |
+| `/commit-all` | Review and commit all changes in logical groups |
 
 ### Skills
 
 Context-aware capabilities auto-triggered when relevant:
 
-| Skill | Triggers |
-|-------|----------|
-| `dotnet-update-packages` | Mentions of NuGet updates, outdated dependencies |
+| Skill | Purpose |
+|-------|---------|
+| `dotnet-aot-analysis` | Analyzes AOT compatibility |
+| `dotnet-centralise-packages` | Central Package Management |
+| `dotnet-enable-autocomplete` | CLI tab autocomplete |
+| `dotnet-enable-testing-platform` | New testing platform |
+| `dotnet-json-polymorphic` | Polymorphic JSON serialization |
+| `dotnet-source-gen-json` | JSON source generation |
+| `dotnet-source-gen-logging` | LoggerMessage source gen |
+| `dotnet-source-gen-options-validation` | Options validation source gen |
+| `dotnet-source-gen-regex` | Regex source generation |
+| `dotnet-update-packages` | NuGet package updates |
+
+Many skills from:
+- https://skills.sh/
+- https://github.com/Im5tu/dotnet-skills
 
 ## Usage
 
