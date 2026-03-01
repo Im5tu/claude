@@ -248,7 +248,5 @@ Recommended pages to create with priority order based on search volume.
 
 ## Related Skills
 
-- **programmatic-seo**: For building competitor pages at scale
+- **website-seo**: For SEO strategy, audits, schema markup, and programmatic page creation at scale
 - **copywriting**: For writing compelling comparison copy
-- **seo-audit**: For optimizing competitor pages
-- **schema-markup**: For FAQ and comparison schema
