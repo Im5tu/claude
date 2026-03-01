@@ -1,6 +1,6 @@
 ---
 name: dotnet-update-packages
-description: Lists and updates outdated NuGet packages in .NET projects. Use when the user mentions updating packages, checking for outdated dependencies, or upgrading package versions.
+description: Lists and updates outdated NuGet packages in .NET projects. Also use when the user mentions "update packages," "outdated NuGet," "upgrade dependencies," "dotnet package update," "check for updates," or "package versions." For centralizing package versions, see dotnet-centralise-packages.
 license: MIT
 metadata:
   author: Im5tu

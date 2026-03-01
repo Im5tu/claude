@@ -1,6 +1,6 @@
 ---
 name: dotnet-source-gen-logging
-description: Converts logging to use the LoggerMessage source generator for high-performance, AOT-compatible logging. Use when the user wants to optimize logging or organize log messages.
+description: Converts logging to use the LoggerMessage source generator for high-performance, AOT-compatible logging. Also use when the user mentions "LoggerMessage," "logging source generator," "high-performance logging," "optimize logging," "AOT logging," or "structured logging source gen." For full AOT analysis, see dotnet-aot-analysis.
 license: MIT
 metadata:
   author: Im5tu

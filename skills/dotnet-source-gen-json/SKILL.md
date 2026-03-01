@@ -1,6 +1,6 @@
 ---
 name: dotnet-source-gen-json
-description: Configures System.Text.Json source generation for AOT-compatible JSON serialization
+description: Configures System.Text.Json source generation for AOT-compatible JSON serialization. Also use when the user mentions "JSON source generator," "JsonSerializerContext," "JsonSerializable," "AOT JSON," "reflection-free JSON," or "System.Text.Json source gen." For polymorphic types, see dotnet-json-polymorphic. For full AOT analysis, see dotnet-aot-analysis.
 license: MIT
 metadata:
   author: Im5tu

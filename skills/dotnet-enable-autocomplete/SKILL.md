@@ -1,6 +1,6 @@
 ---
 name: dotnet-enable-autocomplete
-description: Enables tab autocomplete for the dotnet CLI. Use when the user wants to set up shell completion for dotnet commands.
+description: Enables tab autocomplete for the dotnet CLI. Also use when the user mentions "dotnet autocomplete," "dotnet tab completion," "CLI completion," "shell completion for dotnet," or "dotnet intellisense in terminal."
 license: MIT
 metadata:
   author: Im5tu

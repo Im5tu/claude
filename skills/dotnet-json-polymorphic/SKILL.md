@@ -1,6 +1,6 @@
 ---
 name: dotnet-json-polymorphic
-description: Configures polymorphic JSON serialization with [JsonPolymorphic] and [JsonDerivedType] attributes
+description: Configures polymorphic JSON serialization with [JsonPolymorphic] and [JsonDerivedType] attributes. Also use when the user mentions "polymorphic JSON," "JsonDerivedType," "JSON inheritance," "type discriminator," "serialize derived types," or "JSON polymorphism." For full JSON source generation, see dotnet-source-gen-json.
 license: MIT
 metadata:
   author: Im5tu

@@ -1,6 +1,6 @@
 ---
 name: dotnet-source-gen-options-validation
-description: Converts options validation to use the compile-time source generator. Use when the user wants AOT-compatible, reflection-free options validation.
+description: Converts options validation to use the compile-time source generator for AOT-compatible, reflection-free validation. Also use when the user mentions "OptionsValidator," "options validation source gen," "AOT options validation," "compile-time validation," "ValidateDataAnnotations replacement," or "reflection-free validation." For full AOT analysis, see dotnet-aot-analysis.
 license: MIT
 metadata:
   author: Im5tu

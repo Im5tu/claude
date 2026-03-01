@@ -1,6 +1,6 @@
 ---
 name: dotnet-source-gen-regex
-description: Converts Regex instances to use the compile-time source generator. Use when the user wants to optimize regex performance or enable AOT compatibility.
+description: Converts Regex instances to use the compile-time source generator. Also use when the user mentions "GeneratedRegex," "regex source generator," "compile-time regex," "AOT regex," "optimize regex," or "source-generated regex." For full AOT analysis, see dotnet-aot-analysis.
 license: MIT
 metadata:
   author: Im5tu

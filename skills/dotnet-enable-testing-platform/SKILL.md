@@ -1,6 +1,6 @@
 ---
 name: dotnet-enable-testing-platform
-description: Enables the Microsoft Testing Platform runner in global.json. Use when the user wants to enable or migrate to the new .NET testing platform.
+description: Enables the Microsoft Testing Platform runner in global.json. Also use when the user mentions "testing platform," "Microsoft.Testing.Platform," "new test runner," "migrate test runner," "global.json testing," or "modern test platform."
 license: MIT
 metadata:
   author: Im5tu

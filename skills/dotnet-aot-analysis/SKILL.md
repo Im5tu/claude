@@ -1,6 +1,6 @@
 ---
 name: dotnet-aot-analysis
-description: Analyzes and configures a .NET project or solution for Native AOT compatibility. Orchestrates source generator skills and applies AOT settings.
+description: Analyzes and configures a .NET project or solution for Native AOT compatibility. Orchestrates source generator skills and applies AOT settings. Also use when the user mentions "AOT," "native AOT," "trimming," "publish AOT," "AOT compatibility," or "ahead-of-time compilation." For specific source generators, see dotnet-source-gen-json, dotnet-source-gen-regex, dotnet-source-gen-logging.
 license: MIT
 metadata:
   author: Im5tu
