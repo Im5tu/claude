@@ -1,5 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "permissions": {
     "allow": [
       "mcp__context7__resolve-library-id",
@@ -19,7 +22,8 @@
       "Bash(find:*)",
       "Bash(rustfmt:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "plan"
   },
   "statusLine": {
     "type": "command",
@@ -27,11 +31,11 @@
   },
   "enabledPlugins": {
     "csharp-lsp@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true
+    "ralph-loop@claude-plugins-official": false
   },
   "autoUpdatesChannel": "latest",
+  "skipDangerousModePermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754386890430
   },

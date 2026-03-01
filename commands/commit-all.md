@@ -53,3 +53,4 @@ Review all pending changes and commit them in logical groups.
 - Never proceed without user approval
 - If no meaningful changes exist, report that and stop
 - If groupings are unclear, ask for clarification
+- If a file contains changes from multiple features, stage just the relevant chunks of the file rather than the whole file
