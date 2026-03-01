@@ -8,6 +8,7 @@ Personal global configuration for [Claude Code](https://claude.ai/claude-code).
 .claude/
 ├── CLAUDE.md           # Global instructions (orchestrator behavior, style, constraints)
 ├── settings.json       # Permissions, plugins, and Claude Code settings
+├── mcp-servers.json    # MCP server definitions (copy to ~/.claude.json)
 ├── agents/             # Specialized sub-agent definitions
 ├── commands/           # Slash command definitions (/command-name)
 └── skills/             # Auto-triggered skills based on context
@@ -64,8 +65,31 @@ Many skills from:
 - https://skills.sh/
 - https://github.com/Im5tu/dotnet-skills
 
+## Setup
+
+### MCP Servers
+
+The `mcp-servers.json` file contains MCP server definitions that need to be merged into your `~/.claude.json`. To install them, run each server via the Claude CLI:
+
+```cmd
+claude mcp add-json -s user sequential-thinking "{\"command\":\"cmd\",\"args\":[\"/c\",\"npx\",\"-y\",\"@modelcontextprotocol/server-sequential-thinking\"]}"
+claude mcp add-json -s user playwright "{\"command\":\"cmd\",\"args\":[\"/c\",\"npx\",\"-y\",\"@playwright/mcp@latest\"]}"
+claude mcp add-json -s user aws-knowledge-mcp-server "{\"type\":\"http\",\"url\":\"https://knowledge-mcp.global.api.aws\"}"
+claude mcp add-json -s user aws-documentation-mcp-server "{\"command\":\"cmd\",\"args\":[\"/c\",\"uvx\",\"awslabs.aws-documentation-mcp-server@latest\"],\"env\":{\"FASTMCP_LOG_LEVEL\":\"ERROR\",\"AWS_DOCUMENTATION_PARTITION\":\"aws\"}}"
+```
+
+Prerequisites:
+- Node.js / npm (for `npx`-based servers)
+- Python 3.10+ / uv (for `uvx`-based servers)
+
+Verify with:
+
+```cmd
+claude mcp list
+```
+
 ## Usage
 
-This configuration is loaded automatically by Claude Code from `~/.claude/`.
+This configuration is loaded automatically by Claude Code from `%USERPROFILE%\.claude\`.
 
 Files are applied globally across all projects unless overridden by project-specific CLAUDE.md files.
