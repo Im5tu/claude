@@ -12,7 +12,6 @@
         * Infrastructure changes
         * Public API changes
         * Data model changes
-- If unsure, use reprompt skill to gain clarity and reclassify the resulting prompt
 
 # Planning
 - Enter Planning Mode when risk is: medium or high
@@ -20,7 +19,6 @@
 - Write any decision made to the plan file after the decision is made
 - Any time a plan file is being worked on, use sequential-thinking on the plan prior to presenting it to the user
 - Skill usage:
-  * reprompt: refine initial prompt and improve/clarify scope
   * plan-feature: remove ambiguity and ensure plan completeness
 
 # Execution
