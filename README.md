@@ -95,10 +95,23 @@ Context-aware capabilities auto-triggered when relevant:
 | `plan-feature` | In-depth interview to produce a detailed feature spec |
 | `reprompt` | Restructure a prompt into Goal/Constraints/Format/Failure |
 | `using-git-worktrees` | Isolated worktrees for feature work |
+| `unslop` | Cut AI tells from any writing (vendored, see below) |
 
 Many skills from:
 - https://skills.sh/
 - https://github.com/Im5tu/dotnet-skills
+
+Vendored skills carry a `metadata.sourceUrl` in their frontmatter pointing at the
+upstream file, plus the `sourceCommit` they were taken at, so they can be refreshed:
+
+```sh
+curl -sL "$(sed -n 's/^  rawUrl: //p' skills/unslop/SKILL.md)" -o /tmp/upstream.md
+diff <(sed '1,/^---$/d;1,/^---$/d' skills/unslop/SKILL.md) \
+     <(sed '1,/^---$/d;1,/^---$/d' /tmp/upstream.md)
+```
+
+`unslop` is taken from [cursor/plugins](https://github.com/cursor/plugins) at `99559f2f`.
+That repo publishes no LICENSE file, so it carries no explicit grant of reuse.
 
 ## Setup
 
