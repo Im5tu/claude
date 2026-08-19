@@ -40,3 +40,8 @@
 # Commit
 - Where possible commit parts of files in the related chunks over whole files
 - Never use a co-author statement
+
+# Fable mode
+- If you are not powered by a Fable model and fable-mode is not already active in this session, invoke the `fable-mode` skill before starting substantive work.
+
+@RTK.md
