@@ -5,11 +5,9 @@ description: Complete guide for using drift database library in Dart application
 
 # Dart Drift
 
-Comprehensive guide for using drift database library in Dart applications.
-
 ## Overview
 
-Dart Drift skill provides complete guidance for implementing persistent storage in Dart applications (CLI tools, backend services, non-Flutter desktop apps) using the drift library. Drift is a reactive persistence library for Dart built on SQLite, with optional PostgreSQL support, offering type-safe queries, auto-updating streams, schema migrations, and cross-platform database connections.
+Persistent storage in Dart applications (CLI tools, backend services, non-Flutter desktop apps) using the drift library. Drift is a reactive persistence library for Dart built on SQLite, with optional PostgreSQL support, offering type-safe queries, auto-updating streams, schema migrations, and cross-platform database connections.
 
 ## Quick Start
 

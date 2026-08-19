@@ -68,7 +68,7 @@ Topical authority is Google's assessment of how comprehensively and expertly a s
 1. **Choose 2-3 core topics** (not 20). Authority comes from depth, not breadth
 2. **Create hub pages** for each core topic → See `content-strategy.md`
 3. **Build spoke content** covering every significant subtopic
-4. **Interlink comprehensively** — every piece in the cluster connects
+4. **Link every page in the cluster to every other** — every piece in the cluster connects
 5. **Demonstrate expertise** through first-hand experience, original data, case studies
 6. **Publish consistently** — regular cadence signals ongoing investment
 7. **Update existing content** — freshness within your topic area matters
@@ -125,7 +125,7 @@ When writing about a topic, naturally include related entities:
 - Related people: Joe Pulizzi, Ann Handley, Neil Patel
 - Related tools: HubSpot, WordPress, Semrush, Ahrefs
 
-You don't need to force these — if your content genuinely covers the topic, related entities appear naturally. If they don't, your content might not be comprehensive enough.
+You don't need to force these — if your content genuinely covers the topic, related entities appear naturally. If they don't, your content may be missing subtopics.
 
 ### Topic Modeling
 
@@ -135,7 +135,7 @@ Tools can analyze top-ranking content for entity coverage:
 - What questions do they answer?
 - Where are the gaps?
 
-Use this analysis to ensure your content covers the topic at least as comprehensively as the competition, plus adds unique value through first-hand experience.
+Use this analysis to ensure your content covers the topic covering at least the subtopics the competition covers, plus adds unique value through first-hand experience.
 
 ---
 
@@ -172,7 +172,7 @@ For YMYL content, Google applies significantly stricter quality standards. Autho
 - Contribute to industry publications, conferences, standards bodies
 
 **Authoritativeness:**
-- Build topical authority through comprehensive content coverage (see above)
+- Build topical authority through full subtopic coverage (see above)
 - Earn mentions and citations in industry publications (organic, not paid)
 - Participate in industry standards and associations
 - Get recognized by peers (awards, speaking invitations, expert quotes)
@@ -239,7 +239,7 @@ Your brand SERP is the search results page for your brand name. It's the first t
 - Push down negative results by strengthening positive presence
 - Respond professionally to negative reviews (shows transparency)
 - Address legitimate complaints publicly and constructively
-- Create comprehensive, authoritative content that earns top positions
+- Create content that covers every subtopic and earns top positions
 
 ---
 

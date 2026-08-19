@@ -7,7 +7,7 @@ description: Build adaptive and responsive Flutter UIs that work beautifully acr
 
 ## Overview
 
-Create Flutter applications that adapt gracefully to any screen size, platform, or input device. This skill provides comprehensive guidance for building responsive layouts that scale from mobile phones to large desktop displays while maintaining excellent user experience across touch, mouse, and keyboard interactions.
+Create Flutter applications that adapt to screen size, platform, and input device. Covers responsive layouts, breakpoints, and touch/mouse/keyboard input.
 
 ## Quick Reference
 
@@ -258,13 +258,9 @@ LayoutBuilder(
 - [responsive_navigation.dart](assets/responsive_navigation.dart) - NavigationBar ↔ NavigationRail switching
 - [capability_policy_example.dart](assets/capability_policy_example.dart) - Capability/Policy class examples
 
-### Scripts
-This skill currently has no executable scripts. All guidance is in reference documentation.
-
 ### Assets
 This skill includes complete Dart example files demonstrating:
 - Responsive navigation patterns
 - Capability and Policy implementation
 - Adaptive layout strategies
 
-These assets can be copied directly into your Flutter project or adapted to your needs.

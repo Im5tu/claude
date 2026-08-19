@@ -1,4 +1,4 @@
-# Claude Code Configuration
+# Claude Code configuration
 
 Personal global configuration for [Claude Code](https://claude.ai/claude-code).
 
@@ -15,7 +15,7 @@ Personal global configuration for [Claude Code](https://claude.ai/claude-code).
 ```
 
 > **Note:** MCP servers are not tracked here as a `mcp-servers.json` file; see
-> [Setup → MCP Servers](#mcp-servers) for the `claude mcp add-json` commands.
+> [Setup → MCP servers](#mcp-servers) for the `claude mcp add-json` commands.
 
 ## Components
 
@@ -56,7 +56,7 @@ Scripts referenced by `settings.json`:
 | `fable-mode-autoload.py` | `SessionStart` | Auto-activates the `fable-mode` skill when the session model is not Fable |
 
 `settings.json` also registers a `PreToolUse` hook on `Bash` that shells out to `rtk hook claude`
-(see [RTK](https://github.com/Im5tu/rtk)); `rtk` must be on `PATH` for it to be a no-op-safe.
+(see [RTK](https://github.com/Im5tu/rtk)). `rtk` must be on `PATH`.
 
 ### Skills
 
@@ -115,7 +115,7 @@ That repo publishes no LICENSE file, so it carries no explicit grant of reuse.
 
 ## Setup
 
-### MCP Servers
+### MCP servers
 
 The `mcp-servers.json` file contains MCP server definitions that need to be merged into your `~/.claude.json`. To install them, run each server via the Claude CLI:
 
@@ -154,7 +154,7 @@ mv ~/.claude/skills ~/.claude/skills.bak && ln -s ~/projects/.claude/skills ~/.c
 mv ~/.claude/agents ~/.claude/agents.bak && ln -s ~/projects/.claude/agents ~/.claude/agents
 ```
 
-**Caveat:** the symlink itself survives `git checkout`, but the *contents* do not — switching
+**Caveat:** the symlink itself survives `git checkout`, but the contents do not. Switching
 branches rewrites your live skills and agents, and any tracked file absent from the target branch
 is deleted from the working tree. Files matched by `.gitignore` (e.g. the `skills/ads/` bundle)
 are left untouched. Commit or stash before switching branches.

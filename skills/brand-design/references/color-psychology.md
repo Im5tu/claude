@@ -957,7 +957,7 @@ The following combinations should be avoided or used with significant modificati
 
 **Why it's overused:** Teal was correctly identified as a healthtech differentiator vs. blue — but then everyone did it.
 
-**Examples:** Numerous healthtech startups, telehealth platforms, wellness apps.
+**Examples:** Many healthtech startups, telehealth platforms, wellness apps.
 
 **Alternatives:**
 - Go deeper/darker with the teal — make it almost petrol/dark cyan.
@@ -973,7 +973,7 @@ The following combinations should be avoided or used with significant modificati
 
 **Why it's overused:** Linear, Vercel, and similar brands made this look iconic. Now every devtool tries to replicate it.
 
-**Examples:** Numerous devtools, "developer-first" startups, API platforms.
+**Examples:** Many devtools, "developer-first" startups, API platforms.
 
 **Alternatives:**
 - If doing monochrome + accent: choose a warm neon (amber, orange) instead of cool (green, blue, purple).

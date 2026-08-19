@@ -70,7 +70,7 @@
 
 ### 1.4 AI-Native Interface Patterns
 
-**Description:** UI paradigms born from AI-first products: streaming text responses, generative previews, skeleton-to-content transitions, conversational command bars, and adaptive interfaces that reshape based on context.
+**Description:** UI patterns from AI-first products: streaming text responses, generative previews, skeleton-to-content transitions, conversational command bars, and adaptive interfaces that reshape based on context.
 
 **Visual characteristics:**
 - Token-by-token text rendering with cursor/caret animation
@@ -269,7 +269,7 @@
 
 ### 1.13 Command Palette / Keyboard-First UI
 
-**Description:** Spotlight-style command bars (Cmd+K / Ctrl+K) as the primary navigation and action paradigm. Power users bypass menus entirely. Increasingly appearing in non-developer SaaS products.
+**Description:** Spotlight-style command bars (Cmd+K / Ctrl+K) as the primary navigation and action model. Power users bypass menus entirely. Increasingly appearing in non-developer SaaS products.
 
 **Visual characteristics:**
 - Centered modal overlay with search input

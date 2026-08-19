@@ -668,7 +668,7 @@ Mobile (<md):   Full-width inputs, larger touch targets (min 44px height)
 
 **Recommended libraries:**
 - Phosphor Fill variant (toggle from outline to filled within same library)
-- Remix Icon (Apache 2.0, comprehensive fill set)
+- Remix Icon (Apache 2.0, complete fill set)
 - Tabler Icons Filled (companion to outline set)
 
 **Usage note:** Use filled icons for active/selected states paired with outline for inactive. This outline-to-filled toggle is a strong interaction pattern for navigation items and toggles.

@@ -191,7 +191,7 @@ xcrun simctl openurl booted "myapp://product/123"
 ```
 
 ### Web
-Simply navigate to the URL in the browser.
+Navigate to the URL in the browser.
 
 ## Troubleshooting
 

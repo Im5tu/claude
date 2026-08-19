@@ -122,7 +122,7 @@ Knowledge Panels appear for entities Google recognizes in its Knowledge Graph:
 
 ### Knowledge Panel Optimization
 
-→ See `entity-seo.md` for comprehensive Knowledge Graph and entity strategy.
+→ See `entity-seo.md` for Knowledge Graph and entity strategy.
 
 **Quick wins:**
 - Ensure Organization schema is on your homepage → See `schema-structured-data.md`
@@ -191,7 +191,7 @@ The local 3-pack appears for queries with local intent ("near me", "[service] in
 - Proximity to searcher location
 - Relevance of business category to query
 
-→ See `local-seo.md` for comprehensive local SEO strategy.
+→ See `local-seo.md` for local SEO strategy.
 
 ---
 
@@ -227,7 +227,7 @@ AI Overviews (formerly SGE — Search Generative Experience) are AI-generated su
 
 Sources are primarily drawn from pages already ranking on page 1 with strong E-E-A-T signals, clear structure, and specific data points.
 
-→ See `aeo-geo.md` for comprehensive AI Overview optimization strategies, including source selection criteria and citation tactics.
+→ See `aeo-geo.md` for AI Overview optimization strategies, including source selection criteria and citation tactics.
 
 ---
 

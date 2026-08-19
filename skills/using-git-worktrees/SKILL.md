@@ -9,7 +9,7 @@ description: Use when starting feature work that needs isolation from current wo
 
 Git worktrees create isolated workspaces sharing the same repository, allowing work on multiple branches simultaneously without switching.
 
-**Core principle:** Systematic directory selection + safety verification = reliable isolation.
+**Core principle:** Pick the directory by the fixed priority order, then verify it is gitignored before creating the worktree.
 
 **Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
 

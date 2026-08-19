@@ -7,7 +7,7 @@ description: Comprehensive Flutter testing guidance covering unit tests, widget 
 
 ## Overview
 
-This skill provides comprehensive guidance for testing Flutter applications across all test types. Flutter testing falls into three categories:
+Covers unit, widget, and integration tests. Flutter testing falls into three categories:
 
 - **Unit tests** - Test individual functions, methods, or classes in isolation
 - **Widget tests** (component tests) - Test single widgets and verify UI appearance and behavior
@@ -308,7 +308,7 @@ void main() {
 
 ### Testing Plugins
 
-For comprehensive guidance on testing Flutter plugins (including native code), see [Plugin Testing Reference](references/plugin-testing.md).
+For plugin testing, including native code, (including native code), see [Plugin Testing Reference](references/plugin-testing.md).
 
 ## Common Testing Errors
 

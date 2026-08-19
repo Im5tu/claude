@@ -1,6 +1,6 @@
 # Design Patterns
 
-Common design patterns for building robust Flutter applications.
+Common design patterns for building Flutter applications.
 
 ## Command Pattern
 

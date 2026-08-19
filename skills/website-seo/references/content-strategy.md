@@ -33,7 +33,7 @@ A topic cluster organizes content around a central **hub page** (pillar page) th
 - Targets the broadest keyword in the topic ("content marketing" not "content marketing for B2B SaaS startups")
 - Updated regularly as new spoke content is published
 - Provides standalone value — useful even without reading spoke articles
-- Serves as the canonical "best page" for the primary keyword
+- Is the canonical "best page" for the primary keyword
 
 **Hub page structure:**
 1. Overview / definition section

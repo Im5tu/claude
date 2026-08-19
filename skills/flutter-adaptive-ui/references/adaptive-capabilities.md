@@ -2,7 +2,7 @@
 
 ## Design to the strengths of each device type
 
-Consider the unique strengths and weaknesses of different devices. Beyond their screen size and inputs, such as touch, mouse, keyboard, what other unique capabilities can you leverage? Flutter enables your code to run on different devices, but strong design is more than just running code. Think about what each platform does best and see if there are unique capabilities to leverage.
+Consider the unique strengths and weaknesses of different devices. Beyond their screen size and inputs, such as touch, mouse, keyboard, what other unique capabilities can you use? Flutter enables your code to run on different devices, but strong design is more than just running code. Think about what each platform does best and see if there are unique capabilities to use.
 
 Flutter's recommended pattern for handling different behavior based on these unique capabilities is to create a set of `Capability` and `Policy` classes for your app.
 
@@ -71,7 +71,7 @@ Sometimes you want your code to do something but the API doesn't exist, or maybe
 
 Those situations are similar to the policy decisions described above, but these are referred to as _capabilities_. Why separate policy classes from capabilities when the structure of the classes is similar? The Flutter team has found with productionized apps that making a logical distinction between what apps _can_ do and what they _should_ do helps larger products respond to changes in what platforms can do or require in addition to your own preferences after the initial code is written.
 
-For example, consider the case where one platform adds a new permission that requires users to interact with a system dialog before your code calls a sensitive API. Your team does the work for platform 1 and creates a capability named `requirePermissionDialogFlow`. Then, if and when platform 2 adds a similar requirement but only for new API versions, then the implementation of `requirePermissionDialogFlow` can now check the API level and return true for platform 2. You've leveraged the work you already did.
+For example, consider the case where one platform adds a new permission that requires users to interact with a system dialog before your code calls a sensitive API. Your team does the work for platform 1 and creates a capability named `requirePermissionDialogFlow`. Then, if and when platform 2 adds a similar requirement but only for new API versions, then the implementation of `requirePermissionDialogFlow` can now check the API level and return true for platform 2. You've used the work you already did.
 
 ## Policies in Detail
 

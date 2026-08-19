@@ -169,7 +169,7 @@ if (response.statusCode >= 200 && response.statusCode < 300) {
 }
 ```
 
-See [error-handling.md](references/error-handling.md) for comprehensive error handling strategies.
+See [error-handling.md](references/error-handling.md) for error handling strategies.
 
 ## Performance
 
@@ -297,7 +297,7 @@ Future<T> fetchWithRetry<T>(
 - [http-basics.md](references/http-basics.md) - Complete HTTP CRUD operations examples
 - [websockets.md](references/websockets.md) - WebSocket implementation patterns
 - [authentication.md](references/authentication.md) - Authentication strategies and token management
-- [error-handling.md](references/error-handling.md) - Comprehensive error handling patterns
+- [error-handling.md](references/error-handling.md) - Error handling patterns
 - [performance.md](references/performance.md) - Optimization techniques and best practices
 
 ### assets/examples/

@@ -5,11 +5,9 @@ description: Complete guide for using drift database library in Flutter applicat
 
 # Flutter Drift
 
-Comprehensive guide for using drift database library in Flutter applications.
-
 ## Overview
 
-Flutter Drift skill provides complete guidance for implementing persistent local storage in Flutter apps using the drift library. Drift is a reactive persistence library for Flutter built on SQLite, offering type-safe queries, auto-updating streams, schema migrations, and cross-platform support.
+Persistent local storage in Flutter apps using the drift library. Drift is a reactive persistence library for Flutter built on SQLite, offering type-safe queries, auto-updating streams, schema migrations, and cross-platform support.
 
 ## Quick Start
 

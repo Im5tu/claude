@@ -9,7 +9,7 @@ metadata:
 allowed-tools: Bash(dotnet:*) Read Glob Grep AskUserQuestion
 ---
 
-Convert existing logging calls to use the `LoggerMessage` source generator for high-performance, AOT-compatible logging with no boxing overhead and compile-time template parsing.
+Convert existing logging calls to use the `LoggerMessage` source generator for AOT-compatible logging with no boxing overhead and compile-time template parsing.
 
 ## When to Use
 

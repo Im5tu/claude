@@ -11,7 +11,7 @@ allowed-tools: Bash(dotnet:*) Read Glob AskUserQuestion
 
 Enable the Microsoft Testing Platform runner for a .NET solution by configuring `global.json`.
 
-The Microsoft Testing Platform is a modern, extensible test runner that provides improved performance, better diagnostics, and native support for parallel test execution.
+The Microsoft Testing Platform is a test runner with an in-process host and native parallel test execution.
 
 ## Steps
 

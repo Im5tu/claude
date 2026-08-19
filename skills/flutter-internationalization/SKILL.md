@@ -416,13 +416,13 @@ class DemoLocalizations {
 
 **l10n-config.md** - Complete reference for `l10n.yaml` configuration options, including output directories, code generation settings, and locale handling.
 
-**arb-format.md** - Comprehensive guide to ARB file format, covering simple messages, placeholders, plurals, selects, and metadata.
+**arb-format.md** - ARB file format: simple messages, placeholders, plurals, selects, and metadata.
 
 **number-date-formats.md** - Number and date formatting reference with format types, patterns, and locale-specific examples.
 
 ### assets/
 
-Example templates and boilerplate code can be added here for common internationalization patterns.
+
 
 ## When to Use This Skill
 

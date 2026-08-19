@@ -19,7 +19,7 @@ This file is a lookup table for psychology-informed design decisions. Each princ
 - **Category:** `visual-design`
 - **Design Application:** Invest disproportionate effort in the first visual touchpoint a user encounters — the homepage hero, the app icon, the packaging exterior. Use high-quality photography over stock images. Ensure pixel-perfect alignment, generous whitespace, and a refined color palette on landing pages. A visually premium first impression will carry forward into how users evaluate pricing, trustworthiness, and product quality, even before they read a word of copy.
 - **Archetype Affinity:**
-  - **Ruler** — Premium visual execution reinforces the Ruler's positioning as the authoritative, best-in-class choice.
+  - **Ruler** — Premium visual execution reinforces the Ruler's positioning as the authoritative, premium choice.
   - **Lover** — Aesthetic beauty is central to the Lover archetype; a polished visual identity directly amplifies desirability.
   - **Creator** — Craft and attention to detail signal the Creator's commitment to excellence and originality.
 
@@ -88,7 +88,7 @@ This file is a lookup table for psychology-informed design decisions. Each princ
 - **Archetype Affinity:**
   - **Creator** — The act of building or customizing directly engages the Creator's need for self-expression and ownership.
   - **Explorer** — Personalization and discovery-based onboarding tap into the Explorer's desire to shape their own path.
-  - **Magician** — Transformative experiences ("watch your vision come to life") leverage the Endowment Effect through the Magician's promise of personal transformation.
+  - **Magician** — Transformative experiences ("watch your vision come to life") use the Endowment Effect through the Magician's promise of personal transformation.
 
 ---
 
@@ -342,7 +342,7 @@ This file is a lookup table for psychology-informed design decisions. Each princ
 - **Source:** Horton & Wohl (1956); Dibble, Hartmann & Rosaen (2016)
 - **Definition:** People develop one-sided emotional relationships with media figures, brand founders, or content creators — feeling genuine familiarity, trust, and loyalty toward someone who does not know them personally.
 - **Category:** `copy-messaging`
-- **Design Application:** Give the brand a human face that appears consistently across touchpoints. Feature the founder or a key team member in email newsletters (with a personal sign-off and headshot), video content, social media, and key landing pages. Use a consistent personal voice — not "the team" but a named individual who writes, records, and appears repeatedly. Share personal updates, opinions, and behind-the-scenes moments from this person's perspective. Use direct-address language ("I built this because..." / "Here's what I've been thinking about..."). The parasocial relationship is strongest when the figure is relatable, consistent, and accessible (even if the accessibility is performative). Newsletter-first brands, founder-led content strategies, and personal-brand-driven companies all leverage parasocial interaction as their primary trust mechanism.
+- **Design Application:** Give the brand a human face that appears consistently across touchpoints. Feature the founder or a key team member in email newsletters (with a personal sign-off and headshot), video content, social media, and key landing pages. Use a consistent personal voice — not "the team" but a named individual who writes, records, and appears repeatedly. Share personal updates, opinions, and behind-the-scenes moments from this person's perspective. Use direct-address language ("I built this because..." / "Here's what I've been thinking about..."). The parasocial relationship is strongest when the figure is relatable, consistent, and accessible (even if the accessibility is performative). Newsletter-first brands, founder-led content strategies, and personal-brand-driven companies all rely on parasocial interaction as their primary trust mechanism.
 - **Archetype Affinity:**
   - **Sage** — A recognized expert figure who shares knowledge regularly builds powerful parasocial trust.
   - **Magician** — A visionary founder who reveals "how the magic works" creates parasocial fascination and loyalty.

@@ -186,7 +186,7 @@ Google's March 2024 spam update explicitly targets:
 - Transparent methodology
 - Up-to-date data inputs
 
-→ See `free-tool-strategy.md` for comprehensive tool strategy.
+→ See `free-tool-strategy.md` for tool strategy.
 
 **Schema:** `WebApplication` + `FAQPage`
 

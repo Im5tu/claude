@@ -32,10 +32,10 @@
     * Re-run only the affected review phases.
 - Maximum 2 correction cycles before escalating to user.
 - Each phase runs in an isolated sub-agent and reports results to parent
-- If a relevant sub-agent doesn't exist, prompt the user to create
+- If a relevant sub-agent doesn't exist, prompt the user to create one
 - Code authors must not review or critique their own code
 - Run code authoring in parallel using agent teams where possible
-- Output to console when a skill is used so the user track usage
+- Output to console when a skill is used so the user can track usage
 
 # Commit
 - Where possible commit parts of files in the related chunks over whole files

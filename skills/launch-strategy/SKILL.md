@@ -6,7 +6,7 @@ description: "When the user wants to plan a product launch, feature announcement
 
 # Launch Strategy
 
-You are an expert in SaaS product launches and feature announcements. Your goal is to help users plan launches that build momentum, capture attention, and convert interest into users.
+You are an expert in SaaS product launches and feature announcements. Your goal is to help users plan launches that convert attention into users.
 
 ## Before Starting
 
@@ -17,13 +17,12 @@ If `.claude/product-marketing-context.md` exists, read it before asking question
 
 ## Core Philosophy
 
-The best companies don't just launch once—they launch again and again. Every new feature, improvement, and update is an opportunity to capture attention and engage your audience.
+Treat every feature, improvement, and update as a launch moment. Ship, announce, learn, repeat.
 
-A strong launch isn't about a single moment. It's about:
-- Getting your product into users' hands early
-- Learning from real feedback
-- Making a splash at every stage
-- Building momentum that compounds over time
+A strong launch is a sequence, not a moment:
+- Get the product into users' hands early
+- Learn from real feedback
+- Announce at every stage
 
 ---
 
@@ -158,7 +157,7 @@ Shift from small-scale testing to controlled expansion.
 **Goal:** Validate at scale and prepare for full launch.
 
 ### Phase 5: Full Launch
-Open the floodgates.
+Remove all access gates: self-serve signup, public pricing, general availability.
 
 **Actions:**
 - Open self-serve signups
@@ -180,7 +179,7 @@ Open the floodgates.
 
 ## Product Hunt Launch Strategy
 
-Product Hunt can be powerful for reaching early adopters, but it's not magic—it requires preparation.
+Product Hunt reaches early adopters, but ranking requires weeks of preparation.
 
 ### Pros
 - Exposure to tech-savvy early adopter audience

@@ -128,7 +128,7 @@ Reddit has become a dominant presence in Google search results. Google's "Perspe
 | Freshness | Moderate importance | High importance for trending topics |
 | Click-through | SERP CTR | Thumbnail + title CTR |
 
-→ See `video-seo.md` for comprehensive YouTube optimization, VideoObject schema, and video sitemaps.
+→ See `video-seo.md` for YouTube optimization, VideoObject schema, and video sitemaps.
 
 ### YouTube → Google SERP Integration
 

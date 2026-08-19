@@ -16,7 +16,7 @@ Use `AskUserQuestion` for each question. Ask them one at a time or in small logi
 6. **Business model** — "What's your business model? (B2B / B2C / B2B2C) And where does your pricing sit? (Free/freemium, mid-market, enterprise/premium)"
 7. **Brand values** — "Give me 3-5 words that represent your brand's core values."
 8. **Brand personality** — "If your brand were a person, how would they speak? (Think: a calm professor, an energetic coach, a witty friend, a no-nonsense executive...)"
-9. **Design philosophy** — "Design philosophy preference — pick one: **Timeless** (classic, enduring, conservative evolution) or **Trend-forward** (modern, dynamic, willing to refresh more often)?"
+9. **Design philosophy** — "Design philosophy preference — pick one: **Timeless** (classic, slow to change) or **Trend-forward** (modern, dynamic, willing to refresh more often)?"
 10. **Dark mode** — "Does your product need a dark mode palette? (yes/no)"
 
 ## After Discovery

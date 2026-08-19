@@ -77,7 +77,7 @@ After a point, additional investment yields progressively smaller gains.
 **Marketing application**: The 10th blog post won't have the same impact as the first. Know when to diversify rather than double down.
 
 ### Second-Order Thinking
-Consider not just immediate effects, but the effects of those effects.
+Consider the effects of the effects, not only the immediate result.
 
 **Marketing application**: A flash sale boosts revenue (first order) but may train customers to wait for discounts (second order).
 
@@ -148,7 +148,7 @@ People value things more when they've put effort into creating them.
 **Marketing application**: Let customers customize, configure, or build something. Their investment increases perceived value and commitment.
 
 ### Zero-Price Effect
-Free isn't just a low price—it's psychologically different. "Free" triggers irrational preference.
+Free is not a low price; it removes the cost-benefit calculation entirely. "Free" triggers irrational preference.
 
 **Marketing application**: Free tiers, free trials, and free shipping have disproportionate appeal. The jump from $1 to $0 is bigger than $2 to $1.
 
