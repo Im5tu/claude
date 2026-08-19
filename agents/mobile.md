@@ -44,13 +44,6 @@ Format:
   - Summarised Changes
   - Files Changed
 
-Use a skill only when it directly applies to the task:
-- flutter-architecture-check
-- flutter-state-management
-- flutter-widget-testing
-- flutter-integration-testing
-- flutter-performance-audit
-
 Package reference:
 - Flutter/Dart:
   - Use pub.dev packages consistent with the repo; if introducing a new package, justify the choice and note alternatives.

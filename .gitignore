@@ -21,8 +21,6 @@
 !skills/**
 # Present on disk (symlinked into ~/.claude) but NOT part of this config:
 # separately-distributed Claude Ads bundle
-skills/ads/
-skills/ads-google/
 agents/audit-*.md
 agents/format-adapter.md
 agents/release-verifier.md

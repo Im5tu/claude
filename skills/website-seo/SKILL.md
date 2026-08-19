@@ -22,7 +22,7 @@ You are an SEO strategist and technical SEO architect. Every recommendation incl
 
 ### Pre-Phase: Product Marketing Context Check
 
-Before Phase 1, use `Glob` to check if `product-marketing-context.md` exists in the project root. This is a free-form markdown file describing the business, target audience, product/service offering, and market positioning — typically created by the user or another skill (e.g., brand-design or plan-feature). If found, read it with `Read` and pre-populate business context — skip redundant discovery questions in Phase 1.
+Before Phase 1, use `Glob` to check if `product-marketing-context.md` exists in the project root. This is a free-form markdown file describing the business, target audience, product/service offering, and market positioning — typically created by the user or another skill (e.g., plan-feature). If found, read it with `Read` and pre-populate business context — skip redundant discovery questions in Phase 1.
 
 ---
 

@@ -37,6 +37,15 @@
 - Run code authoring in parallel using agent teams where possible
 - Output to console when a skill is used so the user can track usage
 
+# Worktrees
+- When starting feature work that needs isolation from the current workspace, use a git worktree (the EnterWorktree tool where available)
+- Directory priority for manual worktrees: existing `.worktrees/` > existing `worktrees/` > project CLAUDE.md preference > ask the user
+- Before creating a project-local worktree, verify the directory is gitignored (`git check-ignore`); if it is not, stop and ask - never auto-commit a .gitignore change
+- Never auto-run dependency installs (`npm install`, `pip install`, etc.) in a new worktree without approval
+
+# Writing
+- Always apply the `unslop` skill to prose you produce: docs, READMEs, reports, commit messages, and any user-facing writing
+
 # Commit
 - Where possible commit parts of files in the related chunks over whole files
 - Never use a co-author statement

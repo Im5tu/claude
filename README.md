@@ -67,26 +67,13 @@ Context-aware capabilities auto-triggered when relevant:
 | `dotnet-source-gen-options-validation` | Options validation source gen |
 | `dotnet-source-gen-regex` | Regex source generation |
 | `dotnet-update-packages` | NuGet package updates |
-| `dart-drift` | drift/SQLite for non-Flutter Dart (CLI, server) |
-| `flutter-adaptive-ui` | Responsive/adaptive layouts across form factors |
-| `flutter-animations` | Implicit, explicit, hero, staggered, physics animations |
-| `flutter-architecture` | MVVM + feature-first project structure |
-| `flutter-drift` | drift/SQLite in Flutter apps |
-| `flutter-duit-bdui` | Duit backend-driven UI integration |
-| `flutter-internationalization` | gen-l10n / intl localization |
-| `flutter-navigation` | Navigator, go_router, deep linking |
-| `flutter-networking` | HTTP, WebSockets, auth, error handling |
-| `flutter-testing` | Unit, widget, and integration tests |
-| `brand-design` | Greenfield brand identity systems |
 | `competitor-alternatives` | Competitor comparison / alternative pages |
 | `copywriting` | Marketing copy for landing and product pages |
 | `launch-strategy` | Product launch and go-to-market planning |
-| `marketing-psychology` | Mental models applied to marketing |
 | `website-design` | Framework-agnostic website design system (default adapter: Astro) |
 | `website-seo` | SEO strategy, technical SEO, schema, reporting |
 | `plan-feature` | In-depth interview to produce a detailed feature spec |
 | `reprompt` | Restructure a prompt into Goal/Constraints/Format/Failure |
-| `using-git-worktrees` | Isolated worktrees for feature work |
 | `unslop` | Cut AI tells from any writing (vendored, see below) |
 
 Many skills from:

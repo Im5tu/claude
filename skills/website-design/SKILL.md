@@ -2,7 +2,7 @@
 name: website-design
 version: 5.0.0
 argument-hint: [business name]
-description: When the user wants to design and build a premium multi-page website for any business type. Framework-agnostic design system (composition rules, component specs, CSS-first animation) implemented in the project's own stack; the default adapter for greenfield builds is Astro + SolidJS + Tailwind CSS v4. Also use when the user says "website design," "design a website," "build a website," "site design," "landing page," "multi-page site," or "website pages." For brand identity without a website, see brand-design. For page copy without code, see copywriting.
+description: When the user wants to design and build a premium multi-page website for any business type. Framework-agnostic design system (composition rules, component specs, CSS-first animation) implemented in the project's own stack; the default adapter for greenfield builds is Astro + SolidJS + Tailwind CSS v4. Also use when the user says "website design," "design a website," "build a website," "site design," "landing page," "multi-page site," or "website pages." For page copy without code, see copywriting.
 allowed-tools: WebSearch, WebFetch, AskUserQuestion, Write, Read, Glob, Grep, Bash, Edit
 ---
 
