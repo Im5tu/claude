@@ -10,7 +10,6 @@ Personal global configuration for [Claude Code](https://claude.ai/claude-code).
 ├── settings.json       # Permissions, plugins, and Claude Code settings
 ├── agents/             # Specialized sub-agent definitions
 ├── commands/           # Slash command definitions (/command-name)
-├── hooks/              # Scripts invoked by settings.json hooks
 └── skills/             # Auto-triggered skills based on context
 ```
 
@@ -49,13 +48,7 @@ Slash commands triggered by `/command-name`:
 
 ### Hooks
 
-Scripts referenced by `settings.json`:
-
-| Hook | Event | Purpose |
-|------|-------|---------|
-| `fable-mode-autoload.py` | `SessionStart` | Auto-activates the `fable-mode` skill when the session model is not Fable |
-
-`settings.json` also registers a `PreToolUse` hook on `Bash` that shells out to `rtk hook claude`
+`settings.json` registers a `PreToolUse` hook on `Bash` that shells out to `rtk hook claude`
 (see [RTK](https://github.com/Im5tu/rtk)). `rtk` must be on `PATH`.
 
 ### Skills
@@ -91,7 +84,6 @@ Context-aware capabilities auto-triggered when relevant:
 | `marketing-psychology` | Mental models applied to marketing |
 | `website-design` | Astro + SolidJS + Tailwind v4 multi-page sites |
 | `website-seo` | SEO strategy, technical SEO, schema, reporting |
-| `fable-mode` | Fable-style planning, verification, and reporting habits |
 | `plan-feature` | In-depth interview to produce a detailed feature spec |
 | `reprompt` | Restructure a prompt into Goal/Constraints/Format/Failure |
 | `using-git-worktrees` | Isolated worktrees for feature work |
@@ -159,5 +151,5 @@ branches rewrites your live skills and agents, and any tracked file absent from 
 is deleted from the working tree. Files matched by `.gitignore` (e.g. the `skills/ads/` bundle)
 are left untouched. Commit or stash before switching branches.
 
-`CLAUDE.md`, `settings.json`, `commands/`, and `hooks/` are **not** symlinked and must be copied
+`CLAUDE.md`, `settings.json`, and `commands/` are **not** symlinked and must be copied
 manually after pulling.

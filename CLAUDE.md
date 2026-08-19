@@ -17,17 +17,17 @@
 - Enter Planning Mode when risk is: medium or high
 - Spawn a planning sub-agent
 - Write any decision made to the plan file after the decision is made
-- Any time a plan file is being worked on, use sequential-thinking on the plan prior to presenting it to the user
+- Any time a plan file is being worked on, think through the plan step-by-step, logically, and from first principles prior to presenting it to the user
 - Skill usage:
   * plan-feature: remove ambiguity and ensure plan completeness
 
 # Execution
 - Run in 4 phases, according to risk level:
     1. Code authoring (risks: all)
-    2. Code Review (risks: medium/high)
-    3. Security Reviewer (risks: medium/high)
+    2. Code Review (risks: medium/high) - run the built-in `/code-review` skill in an isolated sub-agent
+    3. Security Review (risks: medium/high) - run the built-in `/security-review` skill in an isolated sub-agent
     4. Test Implementation (risks: all)
-- If Code Review or Security Reviewer returns High or Critical issues:
+- If Code Review or Security Review returns High or Critical issues:
     * Route back to Code Author with required fixes.
     * Re-run only the affected review phases.
 - Maximum 2 correction cycles before escalating to user.
@@ -40,8 +40,5 @@
 # Commit
 - Where possible commit parts of files in the related chunks over whole files
 - Never use a co-author statement
-
-# Fable mode
-- If you are not powered by a Fable model and fable-mode is not already active in this session, invoke the `fable-mode` skill before starting substantive work.
 
 @RTK.md

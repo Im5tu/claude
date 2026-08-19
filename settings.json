@@ -6,11 +6,8 @@
   "permissions": {
     "defaultMode": "plan",
     "allow": [
-      "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs",
-      "mcp__sequential-thinking__sequentialthinking",
-      "mcp__aws-knowledge-mcp-server__aws___search_documentation",
-      "mcp__aws-knowledge-mcp-server__aws___read_documentation",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
       "Bash(cargo check:*)",
       "Bash(cargo test:*)",
       "Bash(cargo build:*)",
@@ -26,16 +23,6 @@
     "deny": []
   },
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/fable-mode-autoload.py"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -60,7 +47,6 @@
     "csharp-lsp@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "coderabbit@claude-plugins-official": true,
     "mcp-server-dev@claude-plugins-official": true,
     "stripe@claude-plugins-official": true
   },
