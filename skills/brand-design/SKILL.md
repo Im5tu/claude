@@ -34,7 +34,7 @@ The skill runs in four phases, then a production phase. Complete each phase full
 
 ## Phase 1: Discovery Interview
 
-Read `C:/Users/StuartBlackler/.claude/skills/brand-design/references/discovery-questions.md` for the full question set, delivery guidelines, and post-discovery summary instructions.
+Read `references/discovery-questions.md` for the full question set, delivery guidelines, and post-discovery summary instructions.
 
 Ask all 10 required questions following the delivery guidelines in the reference file. After all questions are answered, summarize and confirm before proceeding.
 
@@ -42,7 +42,7 @@ Ask all 10 required questions following the delivery guidelines in the reference
 
 ## Phase 2: Archetype Quiz
 
-Read `C:/Users/StuartBlackler/.claude/skills/brand-design/references/archetype-quiz.md` for the SaaS archetype weighting, all 7 core quiz questions, dynamic follow-up instructions, scoring methodology, and result presentation format.
+Read `references/archetype-quiz.md` for the SaaS archetype weighting, all 7 core quiz questions, dynamic follow-up instructions, scoring methodology, and result presentation format.
 
 The quiz determines which of the 12 Jungian archetypes best fits the brand. It consists of 7 fixed core questions plus 2-3 dynamic follow-ups generated from Discovery context. Do not proceed until a single archetype is committed.
 
@@ -89,7 +89,7 @@ Present the synthesis to the user. This directly informs production.
 
 ## Phase 4: Brand Compass (Confirmation Gate)
 
-Read the **Brand Compass Template** section of `C:/Users/StuartBlackler/.claude/skills/brand-design/references/production-specs.md` for the exact format and approval flow.
+Read the **Brand Compass Template** section of `references/production-specs.md` for the exact format and approval flow.
 
 Present a 1-page Brand Compass summary for user approval. This is the strategic contract — nothing gets built until explicitly approved. If the user requests changes, revise and re-present.
 
@@ -97,7 +97,7 @@ Present a 1-page Brand Compass summary for user approval. This is the strategic 
 
 ## Phase 5: Production
 
-Read `C:/Users/StuartBlackler/.claude/skills/brand-design/references/production-specs.md` for the complete production methodology, including:
+Read `references/production-specs.md` for the complete production methodology, including:
 
 - **Socratic Reasoning** — Mandatory three-stage reasoning (Theory, Framework, Application) for every file
 - **Inline Rationale Format** — Required format for documenting design decisions
@@ -126,14 +126,14 @@ Read these files during the Socratic reasoning stages. They contain the psycholo
 
 | Reference | Path | When to Use |
 |-----------|------|-------------|
-| Discovery Questions | `C:/Users/StuartBlackler/.claude/skills/brand-design/references/discovery-questions.md` | Phase 1 — interview questions, delivery guidelines, post-discovery summary |
-| Archetype Quiz | `C:/Users/StuartBlackler/.claude/skills/brand-design/references/archetype-quiz.md` | Phase 2 — quiz questions, scoring, archetype weighting |
-| Production Specs | `C:/Users/StuartBlackler/.claude/skills/brand-design/references/production-specs.md` | Phase 4 (Brand Compass template) and Phase 5 (Socratic method, rationale format, all 6 file specs) |
-| Brand Psychology | `C:/Users/StuartBlackler/.claude/skills/brand-design/references/brand-psychology.md` | Strategy and all production phases — psychology principles mapped to design |
-| Color Psychology | `C:/Users/StuartBlackler/.claude/skills/brand-design/references/color-psychology.md` | Color System production — color-emotion mappings, archetype-color associations, WCAG rules |
-| Design System Patterns | `C:/Users/StuartBlackler/.claude/skills/brand-design/references/design-system-patterns.md` | Typography, Motion, and Logo Brief — spacing, type scales, border radius, icon styles by archetype |
-| Design Trends | `C:/Users/StuartBlackler/.claude/skills/brand-design/references/design-trends.md` | ONLY when user selected "trend-forward" — current SaaS trends and anti-trends |
-| Typography | `C:/Users/StuartBlackler/.claude/skills/brand-design/references/typography.md` | Typography production — blocked fonts, evaluation criteria, pairing principles |
+| Discovery Questions | `references/discovery-questions.md` | Phase 1 — interview questions, delivery guidelines, post-discovery summary |
+| Archetype Quiz | `references/archetype-quiz.md` | Phase 2 — quiz questions, scoring, archetype weighting |
+| Production Specs | `references/production-specs.md` | Phase 4 (Brand Compass template) and Phase 5 (Socratic method, rationale format, all 6 file specs) |
+| Brand Psychology | `references/brand-psychology.md` | Strategy and all production phases — psychology principles mapped to design |
+| Color Psychology | `references/color-psychology.md` | Color System production — color-emotion mappings, archetype-color associations, WCAG rules |
+| Design System Patterns | `references/design-system-patterns.md` | Typography, Motion, and Logo Brief — spacing, type scales, border radius, icon styles by archetype |
+| Design Trends | `references/design-trends.md` | ONLY when user selected "trend-forward" — current SaaS trends and anti-trends |
+| Typography | `references/typography.md` | Typography production — blocked fonts, evaluation criteria, pairing principles |
 
 If a reference file does not exist yet, proceed using your built-in knowledge of these domains. Do not halt production for a missing reference file.
 

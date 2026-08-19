@@ -46,10 +46,10 @@ This is NOT optional. Before writing each file, reason through three stages inte
 **The three stages (from the Socratic prompting pattern):**
 
 1. **Theory** — "What makes [this element] effective for SaaS brands? What does the research say?"
-   - Consult `C:/Users/StuartBlackler/.claude/skills/brand-design/references/brand-psychology.md` for psychology principles
-   - Consult `C:/Users/StuartBlackler/.claude/skills/brand-design/references/color-psychology.md` for color decisions
-   - Consult `C:/Users/StuartBlackler/.claude/skills/brand-design/references/design-system-patterns.md` for structural patterns
-   - Consult `C:/Users/StuartBlackler/.claude/skills/brand-design/references/design-trends.md` ONLY when user chose "trend-forward"
+   - Consult `references/brand-psychology.md` for psychology principles
+   - Consult `references/color-psychology.md` for color decisions
+   - Consult `references/design-system-patterns.md` for structural patterns
+   - Consult `references/design-trends.md` ONLY when user chose "trend-forward"
 
 2. **Framework** — "What principles and archetype attributes apply to THIS brand specifically?"
    - Map the chosen archetype's attributes to concrete design implications
@@ -88,7 +88,7 @@ Contents:
 - **Brand essence:** One sentence that captures everything
 - **Positioning statement:** "For [audience] who [need], [product] is the [category] that [differentiation] because [reason to believe]"
 - **Core values expanded:** Each of the 3-5 values with a definition and behavioral example (what this value looks like in practice)
-- **Psychology strategy map:** Every relevant principle from `C:/Users/StuartBlackler/.claude/skills/brand-design/references/brand-psychology.md` mapped to a specific design or messaging decision for this brand
+- **Psychology strategy map:** Every relevant principle from `references/brand-psychology.md` mapped to a specific design or messaging decision for this brand
 - **Brand personality spectrum:** Where the brand sits on 5 axes:
   - Formal <-----> Casual
   - Serious <-----> Playful
@@ -102,7 +102,7 @@ Contents:
 
 **Socratic prompt:** "What makes color systems effective? What color psychology applies to this archetype? Now build the palette."
 
-Read `C:/Users/StuartBlackler/.claude/skills/brand-design/references/color-psychology.md` before generating.
+Read `references/color-psychology.md` before generating.
 
 Contents:
 - **Color philosophy:** Rationale tied to archetype and competitive positioning
@@ -126,8 +126,8 @@ Contents:
 
 **Socratic prompt:** "What makes typography effective for SaaS? What type psychology applies to this archetype? Now select and scale the type system."
 
-Read `C:/Users/StuartBlackler/.claude/skills/brand-design/references/design-system-patterns.md` for type scale ratios and archetype mappings.
-Read `C:/Users/StuartBlackler/.claude/skills/brand-design/references/typography.md` before generating.
+Read `references/design-system-patterns.md` for type scale ratios and archetype mappings.
+Read `references/typography.md` before generating.
 
 **CRITICAL CONSTRAINT:** Do NOT recommend any of the following overused fonts: Inter, Roboto, Open Sans, Lato, Montserrat, Poppins, Raleway, Source Sans Pro, Nunito, or Work Sans. These are the typographic equivalent of "no decision was made." Dig deeper into Google Fonts, Adobe Fonts, or independent foundries for distinctive choices that match the archetype.
 
@@ -198,7 +198,7 @@ Contents:
 
 **Socratic prompt:** "What makes motion design effective? What motion personality maps to this archetype? Now define the motion system."
 
-Read `C:/Users/StuartBlackler/.claude/skills/brand-design/references/design-system-patterns.md` for motion pattern guidance.
+Read `references/design-system-patterns.md` for motion pattern guidance.
 
 Contents:
 - **Motion philosophy:** Tied to archetype (e.g., Sage = deliberate and clear, Magician = delightful and surprising, Hero = bold and purposeful)

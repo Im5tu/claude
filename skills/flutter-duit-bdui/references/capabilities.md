@@ -1,6 +1,6 @@
 # About Duit capability-based API design
 
-Duit framework uses a capability-based architecture that allows developers to customize and extend core functionality through modular delegates. This design pattern separates concerns and provides flexibility in how different aspects of the framework are implemented.
+Duit framework uses a capability-based architecture that allows developers to customize and extend core functionality through modular delegates. The view-model layer, transport, and parsing are each swappable independently.
 
 ## Available Capabilities
 
@@ -19,7 +19,7 @@ The flutter_duit package provides a concrete implementation for each delegate:
 
 ## Creating Custom Implementations
 
-To create a custom capability implementation, simply create a class with the corresponding mixin:
+To create a custom capability implementation, create a class with the corresponding mixin:
 
 ```dart
 final class MyCustomFocusManager with FocusCapabilityDelegate {
@@ -54,12 +54,10 @@ final class MyCustomFocusManager with FocusCapabilityDelegate {
 
 ## Conclusion
 
-Duit's capability-based API provides a powerful and flexible architecture for building backend-driven UI applications. By understanding and customizing capabilities, you can:
+Customizing capabilities lets you:
 
 - Extend functionality without modifying core framework code
 - Optimize for specific use cases (mobile, web, embedded)
 - Integrate with existing systems (analytics, logging, authentication)
 - Add platform-specific features (native modules, JS execution)
 - Improve testing and debugging capabilities
-
-The modular design makes Duit adaptable to various requirements while maintaining a clean separation of concerns.

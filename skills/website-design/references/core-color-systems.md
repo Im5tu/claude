@@ -4,7 +4,7 @@
 
 ## Tailwind CSS v4 @theme Pattern
 
-Every project defines its color system in `globals.css` via Tailwind v4's `@theme` directive:
+Every project defines its color system in `global.css` via Tailwind v4's `@theme` directive:
 
 ```css
 @import "tailwindcss";
@@ -96,7 +96,7 @@ This generates Tailwind utilities like `bg-primary`, `text-accent`, `border-bord
 Use the `dark:` variant with class strategy:
 
 ```css
-/* In globals.css — define dark overrides */
+/* In global.css — define dark overrides */
 .dark {
   --color-surface-primary: #0A0A12;
   --color-surface-secondary: #14141E;
@@ -138,13 +138,13 @@ Toggle mechanism: add/remove `dark` class on `<html>` element. See `micro-intera
 
 ## Neutral Scale Generation
 
-Neutrals should have a subtle color tint — not pure gray. Derive the undertone from the **brand's color palette**, not from the preset name:
+Neutrals should have a subtle color tint — not pure gray. Derive the undertone from the **brand's color palette**, not from the direction card:
 
 - If the brand's primary colors are in the warm spectrum (reds, oranges, yellows, earth tones) → use warm neutrals (hue 30–45, amber/stone)
 - If the brand's primary colors are cool (blues, greens, blue-violets) → use cool neutrals (hue 220–240, blue/slate)
 - If the brand palette is deliberately neutral or achromatic (monochrome, black/white, minimal palette) → use balanced neutrals (hue 210–220, light blue-gray)
 
-The preset is a correlation, not the signal — a Clean SaaS brand with an earth-tone palette should use warm neutrals, not blue-slate. A Warm Artisan brand with a deliberately cool palette should use cool neutrals, not amber/stone.
+The direction is a correlation, not the signal. A cool, technical brand with an earth-tone palette should use warm neutrals, not blue-slate; a warm, texture-heavy brand with a deliberately cool palette should use cool neutrals, not amber/stone.
 
 ### Scale Structure
 
@@ -193,15 +193,15 @@ When the user provides their own hex codes:
    - `primary-dark`: -10% lightness (HSL)
 3. **Use provided accent** as `--color-accent`
 4. **Generate accent variants** the same way
-5. **Keep non-color decisions from the preset:** typography, spacing, motion, interactions. For neutrals, derive undertone from the provided primary color's temperature (warm primaries → warm neutrals; cool primaries → cool neutrals) rather than from the preset name.
-6. **Verify contrast** — if the provided colors don't meet AA contrast on the preset's surfaces, adjust the surface colors slightly
+5. **Keep non-color decisions from the direction card:** typography, spacing, motion, interactions. For neutrals, derive undertone from the provided primary color's temperature (warm primaries → warm neutrals; cool primaries → cool neutrals) rather than from the direction name.
+6. **Verify contrast** — if the provided colors don't meet AA contrast on the chosen surfaces, adjust the surface colors slightly
 7. **Generate dark mode variants** — accent may need to lighten further for dark surfaces
 
 ---
 
-## Preset Color Palette Structure
+## Color section format for the visual brief
 
-Each preset file includes a complete color section in this format:
+The visual brief's color section uses this format:
 
 ```
 ### Light Palette
@@ -216,6 +216,6 @@ Each preset file includes a complete color section in this format:
 - Shadows shift to border+glow based
 
 ### Tailwind @theme Block
-- Complete copy-pasteable CSS block for globals.css
+- Complete copy-pasteable CSS block for global.css
 - Includes both light and dark definitions
 ```

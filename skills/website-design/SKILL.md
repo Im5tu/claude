@@ -131,7 +131,7 @@ Verify neither display nor body font appears on the hard-banned list:
 Inter, Roboto, Open Sans, Lato, Montserrat, Poppins, Nunito, Raleway, Source Sans Pro, Work Sans, DM Sans, Manrope, Rubik.
 If either is banned, select an alternative before writing the brief. Do not proceed with a banned font.
 
-[Next.js font import code block]
+[Google Fonts <link> tags for BaseLayout.astro <head> (fonts.googleapis.com), or @fontsource-variable imports]
 [CSS @theme additions code block]
 
 ## Motion Constitution
@@ -416,7 +416,7 @@ Use `component-[cat]-index.md` to compare candidates, then read only the individ
 
 | Category | Index File | Components |
 |---|---|---|
-| Chrome | `@references/component-chrome-index.md` | Navbar, SidebarNav, EnhancedFooter, NoiseOverlay, GSAPProvider, Button, GlassCard, ThemeToggle, form inputs |
+| Chrome | `@references/component-chrome-index.md` | Navbar, SidebarNav, EnhancedFooter, NoiseOverlay, Button, GlassCard, ThemeToggle, form inputs |
 | Heroes | `@references/component-hero-index.md` | SplitHero, FullBleedImageHero, TypeHero, CenteredHero, SplitHeroPortrait, GradientMeshHero, BentoHero, FullBleedVideoHero |
 | Content | `@references/component-content-index.md` | BentoGrid, AlternatingRows, FeatureTabs, MagazineGrid, StackedValueProps, IconGrid |
 | Process | `@references/component-process-index.md` | NumberedSteps, HorizontalTimeline, VerticalTimeline, AccordionProcess |

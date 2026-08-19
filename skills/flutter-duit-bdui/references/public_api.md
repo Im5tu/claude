@@ -288,7 +288,7 @@ Using an **extension type** instead of a regular class allows:
 
 - **Performance:** Extension types do not create additional objects at runtime, reducing overhead
 - **Encapsulation:** Hides the internal implementation (`UIDriver`) behind a clean public API
-- **Compatibility:** Easily integrates with existing code without type changes
+- **Compatibility:** Integrates with existing code without type changes
 - **Easy Extension:** Ability to add new methods without modifying the base implementation
 
 This decision aligns with modern Dart 3.0+ practices and provides an optimal balance between performance and usability.

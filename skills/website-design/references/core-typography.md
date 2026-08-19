@@ -16,7 +16,7 @@ Simplified to a `rem + vw` expression for each step.
 
 ## Standard Type Scale
 
-Use these as CSS custom properties in every project. Define in `globals.css` inside `@theme` or `:root`.
+Use these as CSS custom properties in every project. Define in `global.css` inside `@theme` or `:root`.
 
 ```css
 :root {
@@ -202,7 +202,7 @@ If the font you selected appears on this list, choose an alternative immediately
 
 ## Font Selection Strategy
 
-When a preset's default fonts don't fit, or when a user requests a custom font, follow this decision framework.
+When the direction card's default fonts don't fit, or when a user requests a custom font, follow this decision framework.
 
 ### The Three Roles
 
@@ -216,7 +216,7 @@ Every site needs exactly three font roles. No more, no fewer.
 
 ### How to Choose Fonts
 
-**You are free to choose any Google Font that matches the brand's personality**, as long as it meets the criteria below and avoids the banned list in `anti-patterns.md`. The preset files suggest specific fonts as defaults, but these are starting points — not constraints. Pick fonts that feel right for the specific brand.
+**You are free to choose any Google Font that matches the brand's personality**, as long as it meets the criteria below and avoids the banned list in `anti-patterns.md`. The direction card suggests specific fonts as defaults, but these are starting points, not constraints. Pick fonts that feel right for the specific brand.
 
 #### Selection Criteria
 
@@ -248,7 +248,7 @@ Every site needs exactly three font roles. No more, no fewer.
 | Technical, precise, modern | Geometric sans with distinct character — not a generic system font | Clean neutral sans |
 | Editorial, literary, content | Editorial serif with optical sizing intelligence, expressive at display sizes | Neutral sans that disappears into the text |
 
-> The preset files suggest specific font pairings that implement these directions — treat them as starting points, not constraints. Any Google Font that satisfies the directional criteria above is a valid choice. The mood column correlates with brief language; it does not route to a fixed font list.
+> The direction card suggests specific font pairings that implement these directions; treat them as starting points, not constraints. Any Google Font that satisfies the directional criteria above is a valid choice. The mood column correlates with brief language; it does not route to a fixed font list.
 
 #### Pairing Principles
 

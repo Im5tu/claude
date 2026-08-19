@@ -28,7 +28,7 @@ Never use these fonts anywhere. They are overused to the point of being invisibl
 | Unstyled default HTML forms | Screams "developer built this" | Custom-styled inputs with focus glow, floating labels, validation feedback |
 | Footer with only copyright text | Wasted space, dead end | Full grid footer: brand, nav columns, social links, newsletter signup |
 | Gradient on entire headline or body text | Rainbow gradients, AI-startup purple-to-blue gradient across full headlines — overused, signals template | Apply gradient to **one accent word** within a headline using brand-palette colours at 90–135°. Full-headline gradient = banned. Single word = premium technique when used once per page. |
-| Purple-to-blue gradient backgrounds | The "AI company" cliche | Use preset's palette. If accent is purple, pair with dark surfaces, not blue gradients |
+| Purple-to-blue gradient backgrounds | The "AI company" cliche | Use the direction card's palette. If accent is purple, pair with dark surfaces, not blue gradients |
 | Perfectly round avatars in a row | Generic team section | Use rectangular photos with consistent aspect ratio, or varied sizes |
 | Wave SVG section dividers | Template marker, adds no value | Use color transitions, angled clips, or clean hard edges between sections |
 | Hero badge that says "NEW" or "AI-Powered" | Generic startup pattern | Use specific, meaningful badges ("Est. 2015", "ISO 27001", version numbers) |
@@ -155,7 +155,7 @@ Glass cards only work when they float on top of a richly coloured or blurred bac
 
 ## Composition Anti-Patterns
 
-These are structural mistakes that cause every site to look identical regardless of style preset. They are as dangerous as the visual anti-patterns above.
+These are structural mistakes that cause every site to look identical regardless of style direction. They are as dangerous as the visual anti-patterns above.
 
 | Anti-Pattern | Why It's Banned | What To Do Instead |
 |---|---|---|

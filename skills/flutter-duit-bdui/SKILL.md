@@ -3,7 +3,7 @@ name: flutter-duit-bdui
 description: Integrate Duit framework into Flutter applications including setup, driver configuration, HTTP/WebSocket transports, custom widgets, and themes. Use when integrating backend-driven UI, configuring Duit, or adding Duit to Flutter applications.
 ---
 
-# Fluttter Duit Backend-driven UI
+# Flutter Duit backend-driven UI
 
 ## Overview
 
@@ -378,7 +378,7 @@ await DuitRegistry.registerComponents([
 Use this skill when:
 
 - Integration flutter_duit library into project
-- Custom widet creation
+- Custom widget creation
 - Components registration
 - Basic framework behavior overriding via capabilities implementation
 - Need help with the framework API
@@ -387,8 +387,8 @@ Use this skill when:
 
 ### Reference Documentation
 
-- [capabilities.md](./references/capabiliteis.md) — Notes about capability-based design and core framework parts overriding
-- [troubleshooting.md](./references/troubleshooting.md) - Notes about common issues in framework integration
-- [environvent_vars.md](./references//environment_vars.md) — Notes about avalilable env variables and its usage
-- [public_api.md](./references/public_api.md) — Notes about driver public API
+- [capabilities.md](./references/capabilities.md): notes about capability-based design and core framework parts overriding
+- [troubleshooting.md](./references/troubleshooting.md): notes about common issues in framework integration
+- [environment_vars.md](./references/environment_vars.md): notes about available env variables and their usage
+- [public_api.md](./references/public_api.md): notes about driver public API
 - <https://duit.pro/docs/en> — official documentation site
