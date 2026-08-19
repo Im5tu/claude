@@ -1,175 +1,112 @@
-# StatsStrip
+# StatsStrip — `.astro`
 
-Full-bleed contrasting background with 3-4 large animated metrics. CounterTicker for all numbers. The highest-impact credibility signal on the page — it stops the scroll and lands a punch.
+3–4 large numbers with labels. Each number MUST use `CounterTicker` from `core-animation.md` — static "0+" on load is a banned pattern (the scroll timeline isn't firing).
 
-```
+## Dimensional fit
+
+- surface-depth: any
+- motion-register: moderate, expressive
+- texture-appetite: low, medium
+- type-personality: geometric-sans, editorial-display
+- notes: Only include if numbers are genuinely impressive AND attributable. "3 projects, 2 years, 100% satisfaction" is desperate — omit.
+
+## File
+
+### `src/components/sections/StatsStrip.astro`
+
+```astro
 ---
-component: StatsStrip
-category: proof
-subtype: stats-counter-strip
+import CounterTicker from "../ui/CounterTicker.astro";
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: high
-  energy-energetic: high
-visual-weight: heavy
-content-density: sparse
-trend-alignment: evergreen
-motion-profile: moderate
-
-use-when:
-  - Brand has 3-4 real, impressive metrics to show
-  - Between content sections as a visual color break
-  - Any preset — StatsStrip adapts via background color choice
-  - When the numbers themselves are a credibility signal
-
-avoid-when:
-  - You don't have real metrics (placeholder stats destroy trust)
-  - Immediately after another dark/contrasting section (needs light section before it)
-
-pairs-well-with: [AlternatingRows, NumberedSteps, LogoStrip]
-pairs-poorly-with: [FeaturedTestimonial — both are "proof" moments, choose one for rhythm]
+interface Stat { to: number; suffix?: string; label: string; caption?: string; }
+interface Props { stats: Stat[]; kicker?: string; }
+const { stats, kicker } = Astro.props;
 ---
+<section class="ss">
+  {kicker && <p class="ss__kicker">{kicker}</p>}
+  <ul class="ss__row">
+    {stats.map((s, i) => (
+      <li style={`--i: ${i};`}>
+        <p class="ss__value">
+          <CounterTicker to={s.to} suffix={s.suffix ?? ""} />
+        </p>
+        <p class="ss__label">{s.label}</p>
+        {s.caption && <p class="ss__caption">{s.caption}</p>}
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .ss { max-width: 80rem; margin: 0 auto; padding: 4rem 1.5rem; }
+  .ss__kicker {
+    font-family: var(--font-mono);
+    font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--color-secondary);
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .ss__row {
+    list-style: none; padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+  @media (min-width: 640px) { .ss__row { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .ss__row { grid-template-columns: repeat(var(--cols, 4), 1fr); } }
+
+  .ss__row li {
+    opacity: 0; translate: 0 12px;
+    animation: ss-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 100ms);
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+  .ss__value {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-accent);
+  }
+  .ss__label {
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-top: 0.75rem;
+  }
+  .ss__caption {
+    font-size: 0.75rem;
+    opacity: 0.5;
+    margin-top: 0.25rem;
+    max-width: 22ch;
+    margin-inline: auto;
+  }
+
+  @keyframes ss-in { to { opacity: 1; translate: 0 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .ss__row li { animation: none; opacity: 1; translate: 0 0; }
+  }
+</style>
 ```
 
-> **CounterTicker rules for StatsStrip:**
-> - Each stat uses `<CounterTicker>` for the animated number
-> - Initial HTML renders the real target value (if GSAP fails, the number still shows)
-> - CounterTicker manages its own ScrollTrigger — do NOT wrap in `<ScrollReveal>`
-> - Wrap the ENTIRE section in a scroll-aware container (see implementation below)
+## Usage
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
-import { CounterTicker } from "@/components/animations/counter-ticker";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface Stat {
-  value: number;
-  /** e.g. "+" or "%" */
-  suffix?: string;
-  /** e.g. "$" or "£" */
-  prefix?: string;
-  label: string;
-  /** Optional context line — e.g. "and growing" */
-  sublabel?: string;
-}
-
-interface StatsStripProps {
-  stats: Stat[];
-  /** Section label above stats */
-  eyebrow?: string;
-  /** Background style — defaults to "dark" (bg-primary) */
-  variant?: "dark" | "accent" | "surface";
-}
-
-const variantClasses = {
-  dark: "bg-primary",
-  accent: "bg-accent",
-  surface: "bg-surface-secondary",
-};
-
-const textClasses = {
-  dark: { headline: "text-white", label: "text-white/60", eyebrow: "text-white/40" },
-  accent: { headline: "text-white", label: "text-white/70", eyebrow: "text-white/50" },
-  surface: { headline: "text-primary", label: "text-secondary", eyebrow: "text-accent" },
-};
-
-export function StatsStrip({ stats, eyebrow, variant = "dark" }: StatsStripProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    // Eyebrow and stat labels fade in (CounterTicker handles its own animation)
-    const labels = ref.current.querySelectorAll("[data-stat-label]");
-    gsap.set(labels, { y: 16, opacity: 0 });
-    gsap.to(labels, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.08,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  const colors = textClasses[variant];
-
-  return (
-    <section ref={ref} className={`py-14 lg:py-20 ${variantClasses[variant]}`}>
-      <div className="mx-auto max-w-7xl px-6">
-        {eyebrow && (
-          <p
-            data-stat-label
-            className={`text-center text-caption font-semibold tracking-widest uppercase mb-10 ${colors.eyebrow}`}
-          >
-            {eyebrow}
-          </p>
-        )}
-
-        {/* Stats grid — CounterTicker is self-contained, do not nest in ScrollReveal */}
-        <div
-          className={`grid grid-cols-2 gap-10 lg:grid-cols-${Math.min(stats.length, 4)} lg:gap-0 lg:divide-x lg:divide-white/10`}
-        >
-          {stats.map((stat, i) => (
-            <div key={i} className="text-center lg:px-12">
-              {/* Animated number — CounterTicker manages its own ScrollTrigger */}
-              <div
-                className={`font-display font-bold leading-none tracking-tight ${colors.headline}`}
-                style={{ fontSize: "clamp(2.5rem, 5vw, 5rem)" }}
-              >
-                <CounterTicker
-                  target={stat.value}
-                  prefix={stat.prefix}
-                  suffix={stat.suffix}
-                  duration={1.4}
-                />
-              </div>
-
-              <p
-                data-stat-label
-                className={`mt-3 text-body-sm font-medium ${colors.label}`}
-              >
-                {stat.label}
-              </p>
-              {stat.sublabel && (
-                <p
-                  data-stat-label
-                  className={`mt-1 text-caption ${colors.eyebrow}`}
-                >
-                  {stat.sublabel}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-```
-
-**Usage:**
-```tsx
+```astro
 <StatsStrip
-  eyebrow="Trusted at scale"
-  variant="dark"
+  kicker="By the numbers"
   stats={[
-    { value: 500, suffix: "+", label: "Clients served", sublabel: "across 18 countries" },
-    { value: 98, suffix: "%", label: "Retention rate" },
-    { value: 2, prefix: "$", suffix: "B+", label: "Assets managed" },
-    { value: 15, label: "Years in practice" },
+    { to: 47, suffix: "m", label: "Lines of code reviewed", caption: "since 2019" },
+    { to: 99, suffix: ".99%", label: "Platform uptime", caption: "last 24 months" },
+    { to: 312, label: "Pull requests shipped", caption: "this quarter" },
+    { to: 8, label: "People in the studio" },
   ]}
 />
 ```
+
+## Rules
+
+- Every number must animate via `CounterTicker`. Static rendering is banned.
+- Captions are optional but useful — they contextualise the number ("since 2019", "last 24 months").

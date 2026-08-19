@@ -1,160 +1,109 @@
-# GradientMeshHero
+# GradientMeshHero — `.astro`
 
-Clean SaaS dark hero with an animated gradient mesh background. Centered or split layout. Glass card overlay for form, CTA widget, or social proof. Use when the product or lead form should share attention with the headline.
+Hero layered over the `GradientMesh` background. The mesh carries atmosphere; the headline carries the message. Pure `.astro`.
 
-```
+## Dimensional fit
+
+- surface-depth: dark (default), light (pale tints)
+- motion-register: moderate, expressive (the mesh movement is the motion)
+- texture-appetite: low
+- type-personality: geometric-sans, editorial-display
+- notes: Do NOT combine with FullBleedVideoHero or FullBleedImageHero — one atmospheric hero per page.
+
+## File
+
+### `src/components/sections/GradientMeshHero.astro`
+
+```astro
 ---
-component: GradientMeshHero
-category: heroes
-subtype: gradient-mesh-saas
+import GradientMesh from "./GradientMesh.astro";
+import HeroButton from "../ui/HeroButton.astro";
+import Button from "../ui/Button.astro";
 
-dimension-fit:
-  contrast-dark: medium
-  contrast-light: high
-  energy-restrained: low
-  energy-moderate: high
-  energy-energetic: medium
-  motion-minimal: low
-  motion-moderate: high
-  motion-expressive: low
-  # escape (energy-restrained + texture-high): digitally-native artisan product (craft courses, online education) where lead-gen in the hero is essential; mesh colors must be drawn exclusively from warm earth tones
-  # escape (energy-restrained + editorial): editorial product requiring a lead-gen form (newsletter, waitlist) with gradient reduced to a single barely-perceptible tone shift — not a color showcase
-
-visual-weight: medium
-content-density: rich
-trend-alignment: trending
-motion-profile: moderate
-
-use-when:
-  - SaaS product that needs a lead-gen form in the hero
-  - Brand wants visual energy without a photograph
-  - Dark or deep-toned hero that still feels technical and credible
-  - When a glass-card CTA needs a rich background to read against
-
-avoid-when:
-  - Warm Artisan — mesh reads as cold and digital
-  - Editorial Minimal — too much visual noise for a type-first approach
-  - When the hero already has a strong photograph (pick FullBleedImageHero instead)
-
-pairs-well-with: [LogoStrip, FeatureTabs, StatsStrip]
-pairs-poorly-with: [FullBleedImageHero, TypeHero — competing visual treatments in adjacent sections]
----
-```
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { EASE, DURATION, STAGGER } from "@/lib/animations";
-import { GradientMesh } from "@/components/animations/gradient-mesh";
-import { GlassCard } from "@/components/ui/glass-card";
-
-interface GradientMeshHeroProps {
-  badge?: string;
+interface Props {
+  eyebrow?: string;
   headline: string;
-  subline: string;
-  /** Colors for the three mesh orbs — derive from preset palette */
-  meshColors: [string, string, string];
-  /** Content rendered inside the glass card (form, CTA widget, social proof) */
-  cardContent: React.ReactNode;
-  /** Label above the card */
-  cardLabel?: string;
+  sub: string;
+  primary: { label: string; href: string };
+  secondary?: { label: string; href: string };
+  meshColors?: { a: string; b: string; c: string };
 }
+const { eyebrow, headline, sub, primary, secondary, meshColors } = Astro.props;
+---
+<section class="gmh">
+  <GradientMesh
+    colorA={meshColors?.a}
+    colorB={meshColors?.b}
+    colorC={meshColors?.c}
+  />
+  <div class="gmh__inner">
+    {eyebrow && <p class="gmh__eyebrow" data-i="0">{eyebrow}</p>}
+    <h1 class="gmh__headline" data-i="1">{headline}</h1>
+    <p class="gmh__sub" data-i="2">{sub}</p>
+    <div class="gmh__cta" data-i="3">
+      <HeroButton href={primary.href}>{primary.label}</HeroButton>
+      {secondary && <Button variant="ghost" as="a" href={secondary.href}>{secondary.label}</Button>}
+    </div>
+  </div>
+</section>
 
-export function GradientMeshHero({
-  badge,
-  headline,
-  subline,
-  meshColors,
-  cardContent,
-  cardLabel,
-}: GradientMeshHeroProps) {
-  const ref = useRef<HTMLElement>(null);
+<style>
+  .gmh {
+    position: relative;
+    min-height: 88vh;
+    display: grid;
+    place-items: center;
+    padding: 7rem 1.5rem 4rem;
+    overflow: hidden;
+    background: var(--color-surface-dark, #0A0A0A);
+    color: var(--color-primary-on-dark, #F5F5F5);
+  }
+  .gmh__inner {
+    position: relative; z-index: 2;
+    max-width: 64rem; text-align: center;
+  }
+  .gmh__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .gmh__headline {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 7.5vw, 6rem);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+    margin-top: 1.25rem;
+    text-wrap: balance;
+  }
+  .gmh__sub {
+    max-width: 52ch;
+    margin: 1.5rem auto 0;
+    opacity: 0.82;
+  }
+  .gmh__cta { display: inline-flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; justify-content: center; }
 
-  useGSAP(() => {
-    if (!ref.current) return;
-    const items = ref.current.querySelectorAll("[data-animate]");
-    gsap.set(items, { y: 24, opacity: 0 });
-    gsap.to(items, {
-      y: 0,
-      opacity: 1,
-      duration: DURATION.moderate,
-      stagger: STAGGER.normal,
-      ease: EASE.enter,
-      delay: 0.2,
-    });
-  }, { scope: ref });
-
-  return (
-    <section
-      ref={ref}
-      id="hero"
-      className="relative min-h-screen flex items-center bg-neutral-950 overflow-hidden"
-    >
-      {/* Animated gradient mesh — pure atmosphere */}
-      <GradientMesh colors={meshColors} />
-
-      {/* Content */}
-      <div className="relative z-10 mx-auto max-w-7xl w-full px-6 grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20 items-center pt-32 pb-16 lg:pt-40 lg:pb-24">
-        {/* Left: Text */}
-        <div>
-          {badge && (
-            <span
-              data-animate
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-4 py-1.5 text-caption font-semibold text-white/70 tracking-widest uppercase"
-            >
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-              {badge}
-            </span>
-          )}
-          <h1
-            data-animate
-            className="mt-6 font-display font-bold text-display-xl leading-[1.05] tracking-tight text-white max-w-[22ch]"
-          >
-            {headline}
-          </h1>
-          <p
-            data-animate
-            className="mt-6 text-body-lg text-white/60 max-w-[46ch] leading-relaxed"
-          >
-            {subline}
-          </p>
-        </div>
-
-        {/* Right: Glass card with form/CTA */}
-        <div data-animate>
-          {cardLabel && (
-            <p className="mb-4 text-caption font-semibold text-white/40 tracking-widest uppercase">
-              {cardLabel}
-            </p>
-          )}
-          <GlassCard className="p-8" theme="dark">
-            {cardContent}
-          </GlassCard>
-        </div>
-      </div>
-    </section>
-  );
-}
+  [data-i] {
+    opacity: 0; translate: 0 16px;
+    animation: gmh-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--d, 0) * 120ms);
+  }
+  [data-i="0"] { --d: 0; } [data-i="1"] { --d: 1; }
+  [data-i="2"] { --d: 2; } [data-i="3"] { --d: 3; }
+  @keyframes gmh-in { to { opacity: 1; translate: 0 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-i] { animation: none; opacity: 1; translate: 0 0; }
+  }
+</style>
 ```
 
-**Usage:**
-```tsx
+## Usage
+
+```astro
 <GradientMeshHero
-  badge="Now in beta"
-  headline="Financial clarity starts here."
-  subline="Automated reporting that turns complex data into decisions your whole team understands."
-  meshColors={["#0D3B2E", "#1A5C42", "#0A2A1E"]}
-  cardLabel="Start free — no credit card"
-  cardContent={
-    <form className="space-y-4">
-      <input type="email" placeholder="Work email" className="w-full rounded-lg border border-white/15 bg-white/8 px-4 py-3 text-white placeholder:text-white/30 outline-none focus:border-accent" />
-      <button type="submit" className="w-full rounded-lg bg-accent py-3 text-body-sm font-semibold text-white hover:bg-accent-light transition-colors">
-        Get early access
-      </button>
-      <p className="text-center text-caption text-white/35">Join 2,400 teams already on the waitlist</p>
-    </form>
-  }
+  eyebrow="Halcyon · Infrastructure"
+  headline="Boring, by engineering."
+  sub="We operate the parts of your stack that you want to forget exist. No dashboards, no status pages, no drama."
+  primary={{ label: "See the approach", href: "/how" }}
+  secondary={{ label: "Talk to an engineer", href: "/contact" }}
 />
 ```

@@ -6,29 +6,45 @@ A card or element that tilts in 3D space in response to cursor position, creatin
 Container setup: `perspective: 1000–1200px` on the parent element. The card receives `rotateX` and `rotateY` transforms calculated from the cursor's position relative to the element's centre. Maximum rotation: 10–15 degrees. Above 15 degrees, content distorts and reads as a tech demo rather than a physical simulation.
 
 ## Implementation
-GSAP `quickTo` for performance-safe cursor tracking:
 
-```js
-const card = document.querySelector('.tilt-card');
-const xTo = gsap.quickTo(card, 'rotateY', { duration: 0.3, ease: 'power3' });
-const yTo = gsap.quickTo(card, 'rotateX', { duration: 0.3, ease: 'power3' });
+Tiny SolidJS island (`client:visible`) driving two CSS custom properties (`--rx`, `--ry`) — CSS transitions handle the interpolation.
 
-card.addEventListener('mousemove', (e) => {
-  const rect = card.getBoundingClientRect();
-  const x = (e.clientX - rect.left) / rect.width - 0.5;  // -0.5 to 0.5
-  const y = (e.clientY - rect.top) / rect.height - 0.5;   // -0.5 to 0.5
-  xTo(x * 15);   // max 15 degrees
-  yTo(-y * 15);  // inverted Y for natural feel
-});
-
-card.addEventListener('mouseleave', () => {
-  gsap.to(card, {
-    rotateX: 0,
-    rotateY: 0,
-    duration: 0.6,
-    ease: 'elastic.out(1, 0.5)'  // satisfying spring-back
+```tsx
+// src/components/islands/TiltCard.tsx
+import { onMount, onCleanup, type JSX } from "solid-js";
+export default function TiltCard(props: { children: JSX.Element }) {
+  let el: HTMLDivElement | undefined;
+  onMount(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const onMove = (e: PointerEvent) => {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      el.style.setProperty("--rx", `${-y * 15}deg`);
+      el.style.setProperty("--ry", `${ x * 15}deg`);
+    };
+    const onLeave = () => {
+      el!.style.setProperty("--rx", "0deg");
+      el!.style.setProperty("--ry", "0deg");
+    };
+    el!.addEventListener("pointermove", onMove);
+    el!.addEventListener("pointerleave", onLeave);
+    onCleanup(() => { el!.removeEventListener("pointermove", onMove); el!.removeEventListener("pointerleave", onLeave); });
   });
-});
+  return <div ref={el} class="tilt-card">{props.children}</div>;
+}
+```
+
+```css
+.tilt-card {
+  transform-style: preserve-3d;
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tilt-card { transform: none; transition: none; }
+}
 ```
 
 Inner elements use `translateZ` for layered depth, reinforcing the 3D illusion:

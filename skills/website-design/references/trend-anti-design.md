@@ -4,50 +4,45 @@
 Total removal of conventional page structure — the website IS the experience, with no pretense of being an informational document. Core pattern: cursor-as-unwind interaction where the mouse cursor literally reveals or unwinds the website as it moves across the surface. Alternative patterns: TikTok-feed browsing (vertical swipe/click through content sequentially, no section navigation); visuals-on-sides with detail-on-click (portrait-orientation feel on desktop, images flanking a click-to-reveal center); scroll-controlled narrative where the user has no sense of being on a "website" versus in an experience. Requires full creative conviction — partial execution reads as broken UX, not intentional art direction. The defining characteristic: if you could describe the page with the word "site," the anti-design is incomplete.
 
 ## Implementation
+
+Inside a **SolidJS island** hydrated `client:load` (this is the page — must be immediate). Pattern for the cursor-reveal:
+
 ```tsx
-// Cursor-as-reveal (cursor unmasks content from darkness)
-"use client";
-export function CursorReveal({ children }: { children: React.ReactNode }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const handleMove = (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      el.style.setProperty("--cursor-x", `${x}%`);
-      el.style.setProperty("--cursor-y", `${y}%`);
+// src/components/islands/CursorReveal.tsx
+import { onMount, onCleanup, children as slots, type JSX } from "solid-js";
+export default function CursorReveal(props: { children: JSX.Element }) {
+  let el: HTMLDivElement | undefined;
+  onMount(() => {
+    const onMove = (e: PointerEvent) => {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--cx", `${((e.clientX - r.left) / r.width) * 100}%`);
+      el.style.setProperty("--cy", `${((e.clientY - r.top) / r.height) * 100}%`);
     };
-
-    el.addEventListener("mousemove", handleMove);
-    return () => el.removeEventListener("mousemove", handleMove);
-  }, []);
-
+    el!.addEventListener("pointermove", onMove);
+    onCleanup(() => el!.removeEventListener("pointermove", onMove));
+  });
   return (
-    <div
-      ref={containerRef}
-      className="relative min-h-screen bg-black"
-      style={{
-        WebkitMaskImage: "radial-gradient(circle 200px at var(--cursor-x, 50%) var(--cursor-y, 50%), black 0%, transparent 100%)",
-        maskImage: "radial-gradient(circle 200px at var(--cursor-x, 50%) var(--cursor-y, 50%), black 0%, transparent 100%)",
-      }}
-    >
-      {children}
+    <div ref={el} class="cr" style="--cx: 50%; --cy: 50%;">
+      {props.children}
     </div>
   );
 }
-
-// TikTok-feed navigation
-const [currentIndex, setCurrentIndex] = useState(0);
-// Wheel event for desktop, touch for mobile
-const handleWheel = (e: WheelEvent) => {
-  if (e.deltaY > 0) setCurrentIndex(i => Math.min(i + 1, items.length - 1));
-  else setCurrentIndex(i => Math.max(i - 1, 0));
-};
 ```
+
+CSS drives the mask:
+
+```css
+.cr {
+  min-height: 100svh; background: #000;
+  mask-image: radial-gradient(circle 220px at var(--cx) var(--cy), black 0%, transparent 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cr { mask-image: none; }
+}
+```
+
+TikTok-feed navigation: Solid `createSignal(currentIndex)` + pointer/wheel listener in `onMount`. Same island pattern.
 
 ## Premium Signals
 - The anti-design mechanic rewards exploration — users who spend time with it discover content or interactions that visitors who leave quickly never see. The depth of the experience scales with engagement.

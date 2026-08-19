@@ -1,161 +1,107 @@
-# MarqueeScroller
+# MarqueeScroller — `.astro`
 
-Continuously scrolling horizontal ticker — CSS-only, no GSAP. Use for large display-type text scrolling left (editorial statement) or logo strips (social proof). The element set is duplicated so the loop is perfectly seamless.
+Continuously scrolling horizontal ticker. Pure CSS, no JS, no GSAP. Duplicates the inner track so the loop is seamless.
 
-```markdown
+## Dimensional fit
+
+- surface-depth: any
+- motion-register: moderate, expressive (not restrained)
+- texture-appetite: any
+- type-personality: editorial-display for statement marquees; any for logo strips
+- notes: Two common uses — display-type statement ("Independent · since 2015 · ") and logo strips.
+
+## File
+
+### `src/components/sections/MarqueeScroller.astro`
+
+```astro
 ---
-component: MarqueeScroller
-category: interactive
-subtype: css-marquee
-
-dimension-fit:
-  contrast-dark: high
-  contrast-light: medium
-  energy-restrained: medium
-  energy-moderate: medium
-  energy-energetic: high
-visual-weight: medium
-content-density: sparse
-trend-alignment: trending
-motion-profile: minimal
-
-use-when:
-  - Social proof logo strip (replaces static logo grid when motion budget allows)
-  - Bold typographic statement repeated horizontally for editorial sections
-  - Interstitial section break between two content sections
-
-avoid-when:
-  - refined-professional (BANNED — playful motion undermines authority)
-  - Content must be read carefully (marquee speed makes sustained reading difficult)
-  - More than 8 logos (visual density becomes overwhelming at scroll speed)
-
-pairs-well-with: [StickyCardStack, Manifesto, WaveformPulse]
-pairs-poorly-with: [TelemetryFeed, GradientMesh]
----
-```
-
-```tsx
-// MarqueeScroller — CSS infinite scroll, no GSAP
-// Text marquee: large display type, ideal as editorial section divider
-// Logo marquee: grayscale logos, social proof treatment
-// Items duplicated to create seamless infinite loop
-
-interface MarqueeScrollerProps {
-  items: string[] | { src: string; alt: string }[];
-  speed?: "slow" | "medium" | "fast";
+interface Props {
   direction?: "left" | "right";
-  type?: "text" | "logos";
-  className?: string;
+  duration?: number;     // seconds for one full loop
+  pauseOnHover?: boolean;
+  class?: string;
 }
-
-const speedMap = {
-  slow: "40s",
-  medium: "25s",
-  fast: "15s",
-};
-
-export function MarqueeScroller({
-  items,
-  speed = "medium",
+const {
   direction = "left",
-  type = "text",
-  className,
-}: MarqueeScrollerProps) {
-  const duration = speedMap[speed];
-  const animationName = direction === "left" ? "marquee-left" : "marquee-right";
-
-  // Duplicate items for seamless loop
-  const doubled = [...items, ...items] as typeof items;
-
-  return (
-    <>
-      {/* Keyframe injection — Tailwind v4 arbitrary keyframes */}
-      <style>{`
-        @keyframes marquee-left {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
-        }
-        @keyframes marquee-right {
-          from { transform: translateX(-50%); }
-          to   { transform: translateX(0); }
-        }
-      `}</style>
-
-      <div
-        className={`overflow-hidden ${className ?? ""}`}
-        aria-label={type === "logos" ? "Trusted by these companies" : undefined}
-        role={type === "logos" ? "region" : undefined}
-      >
-        <div
-          className="flex whitespace-nowrap will-change-transform"
-          style={{
-            animation: `${animationName} ${duration} linear infinite`,
-          }}
-        >
-          {doubled.map((item, i) => {
-            const isLogo = typeof item === "object" && "src" in item;
-
-            if (isLogo) {
-              const logo = item as { src: string; alt: string };
-              return (
-                <div
-                  key={i}
-                  className="mx-8 flex shrink-0 items-center"
-                  aria-hidden={i >= items.length}
-                >
-                  <img
-                    src={logo.src}
-                    alt={logo.alt}
-                    className="h-7 object-contain grayscale opacity-50 transition-opacity hover:opacity-80"
-                    height={28}
-                  />
-                </div>
-              );
-            }
-
-            return (
-              <span
-                key={i}
-                className="mx-6 shrink-0 font-display font-bold text-display-xl tracking-tight text-primary"
-                aria-hidden={i >= items.length}
-              >
-                {item as string}
-                <span className="mx-6 text-accent" aria-hidden="true">*</span>
-              </span>
-            );
-          })}
-        </div>
-      </div>
-    </>
-  );
-}
-```
-
-**Text marquee usage (editorial statement):**
-```tsx
-<div className="py-12 border-y border-border overflow-hidden">
-  <MarqueeScroller
-    type="text"
-    items={["Brand Strategy", "Web Design", "Identity Systems", "Digital Products"]}
-    speed="slow"
-    direction="left"
-  />
+  duration = 40,
+  pauseOnHover = false,
+  class: className = "",
+} = Astro.props;
+---
+<div class:list={["marquee", className]} style={`--dur: ${duration}s;`} data-dir={direction} data-pause-hover={pauseOnHover}>
+  <div class="marquee__track">
+    <div class="marquee__group"><slot /></div>
+    <div class="marquee__group" aria-hidden="true"><slot /></div>
+  </div>
 </div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  }
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee-left var(--dur, 40s) linear infinite;
+  }
+  .marquee[data-dir="right"] .marquee__track { animation-name: marquee-right; }
+  .marquee[data-pause-hover="true"]:hover .marquee__track { animation-play-state: paused; }
+  .marquee__group {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    padding-right: 3rem;
+    flex-shrink: 0;
+  }
+
+  @keyframes marquee-left {
+    from { translate: 0 0; }
+    to   { translate: -50% 0; }
+  }
+  @keyframes marquee-right {
+    from { translate: -50% 0; }
+    to   { translate: 0 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track { animation: none; }
+  }
+</style>
 ```
 
-**Logo marquee usage (social proof):**
-```tsx
-<section className="py-12">
-  <p className="text-center text-xs uppercase tracking-widest text-disabled mb-8">
-    Trusted by leading teams
-  </p>
-  <MarqueeScroller
-    type="logos"
-    items={[
-      { src: "/logos/acme.svg", alt: "Acme Corp" },
-      { src: "/logos/globex.svg", alt: "Globex" },
-    ]}
-    speed="slow"
-  />
-</section>
+## Usage
+
+Statement marquee:
+
+```astro
+<MarqueeScroller duration={30}>
+  <span class="text-8xl font-display tracking-tight">Independent · since 2015 ·</span>
+</MarqueeScroller>
 ```
+
+Logo strip:
+
+```astro
+<MarqueeScroller duration={50}>
+  <img src="/logos/apex.svg" alt="Apex" height="32" />
+  <img src="/logos/meridian.svg" alt="Meridian" height="32" />
+  <img src="/logos/atlas.svg" alt="Atlas" height="32" />
+  <img src="/logos/halcyon.svg" alt="Halcyon" height="32" />
+</MarqueeScroller>
+```
+
+## Props
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `direction` | `"left" \| "right"` | `"left"` | |
+| `duration` | `number` | `40` | Seconds per full loop |
+| `pauseOnHover` | `boolean` | `false` | Respect mobile — pause doesn't apply on touch |
+
+## Notes
+
+- Group duplication is required for a seamless loop — never render just one group.
+- The mask-image fade prevents harsh clipping at the edges.
+- Logo images must be real SVG/PNG — plain text company names are banned by `core-anti-patterns.md`.

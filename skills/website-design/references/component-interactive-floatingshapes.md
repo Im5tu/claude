@@ -1,159 +1,94 @@
-# FloatingShapes
+# FloatingShapes — `.astro`
 
-Abstract geometric shapes that drift slowly and respond to scroll parallax. Use sparingly as background decoration — 3 to 5 shapes maximum. Shapes should not compete with content.
+Abstract blurred shapes that drift on scroll. Decorative-only. Maximum 3–5 per page — more and they become visual noise. Pure CSS; each shape is a positioned circle with `filter: blur(...)` and scroll-driven translate via `animation-timeline: scroll(root)`.
 
-```markdown
+## Dimensional fit
+
+- surface-depth: any
+- motion-register: moderate, expressive (skip on strict restrained)
+- texture-appetite: low / medium
+- type-personality: any
+- notes: Do NOT compete with hero typography. Keep opacity under 30%.
+
+## File
+
+### `src/components/sections/FloatingShapes.astro`
+
+```astro
 ---
-component: FloatingShapes
-category: interactive
-subtype: geometric-parallax
-
-dimension-fit:
-  contrast-dark: high
-  contrast-light: medium
-  energy-restrained: medium
-  energy-moderate: medium
-  energy-energetic: high
-visual-weight: light
-content-density: sparse
-trend-alignment: evergreen
-motion-profile: minimal
-
-use-when:
-  - Hero section needs visual texture without photography
-  - Bold or clean-saas section needs subtle kinetic depth
-  - Maximum 5 shapes — any more creates visual noise
-
-avoid-when:
-  - refined-professional (BANNED — too abstract for measured authority)
-  - warm-artisan (BANNED — geometric shapes conflict with organic feel)
-  - editorial-minimal (BANNED — competes with typography-as-design)
-  - Section already has GradientMesh (redundant layers)
-
-pairs-well-with: [GradientMesh, WaveformPulse]
-pairs-poorly-with: [CardShuffler, TelemetryFeed]
----
-```
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
-
 interface Shape {
-  type: "circle" | "square" | "triangle";
-  size: number;
-  x: string; // CSS left (e.g., "20%")
-  y: string; // CSS top (e.g., "30%")
-  color: string;
-  opacity?: number;
-  /** Parallax speed multiplier — positive moves with scroll, negative against */
-  parallaxSpeed?: number;
+  size: number;         // px
+  x: number;            // % of container width
+  y: number;            // % of container height
+  color: string;        // CSS colour
+  speed?: number;       // scroll parallax multiplier (default 0.3)
 }
-
-export function FloatingShapes({
-  shapes,
-  className,
-}: {
-  shapes: Shape[];
-  className?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-    const els = ref.current.querySelectorAll<HTMLDivElement>(".floating-shape");
-
-    els.forEach((el, i) => {
-      const shape = shapes[i];
-
-      // Ambient drift — plays while in viewport, pauses when scrolled out
-      gsap.to(el, {
-        y: gsap.utils.random(-30, 30),
-        x: gsap.utils.random(-20, 20),
-        rotation: gsap.utils.random(-15, 15),
-        duration: gsap.utils.random(6, 10),
-        ease: "sine.inOut",
-        repeat: 3,
-        yoyo: true,
-        delay: i * 0.8,
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top bottom",
-          end: "bottom top",
-          toggleActions: "play pause resume pause",
-        },
-      });
-
-      // Scroll parallax
-      const speed = shape.parallaxSpeed ?? (i % 2 === 0 ? 0.3 : -0.3);
-      gsap.to(el, {
-        y: () => speed * 200,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1.5,
-        },
-      });
-    });
-  }, { scope: ref });
-
-  const shapeClass = (type: Shape["type"]) => {
-    switch (type) {
-      case "circle": return "rounded-full";
-      case "square": return "rounded-lg rotate-12";
-      case "triangle": return "";
-    }
-  };
-
-  return (
-    <div
-      ref={ref}
-      className={`absolute inset-0 overflow-hidden pointer-events-none ${className ?? ""}`}
-      aria-hidden="true"
-    >
-      {shapes.map((shape, i) => (
-        <div
-          key={i}
-          className={`floating-shape absolute border-2 ${shapeClass(shape.type)}`}
-          style={{
-            left: shape.x,
-            top: shape.y,
-            width: shape.size,
-            height: shape.size,
-            borderColor: shape.color,
-            opacity: shape.opacity ?? 0.15,
-            clipPath:
-              shape.type === "triangle"
-                ? "polygon(50% 0%, 0% 100%, 100% 100%)"
-                : undefined,
-          }}
-        />
-      ))}
-    </div>
-  );
+interface Props {
+  shapes?: Shape[];
+  class?: string;
 }
+const { shapes, class: className = "" } = Astro.props;
+const defaultShapes: Shape[] = [
+  { size: 320, x: 10, y: 20, color: "var(--color-accent)", speed: 0.4 },
+  { size: 260, x: 80, y: 40, color: "var(--color-accent-light)", speed: 0.2 },
+  { size: 200, x: 55, y: 75, color: "var(--color-accent-dark)", speed: 0.5 },
+];
+const list = shapes ?? defaultShapes;
+---
+<div class:list={["fs", className]} aria-hidden="true">
+  {list.map((s, i) => (
+    <span
+      class="fs__dot"
+      style={`--size: ${s.size}px; --x: ${s.x}%; --y: ${s.y}%; --c: ${s.color}; --speed: ${s.speed ?? 0.3}; --i: ${i};`}
+    ></span>
+  ))}
+</div>
+
+<style>
+  .fs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .fs__dot {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--c) 40%, transparent);
+    filter: blur(60px);
+    translate: -50% -50%;
+    animation: fs-drift linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100vh;
+  }
+  @keyframes fs-drift {
+    from { translate: calc(-50% + (var(--speed) * -30px)) calc(-50% + (var(--speed) * -40px)); }
+    to   { translate: calc(-50% + (var(--speed) *  30px)) calc(-50% + (var(--speed) *  40px)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fs__dot { animation: none; }
+  }
+</style>
 ```
 
-**Usage:**
-```tsx
-<section className="relative min-h-screen">
-  <FloatingShapes
-    shapes={[
-      { type: "circle", size: 120, x: "10%", y: "20%", color: "var(--color-accent)", opacity: 0.12 },
-      { type: "square", size: 80, x: "75%", y: "15%", color: "var(--color-accent)", opacity: 0.08 },
-      { type: "triangle", size: 100, x: "60%", y: "60%", color: "var(--color-primary)", opacity: 0.06 },
-      { type: "circle", size: 60, x: "85%", y: "70%", color: "var(--color-accent)", opacity: 0.10 },
-    ]}
-  />
-  <div className="relative z-10">
-    {/* Section content */}
+## Usage
+
+```astro
+<section class="relative overflow-hidden py-24 bg-[var(--color-surface)]">
+  <FloatingShapes />
+  <div class="relative z-10 max-w-4xl mx-auto px-6">
+    <h2 class="text-6xl tracking-tight">Studio</h2>
+    <p class="max-w-[55ch] mt-4">We design infrastructure that lives quietly in production.</p>
   </div>
 </section>
 ```
+
+## Dimensional adaptation
+
+- Restrained → 2 shapes, opacity 15%, blur 80px. Motion range tighter (0 → 40vh).
+- Expressive → 5 shapes, opacity 30%, varied sizes.
+- Texture-high → shapes become less defined — skip in favour of a background photograph.

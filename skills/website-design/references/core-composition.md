@@ -37,7 +37,7 @@ Standard scroll-triggered entrances: fade-up on cards, text reveals, counter tic
 
 ### Why This Matters
 
-A dark-luxury homepage with three StickyCardStack sections reads as a portfolio of animation demos, not a business. The constraint forces hierarchy: if only one section gets high motion, it becomes the signature moment the user remembers.
+A dark + restrained homepage with three StickyCardStack sections reads as a portfolio of animation demos, not a business. The constraint forces hierarchy: if only one section gets high motion, it becomes the signature moment the user remembers.
 
 ---
 
@@ -237,7 +237,7 @@ neutral-950 (darkest — near-black)
 ### Rules
 
 - Never two consecutive sections at the same background step
-- Full-bleed dark sections (Stats in dark-luxury, Manifesto) should appear maximum 2 times per page
+- Full-bleed dark sections (e.g. Stats on a dark + restrained direction, Manifesto) should appear maximum 2 times per page
 - Hero and Footer anchor the extremes — do not let mid-page sections compete with their drama
 - The transition between a dark section and a light section is intentional punctuation — use it deliberately, not randomly
 

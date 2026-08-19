@@ -1,183 +1,172 @@
-# BentoHero
+# BentoHero — `.astro`
 
-Hero where the visual is a bento grid of product screenshots or feature previews. Text is left-aligned. The bento IS the product demo — shows what the product does before the user reads what it says.
+Hero as a grid of tiles. One large headline tile, several supporting tiles (stat, feature, quote, visual). Pure CSS Grid. Tiles stagger in with per-tile `--i` + `animation-delay`.
 
-```
+## Dimensional fit
+
+- surface-depth: any
+- motion-register: moderate, expressive
+- texture-appetite: low, medium
+- type-personality: geometric-sans, editorial-display
+- notes: Great for multi-product, platform, or technical sites where the hero needs to show breadth. Not for single-proposition brands — use CenteredHero or SplitHero instead.
+
+## File
+
+### `src/components/sections/BentoHero.astro`
+
+```astro
 ---
-component: BentoHero
-category: heroes
-subtype: bento-product
+import HeroButton from "../ui/HeroButton.astro";
 
-dimension-fit:
-  contrast-dark: low
-  contrast-light: high
-  energy-restrained: low
-  energy-moderate: high
-  energy-energetic: high
-  motion-minimal: low
-  motion-moderate: high
-  motion-expressive: low
-  # escape (contrast-dark + energy-restrained): luxury brand with genuinely distinct product lines or offerings that must coexist in the hero; each cell must use rich photography only — no icons, stats, or text-heavy elements
-  # escape (energy-restrained + texture-high): maker with multiple distinct product categories where each deserves visual presence; all cells filled with craft photography, not icons or stats
-  # note (energy-restrained + editorial): a brief requiring BentoHero is not an editorial-minimal brief — if both point in opposite directions, reconsider the aesthetic choice rather than overriding the component
-
-visual-weight: heavy
-content-density: rich
-trend-alignment: trending
-motion-profile: moderate
-
-use-when:
-  - SaaS or digital product with a visual interface worth showing
-  - Bold Studio when product screenshots have strong visual personality
-  - Multiple feature areas that benefit from simultaneous preview
-  - The product has strong visual identity (charts, maps, dashboards, creative tools)
-
-avoid-when:
-  - Dark Luxury — bento grid reads as busy, not restrained
-  - Warm Artisan — product-grid energy conflicts with handcrafted warmth
-  - Service businesses with no product screenshots
-  - When screenshots are unpolished or low-fidelity
-
-pairs-well-with: [FeatureTabs, LogoStrip, StatsStrip]
-pairs-poorly-with: [AlternatingRows — too product-heavy in sequence]
----
-```
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION, STAGGER } from "@/lib/animations";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface BentoItem {
-  image: string;
-  alt: string;
-  label?: string;
-  /** "wide" spans 2 cols, "tall" spans 2 rows, "default" = 1x1 */
-  span?: "wide" | "tall" | "default";
+interface Tile {
+  kind: "headline" | "stat" | "feature" | "quote" | "media";
+  title?: string;
+  body?: string;
+  value?: string;        // for stat
+  src?: string;          // for media
+  alt?: string;
+  span?: 1 | 2 | 3;
 }
 
-interface BentoHeroProps {
-  badge?: string;
+interface Props {
+  eyebrow?: string;
   headline: string;
-  subline: string;
-  primaryCta: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
-  /** 4-6 bento items recommended */
-  bentoItems: BentoItem[];
+  sub?: string;
+  cta: { label: string; href: string };
+  tiles: Tile[];         // 3-6 supporting tiles
 }
+const { eyebrow, headline, sub, cta, tiles } = Astro.props;
+---
+<section class="bento">
+  <div class="bento__grid">
+    <div class="bento__cell bento__cell--hero" style="--i: 0;">
+      {eyebrow && <p class="bento__eyebrow">{eyebrow}</p>}
+      <h1 class="bento__headline">{headline}</h1>
+      {sub && <p class="bento__sub">{sub}</p>}
+      <div class="bento__cta"><HeroButton href={cta.href}>{cta.label}</HeroButton></div>
+    </div>
 
-export function BentoHero({
-  badge,
-  headline,
-  subline,
-  primaryCta,
-  secondaryCta,
-  bentoItems,
-}: BentoHeroProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    // Text stagger
-    const textItems = ref.current.querySelectorAll("[data-animate]");
-    gsap.set(textItems, { y: 24, opacity: 0 });
-    gsap.to(textItems, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: STAGGER.normal,
-      ease: EASE.enter,
-      delay: 0.15,
-    });
-
-    // Bento cards cascade in with scale
-    const bentoCards = ref.current.querySelectorAll(".bento-card");
-    gsap.set(bentoCards, { scale: 0.93, opacity: 0, y: 20 });
-    gsap.to(bentoCards, {
-      scale: 1, opacity: 1, y: 0,
-      duration: DURATION.moderate,
-      stagger: 0.07,
-      ease: EASE.enter,
-      delay: 0.4,
-    });
-  }, { scope: ref });
-
-  return (
-    <section
-      ref={ref}
-      id="hero"
-      className="relative min-h-screen flex items-center bg-surface-primary overflow-hidden"
-    >
-      <div className="mx-auto max-w-7xl w-full px-6 grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 items-center pt-32 pb-16 lg:pt-40 lg:pb-24">
-        {/* Left: Text */}
-        <div>
-          {badge && (
-            <span
-              data-animate
-              className="inline-block rounded-full bg-accent/10 px-4 py-1.5 text-caption font-semibold text-accent tracking-widest uppercase"
-            >
-              {badge}
-            </span>
-          )}
-          <h1
-            data-animate
-            className="mt-6 font-display font-bold text-display-xl leading-[1.05] tracking-tight text-primary max-w-[20ch]"
-          >
-            {headline}
-          </h1>
-          <p
-            data-animate
-            className="mt-6 text-body-lg text-secondary max-w-[44ch] leading-relaxed"
-          >
-            {subline}
-          </p>
-          <div data-animate className="mt-10 flex flex-wrap gap-4">
-            <a
-              href={primaryCta.href}
-              className="inline-flex items-center rounded-lg bg-accent px-7 py-3.5 text-body-sm font-semibold text-white transition-all duration-200 hover:bg-accent-light hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {primaryCta.label}
-            </a>
-            {secondaryCta && (
-              <a
-                href={secondaryCta.href}
-                className="inline-flex items-center rounded-lg border border-border px-7 py-3.5 text-body-sm font-medium text-primary transition-colors hover:bg-surface-secondary"
-              >
-                {secondaryCta.label}
-              </a>
-            )}
-          </div>
-        </div>
-
-        {/* Right: Bento grid */}
-        <div className="grid grid-cols-2 gap-3 auto-rows-[160px]">
-          {bentoItems.map((item, i) => (
-            <div
-              key={i}
-              className={`bento-card group relative overflow-hidden rounded-xl border border-border bg-surface-secondary transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-md ${
-                item.span === "wide" ? "col-span-2" : ""
-              } ${item.span === "tall" ? "row-span-2" : ""}`}
-            >
-              <img
-                src={item.image}
-                alt={item.alt}
-                className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
-              />
-              {item.label && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-3 pb-2 pt-6">
-                  <span className="text-caption font-medium text-white/80">{item.label}</span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+    {tiles.map((t, idx) => (
+      <div class:list={["bento__cell", `bento__cell--${t.kind}`, `span-${t.span ?? 1}`]} style={`--i: ${idx + 1};`}>
+        {t.kind === "stat" && (
+          <>
+            <p class="bento__cell-value">{t.value}</p>
+            <p class="bento__cell-label">{t.title}</p>
+          </>
+        )}
+        {t.kind === "feature" && (
+          <>
+            <p class="bento__cell-title">{t.title}</p>
+            <p class="bento__cell-body">{t.body}</p>
+          </>
+        )}
+        {t.kind === "quote" && (
+          <figure>
+            <blockquote>“{t.body}”</blockquote>
+            {t.title && <figcaption>{t.title}</figcaption>}
+          </figure>
+        )}
+        {t.kind === "media" && t.src && (
+          <img src={t.src} alt={t.alt ?? ""} width="800" height="600" />
+        )}
       </div>
-    </section>
-  );
-}
+    ))}
+  </div>
+</section>
+
+<style>
+  .bento {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 6rem 1.5rem 3rem;
+  }
+  .bento__grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: minmax(12rem, auto);
+  }
+  .bento__cell {
+    background: var(--color-surface-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    padding: 1.75rem;
+    grid-column: span 2;
+    opacity: 0;
+    translate: 0 16px;
+    animation: bento-in 650ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 80ms);
+  }
+  .bento__cell--hero {
+    grid-column: span 6;
+    grid-row: span 2;
+    background: var(--color-surface);
+    padding: 2.5rem;
+  }
+  @media (min-width: 1024px) {
+    .bento__cell--hero { grid-column: span 4; }
+  }
+  .bento__cell.span-2 { grid-column: span 4; }
+  .bento__cell.span-3 { grid-column: span 6; }
+
+  .bento__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .bento__headline {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+    letter-spacing: -0.03em; line-height: 1;
+    margin-top: 1rem; max-width: 18ch; text-wrap: balance;
+  }
+  .bento__sub { margin-top: 1rem; color: var(--color-secondary); max-width: 48ch; }
+  .bento__cta { margin-top: 1.5rem; }
+
+  .bento__cell-value {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    letter-spacing: -0.02em; line-height: 1;
+    color: var(--color-accent);
+  }
+  .bento__cell-label { margin-top: 0.5rem; opacity: 0.7; font-size: 0.875rem; }
+  .bento__cell-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem; letter-spacing: -0.01em;
+  }
+  .bento__cell-body { margin-top: 0.5rem; color: var(--color-secondary); }
+  .bento__cell--media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 0.75rem;
+  }
+
+  @keyframes bento-in { to { opacity: 1; translate: 0 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .bento__cell { animation: none; opacity: 1; translate: 0 0; }
+  }
+</style>
 ```
+
+## Usage
+
+```astro
+<BentoHero
+  eyebrow="Halcyon Platform"
+  headline="The boring bits of your stack, handled."
+  sub="Auth, billing, observability. One bill, one escalation path, zero pagers for your team."
+  cta={{ label: "See the platform", href: "/platform" }}
+  tiles={[
+    { kind: "stat", value: "99.99%", title: "SLO across 14 regions" },
+    { kind: "feature", title: "Zero-touch auth", body: "Passkeys, magic link, and MFA from day one." },
+    { kind: "quote", title: "— Meridian, Head of Platform", body: "We got six engineering weeks back per quarter." },
+    { kind: "stat", value: "8m", title: "Mean rollout window" },
+  ]}
+/>
+```
+
+## Notes
+
+- Keep supporting tiles to 3–6. Fewer feels sparse; more overwhelms.
+- `span` values allow a 1/2/3-column mix for rhythm.
+- All tiles respect the global `--color-border`/`--color-surface-secondary` tokens so palette changes propagate instantly.

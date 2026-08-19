@@ -10,7 +10,7 @@ Never use these fonts anywhere. They are overused to the point of being invisibl
 
 **Hard-banned:** Inter, Roboto, Open Sans, Lato, Montserrat, Poppins, Nunito, Raleway, Source Sans Pro, Work Sans, DM Sans, Manrope, Rubik
 
-**Why:** Ubiquity destroys distinctiveness. When 60% of template sites use these fonts, choosing them guarantees your site looks like every other template. Premium sites use curated, less common fonts (see preset files for approved selections).
+**Why:** Ubiquity destroys distinctiveness. When 60% of template sites use these fonts, choosing them guarantees your site looks like every other template. Premium sites use curated, less common fonts — your direction card names the specific pairing.
 
 ---
 
@@ -39,17 +39,23 @@ Never use these fonts anywhere. They are overused to the point of being invisibl
 
 | Pattern | Why It's Banned | What To Do Instead |
 |---------|----------------|-------------------|
-| Bounce easing on entrances | Feels cheap and playful (wrong for most business sites) | Use `power2.out` or `power3.out` — professional, weighted |
-| Animations longer than 1.2s | Feels sluggish, blocks user progress | Keep entrances 300-600ms. Only scroll-linked parallax can be slow. |
-| All elements animating at once | Overwhelming, no hierarchy | Stagger children (80-150ms gap). Headline first, then subtext, then CTA. |
-| Below-fold content animating on page load | Wastes performance, invisible animation | Use ScrollTrigger — only animate when element enters viewport |
-| Infinite loop animations | Distracting, increases power consumption | Only allowed for loading spinners. Everything else: trigger once, done. |
-| Opacity-only fade (no transform) | Flat, lifeless entrance | Combine opacity with `translateY(20-30px)` or `scale(0.95)` |
-| AOS library with default settings | Everyone uses `data-aos="fade-up"` with same timing | Use GSAP with custom easing and timing per preset |
-| Slide-in from far off-screen | Feels like a PowerPoint transition | Keep translate distances subtle: 20-40px for fade-up, 40-60px max for slides |
-| Animation on elements that are already visible | Confusing, elements "jump" | Only animate elements that start off-screen or hidden |
-| Floaty animations — entrance duration over 0.6s, stagger over 100ms between siblings, y-travel over 30px | Sluggish, lacks intent — reference sites (Proctors Group, hm.la, BraveLittleBeast) feel instant and purposeful | Keep entrances 0.4–0.55s, stagger 60–80ms, y-travel 20–24px |
-| Stagger interval below 60ms | Sub-perceptual — elements appear to animate simultaneously, wasting the stagger entirely. Below 60ms the human eye cannot distinguish sequential arrival. | Minimum 60ms between siblings. Standard: 80ms. Maximum for non-text elements: 150ms. |
+| Reaching for GSAP before CSS was tried | CSS `animation-timeline: scroll()` / `view()`, `@keyframes`, and transitions handle ~90% of scroll and entrance animations with zero runtime cost. GSAP adds ~70KB for capabilities you usually don't need. | Default to CSS. Only escalate to WAAPI (inside a Solid island) when state drives timing. Motion One is the last resort and never installed by default. |
+| Installing Framer Motion, Motion One, or `@gsap/react` for single fade-ins | A 6-line `@keyframes` + `animation-timeline: view()` block does the same job with no dependency. | Use the CSS ScrollReveal pattern from `core-animation.md`. |
+| Manual `requestAnimationFrame` scroll listeners (or `window.addEventListener("scroll", …)` driving visual changes) | Jank-prone, runs on main thread, reimplements what the browser already provides. | Use `animation-timeline: scroll()` (or `scroll(root)`) — the compositor drives it off-main-thread. |
+| Hydrating a Solid island that has no state or interaction | Wasted hydration cost; the island didn't need to be an island. | Use `.astro` + `<slot />`. Reserve Solid components for genuine interactivity. |
+| Using `client:load` when `client:visible` or `client:idle` would suffice | Delays First Input Delay, blocks the main thread at startup. | Default to `client:visible`. Use `client:idle` for non-critical interactivity, `client:load` only when the island is above-the-fold and immediately interactive. |
+| Bounce / elastic easing on entrances for restrained or establishment registers | Feels cheap and playful — incongruent with the dimensional position. | Use `cubic-bezier(0.2, 0.8, 0.2, 1)` or `cubic-bezier(0.4, 0, 0.2, 1)` for weighted entrances. |
+| Animations longer than 1.2s | Feels sluggish, blocks user progress | Keep entrances 300–600ms. Only scroll-linked parallax or ambient loops can be slow. |
+| All elements animating at once | Overwhelming, no hierarchy | Stagger children (80–150ms gap) via per-child `animation-delay: calc(var(--i) * 80ms)`. Headline first, then subtext, then CTA. |
+| Below-fold content animating on page load | Wastes performance, invisible animation | Use `animation-timeline: view()` with `animation-range` — only animates when element enters viewport. |
+| Infinite loop animations | Distracting, increases power consumption | Only allowed for loading spinners or subtle ambient loops on expressive registers. Everything else: trigger once, done. |
+| Opacity-only fade (no transform) | Flat, lifeless entrance | Combine opacity with `translate: 0 20-30px` or `scale(0.95)` in the starting keyframe. |
+| AOS library with default settings | Everyone uses `data-aos="fade-up"` with identical timing | Use CSS `animation-timeline: view()` with custom easing and duration from your direction card. |
+| Slide-in from far off-screen | Feels like a PowerPoint transition | Keep translate distances subtle: 20–40px for fade-up, 40–60px max for slides. |
+| Animation on elements that are already visible | Confusing, elements "jump" | Only animate elements that start from an off-state (opacity 0, transform, etc.). |
+| Floaty animations — entrance duration over 0.6s, stagger over 100ms between siblings, y-travel over 30px | Sluggish, lacks intent. | Keep entrances 0.4–0.55s, stagger 60–80ms, y-travel 20–24px. |
+| Stagger interval below 60ms | Sub-perceptual — elements appear to animate simultaneously. | Minimum 60ms between siblings. Standard: 80ms. Maximum for non-text elements: 150ms. |
+| Missing `prefers-reduced-motion` guard on any animation block | Accessibility violation. | Every `@keyframes` block must be paired with a `@media (prefers-reduced-motion: reduce)` override that disables the animation. WAAPI islands must check `matchMedia("(prefers-reduced-motion: reduce)").matches` before animating. |
 
 ---
 
@@ -71,14 +77,14 @@ Never use these fonts anywhere. They are overused to the point of being invisibl
 
 | Pattern | Why It's Banned | What To Do Instead |
 |---------|----------------|-------------------|
-| Inline styles | Unmaintainable, fights Tailwind | Use Tailwind utilities exclusively |
-| `setTimeout` for animation timing | Unreliable, not synced to frame rate | Use GSAP timelines with proper sequencing |
-| Missing GSAP cleanup | Memory leaks on navigation | Use `useGSAP` hook from `@gsap/react` with context |
+| Inline styles | Unmaintainable, fights Tailwind | Use Tailwind utilities. Scoped `<style>` in `.astro` is fine for animation recipes. |
+| `setTimeout` for animation timing | Unreliable, not synced to frame rate | Chain CSS `animation-delay` or use WAAPI `anim.finished.then(...)` |
+| Missing animation cleanup in Solid islands | Memory leak when the component unmounts | `const anim = el.animate(...)` inside `onMount` + `onCleanup(() => anim.cancel())` |
 | Hard-coded `px` for font sizes | Not responsive, breaks on zoom | Use `clamp()` for headings, `rem` for body |
-| Missing `prefers-reduced-motion` | Accessibility violation | Add global reduced-motion media query that disables all animation |
+| Firing a scroll listener to implement animation | Jank, main-thread cost | Use `animation-timeline: scroll()` / `view()` |
 | Images without dimensions | Layout shift (CLS penalty) | Always set `width`, `height`, or use `aspect-ratio` |
-| `useEffect` for GSAP setup | Wrong lifecycle, double-fires in React 19 StrictMode | Use `useGSAP` from `@gsap/react` instead |
-| Registering ScrollTrigger in every component | Wasteful, potential conflicts | Register once globally in layout or a provider |
+| Importing `gsap` or `@gsap/react` | Banned in this stack | Use CSS first; WAAPI or Motion One if genuinely necessary |
+| React syntax in a Solid island (`useState`, `useEffect`, `"use client"`) | Wrong framework | Solid uses `createSignal`, `createEffect`, `onMount`, `onCleanup`. No `"use client"` directive — hydration is controlled by `client:*` directives on the component in the `.astro` parent. |
 
 ---
 
@@ -98,28 +104,28 @@ Every page built by this skill MUST have ALL of these. If any are missing, the o
 - [ ] All headings use `clamp()` for fluid sizing
 - [ ] Display text has negative letter-spacing (-0.02em or tighter)
 - [ ] Body text constrained to `max-w-[65ch]`
-- [ ] Font loaded via `next/font/google` (not CDN link)
+- [ ] Font loaded via `@fontsource-variable/*` (imported in `BaseLayout.astro`) or preconnected Google Fonts `<link>` tag — not an unconnected CDN `<link>`
 
 ### Animation
-- [ ] Hero section has a custom scroll-triggered or load-triggered GSAP animation
-- [ ] Below-fold sections use ScrollTrigger (not page-load animation)
-- [ ] Staggered entrance timing (80-150ms between child elements)
-- [ ] `prefers-reduced-motion` globally respected
-- [ ] GSAP contexts cleaned up via `useGSAP`
+- [ ] Hero section has a CSS-driven entrance (`@keyframes` on load, or `animation-timeline: view()` if below-fold)
+- [ ] Below-fold sections use `animation-timeline: view()` (not page-load animation)
+- [ ] Staggered entrance timing via per-child `--i` + `animation-delay: calc(var(--i) * 80ms)` (80–150ms range)
+- [ ] Every animation block has a matching `@media (prefers-reduced-motion: reduce)` override
+- [ ] Solid islands that animate use WAAPI with `onMount`/`onCleanup` cleanup
 
 ### Interaction
-- [ ] Navbar has a scroll state — either morphs (transparent → solid with backdrop-blur) or uses a persistent style appropriate to the preset's navigation pattern (see component-chrome.md for SidebarNav and other alternatives)
+- [ ] Navbar has a scroll state — morphs via `animation-timeline: scroll(root)` (transparent → backdrop-blur) or uses a persistent style appropriate to the direction's navigation pattern (see component-chrome-index.md)
 - [ ] Every button has hover + active + focus states
 - [ ] Every card has a hover interaction (lift, glow, or scale)
 - [ ] Links have animated underline effect
 - [ ] Dark mode toggle works and dark mode is intentionally designed
 
 ### Code Quality
-- [ ] All components are `"use client"` only where needed (animation, interactivity)
+- [ ] `.astro` for static markup; Solid `.tsx` islands only when interactive; the minimum `client:*` directive needed (`client:visible` preferred)
 - [ ] TypeScript strict mode — no `any` types
 - [ ] Semantic HTML (`<section>`, `<nav>`, `<main>`, `<article>`, `<footer>`)
 - [ ] Accessible: ARIA labels, keyboard navigation, focus management
-- [ ] `pnpm build` succeeds (no build errors)
+- [ ] `pnpm astro build` succeeds (no build errors)
 
 ---
 
@@ -134,13 +140,13 @@ Step numbers (01, 02, 03) are static decorative text. NEVER wrap them in Counter
 Client logos MUST be real image files — inline SVG, a hosted PNG/JPG, or an SVG element drawn in code. A row of company names in grey text is not social proof. It is a list. If you do not have real logos, render monogram circles with company initials styled with the brand palette. Do not render text names.
 
 **Manifesto section without scroll-triggered reveal.**
-If the Manifesto section is present, the power statement should use a scroll-triggered reveal animation calibrated to the preset's motion vocabulary — the default and most common treatment is the word-by-word TextReveal (see animation-choreography.md). A static paragraph on a dark background is not a manifesto — it is a paragraph.
+If the Manifesto section is present, the power statement should use a scroll-triggered reveal animation calibrated to the direction card's motion register — the default is a word-by-word CSS TextReveal with per-word `animation-delay` and `animation-timeline: view()` (see `core-animation.md`). A static paragraph on a dark background is not a manifesto — it is a paragraph.
 
-**Hero image when the preset explicitly forbids it.**
-Bold Studio's hero is typography-only — the typography IS the visual. Adding a background image to a typography-first hero violates the preset and dilutes its identity. The preset file is always the final authority over SKILL.md general guidance.
+**Hero image when the direction card explicitly forbids it.**
+If the direction card declares a type-led hero (typography IS the visual), adding a background image dilutes the hero's identity. The direction card is always the final authority over generic guidance.
 
 **Stats numbers that do not animate.**
-If a stat number is wrapped in CounterTicker, it MUST animate on scroll. A stat that reads "0+" on page load means the ScrollTrigger is not firing. Debug before shipping: set `markers: true` in the ScrollTrigger config to verify it triggers correctly. Never ship a stats section with static-looking counters.
+If a stat number is presented as a counter, it MUST count up when it enters the viewport. A stat reading "0+" on page load means `animation-timeline: view()` is not firing (wrong `animation-range`, `@property` registration missing, or parent `view-timeline` misconfigured). Verify by scrolling past and checking the rendered number. Never ship a stats section with static-looking counters.
 
 **Glassmorphism misuse.**
 Glass cards only work when they float on top of a richly coloured or blurred background. Never apply `backdrop-filter: blur()` to elements that are not overlapping a rich background — the effect disappears and looks broken. Never stack multiple glass cards in one section.
@@ -157,7 +163,7 @@ These are structural mistakes that cause every site to look identical regardless
 | Always including a Stats section | Stats sections only work when the numbers are genuinely impressive (150+ clients, $50M managed, 10 years). Showing "3 projects, 2 years, 100% satisfaction" looks desperate. | Include stats only when numbers are genuinely impressive and verifiable. If in doubt, omit. |
 | Always including a Social Proof Strip | A logo strip with placeholder monograms signals "this business has no real clients." | Include a logo strip only if real logo assets exist. Otherwise, use a testimonials section or case study teasers instead. |
 | 10-section homepage template | Hero → Logos → Features → Process → Manifesto → Testimonials → Stats → CTA → Footer — every time. | Let business content drive section selection. A solo consultant needs fewer sections than a SaaS. A portfolio site needs different sections than a service firm. |
-| Selecting components based on style, not content | Choosing StickyCardStack because it looks good for dark-luxury, regardless of what content it will hold. | Classify business content first (what do they offer? how do they work? what's their proof?). Then select the component that best presents that content type. Then apply style vocabulary. |
+| Selecting components based on style, not content | Choosing StickyCardStack because it looks good on a dark + restrained direction, regardless of what content it will hold. | Classify business content first (what do they offer? how do they work? what's their proof?). Then select the component that best presents that content type. Then apply the direction card. |
 | Treating section order as fixed | Hero always followed by Social Proof always followed by Features — exactly. | Let narrative flow guide section order. Sometimes Testimonials before Features makes sense if credibility is the barrier. |
 | Every page gets the same section count | 10 sections on every page regardless of content depth. | Minimum viable homepage: 5 sections. Typical: 7–9. Max: 11. Only add sections if content justifies them. |
 | Consecutive sections at same visual weight | Two heavy (high-motion, content-rich) sections back to back overwhelm the user. Two light sections in a row feel underdeveloped. | Alternate heavy → medium → light → heavy. Never place two heavy sections adjacent. |

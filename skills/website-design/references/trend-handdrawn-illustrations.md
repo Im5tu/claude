@@ -1,60 +1,28 @@
 # Trend: Hand-Drawn Illustrations
 
 ## What It Is
-Mascot characters and hand-drawn illustration systems integrated throughout the site — not as decorative accent, but as the primary personality layer. Patterns: animated characters that respond to scroll and hover state; illustrations extending to interactive elements (buttons, text, clickable items with hand-drawn overlays); scrolling figure representing the user moving through content (meta-narrative animation); full-illustration approach where logo, hero, navigation, and animations are all hand-drawn. Cookie consent, error pages, and loading states as illustration personality moments. Animated hand-drawn sequences using GSAP or Lottie for frame-by-frame character animation. Makes brands memorable and distinctly human — the strongest anti-template technique available because no template can ship custom illustrations.
+Mascot characters and hand-drawn illustration systems integrated throughout the site — not decorative accent, but the primary personality layer. Patterns: characters that respond to scroll and hover; illustrations extending to interactive elements; scrolling figure representing the user moving through content. Animated hand-drawn sequences via CSS, WAAPI, or Lottie (vanilla `lottie-web`) for frame-by-frame animation. Makes brands memorable and distinctly human — the strongest anti-template technique available, because no template can ship custom illustrations.
 
 ## Implementation
-```tsx
-// SVG character with scroll-triggered state change
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-export function ScrollingCharacter({ svgPath }: { svgPath: string }) {
-  const charRef = useRef<SVGSVGElement>(null);
+**SVG path draw-on entrance** — pure CSS:
 
-  useGSAP(() => {
-    if (!charRef.current) return;
-    const paths = charRef.current.querySelectorAll(".character-arm, .character-wave");
-
-    ScrollTrigger.create({
-      trigger: charRef.current,
-      start: "top 80%",
-      onEnter: () => gsap.to(paths, {
-        rotation: 20, transformOrigin: "bottom center",
-        duration: 0.4, yoyo: true, repeat: 2, ease: "power2.inOut",
-      }),
-    });
-  });
-
-  return <svg ref={charRef}><use href={`${svgPath}#character`} /></svg>;
+```css
+.hd-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  pathLength: 1;
+  animation: draw 1.5s ease-in-out both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 30%;
 }
-
-// Lottie animation for hand-drawn sequences
-import Lottie from "lottie-react";
-import characterData from "@/assets/character-wave.json";
-
-<Lottie
-  animationData={characterData}
-  loop={false}
-  autoPlay={false}
-  ref={lottieRef}
-  className="w-48 h-48"
-/>
-
-// SVG path draw-on animation
-useGSAP(() => {
-  const paths = document.querySelectorAll(".hand-drawn-path");
-  paths.forEach((path) => {
-    const length = (path as SVGPathElement).getTotalLength();
-    gsap.fromTo(path,
-      { strokeDasharray: length, strokeDashoffset: length },
-      { strokeDashoffset: 0, duration: 1.5, ease: "power2.inOut",
-        scrollTrigger: { trigger: path, start: "top 80%" }
-      }
-    );
-  });
-});
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .hd-path { animation: none; stroke-dashoffset: 0; } }
 ```
+
+**Scroll-reactive character states** — in a Solid island (`client:visible`), set a class on the `<svg>` based on `IntersectionObserver`, then drive waves / arms via CSS transitions. No GSAP.
+
+**Lottie sequences** — use `lottie-web` inside a Solid island: `lottie.loadAnimation({ container, path, autoplay: false })` in `onMount`, `anim.destroy()` in `onCleanup`. Never `lottie-react`.
 
 ## Premium Signals
 - Character states managed as CSS classes — the mascot has a resting state, a hover state, a scroll state, and a success state. State transitions feel like the character is genuinely reacting to user behavior.

@@ -4,47 +4,57 @@
 Website-as-game: browsing implemented via game mechanics rather than conventional navigation. Two primary patterns: (1) Platformer navigation — a user-controlled character (often pixel art) navigates between page sections as if they are game levels, each section a distinct environment; (2) 3D room exploration — a rendered or illustrated version of the brand's physical space (studio, office, workshop) where clickable objects reveal brand content (laptop = portfolio, whiteboard = process, TV = social proof). A third pattern: Tinder-style card navigation where users swipe through content sequentially. In all cases: the gamification layer sits above a conventional navigation that is always accessible. The mechanic earns attention — it does not demand it. Signal: technical creativity, personality, and an invitation to explore. Exceptionally effective for portfolio and creative agency sites.
 
 ## Implementation
+
+Implement in a **SolidJS island** hydrated `client:load` (interactive above-the-fold). Skeleton:
+
 ```tsx
-// Simple platformer character navigation
-"use client";
-import { useEffect, useRef, useState } from "react";
+// src/components/islands/PlatformerNav.tsx
+import { createSignal, onMount, onCleanup } from "solid-js";
 
-export function PlatformerNav({ sections }: { sections: string[] }) {
-  const [position, setPosition] = useState(0);
-  const [jumping, setJumping] = useState(false);
+export default function PlatformerNav(props: { sections: string[] }) {
+  const [pos, setPos] = createSignal(0);
+  const [jumping, setJumping] = createSignal(false);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") setPosition(p => Math.min(p + 1, sections.length - 1));
-      if (e.key === "ArrowLeft") setPosition(p => Math.max(p - 1, 0));
-      if (e.key === " " && !jumping) {
+  onMount(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") setPos(p => Math.min(p + 1, props.sections.length - 1));
+      if (e.key === "ArrowLeft")  setPos(p => Math.max(p - 1, 0));
+      if (e.key === " " && !jumping()) {
         setJumping(true);
         setTimeout(() => setJumping(false), 500);
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [jumping, sections.length]);
+    window.addEventListener("keydown", onKey);
+    onCleanup(() => window.removeEventListener("keydown", onKey));
+  });
 
-  useEffect(() => {
-    document.getElementById(sections[position])?.scrollIntoView({ behavior: "smooth" });
-  }, [position, sections]);
+  // React to position: smooth-scroll the matching section into view
+  const _ = () => document.getElementById(props.sections[pos()])?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <div className="fixed bottom-8 left-0 right-0 z-50 flex items-end justify-center pointer-events-none">
+    <div class="plat" aria-hidden="true">
       <div
-        className={`w-8 h-8 bg-accent rounded-sm transition-transform duration-100 ${jumping ? "-translate-y-12" : ""}`}
-        style={{ transform: `translateX(${position * 60}px) ${jumping ? "translateY(-48px)" : ""}` }}
+        class="plat__char"
+        classList={{ "is-jump": jumping() }}
+        style={`--x: ${pos() * 60}px;`}
       />
     </div>
   );
 }
-
-// Always provide conventional navigation fallback
-<nav aria-label="Primary navigation" className="fixed top-0 z-50">
-  {/* Standard navbar always visible */}
-</nav>
 ```
+
+```css
+.plat { position: fixed; inset: auto 0 2rem 0; display: flex; justify-content: center; z-index: 40; pointer-events: none; }
+.plat__char {
+  width: 2rem; height: 2rem; background: var(--color-accent); border-radius: 4px;
+  translate: var(--x, 0) 0;
+  transition: translate 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.plat__char.is-jump { animation: plat-jump 500ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes plat-jump { 50% { translate: var(--x, 0) -3rem; } }
+```
+
+Always render a conventional `<nav>` above it — gamification extends navigation, never replaces it.
 
 ## Premium Signals
 - The game mechanic is directly connected to the brand's content — a logistics company's 3D room shows a warehouse; a code-first agency's platformer uses terminal-style environments. The game IS the portfolio, not a wrapper around it.

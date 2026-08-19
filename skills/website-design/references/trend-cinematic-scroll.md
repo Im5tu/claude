@@ -1,38 +1,66 @@
 # Trend: Cinematic Scroll Sequences
 
 ## What It Is
-A viewport-pinned section where multiple visual layers animate at different rates along a single scroll timeline, creating the sensation of a camera moving through a scene rather than content being swapped. The viewport locks in place (GSAP `pin: true`) while the user's scroll drives a multi-layer parallax animation — background elements move at 0.3x scroll rate, midground at 0.6x, foreground at 1x. Content appears and disappears within the pinned viewport as though the user is panning through a physical environment.
+A viewport-pinned section where multiple visual layers animate at different rates along a single scroll timeline, creating the sensation of a camera moving through a scene rather than content being swapped. The viewport locks in place (`position: sticky`) while the user's scroll drives a multi-layer parallax animation — background elements move at 0.3x scroll rate, midground at 0.6x, foreground at 1x. Content appears and disappears within the pinned viewport as though the user is panning through a physical environment.
 
 Each "scene" within the pinned section can contain its own micro-choreography: text appearing and disappearing, images sliding into position and scaling, background colours transitioning, and decorative elements drifting. The entire composition is mapped to scroll progress, so the user controls the pacing. The premium feel comes from the physical sensation of depth — layers at different Z-positions moving at different speeds, creating the parallax that the human visual system interprets as three-dimensional space. Scene transitions should feel like camera moves — a slow cross-dissolve (opacity) or a lateral pan (translateX) — not like DOM elements being swapped.
 
 ## Implementation
-```js
-const tl = gsap.timeline({
-  scrollTrigger: {
-    trigger: '.cinematic-section',
-    start: 'top top',
-    end: '+=3000',      // 3000px of scroll distance for the pinned sequence
-    pin: true,
-    scrub: 1.5,         // 1.5s smoothing for a dreamier feel (1 for precise)
+
+Pure CSS. The section is pinned with `position: sticky`, and every scene layer animates via `animation-timeline: scroll()` scoped to the wrapper. Use `scroll-timeline-name` / `view-timeline-name` if you need scene-specific timelines.
+
+```astro
+<section class="cin-wrap">
+  <div class="cin-pin">
+    <div class="cin-bg"></div>
+    <div class="cin-mid"></div>
+    <h2 class="cin-text cin-text-1">Scene one</h2>
+    <h2 class="cin-text cin-text-2">Scene two</h2>
+    <a class="cin-cta">Final CTA</a>
+  </div>
+</section>
+
+<style>
+  .cin-wrap { height: 360vh; scroll-timeline-name: --cin; scroll-timeline-axis: block; }
+  .cin-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+
+  .cin-bg, .cin-mid, .cin-text, .cin-cta {
+    animation-timeline: --cin;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
   }
-});
+  .cin-bg  { animation-name: cin-bg; }
+  .cin-mid { animation-name: cin-mid; }
+  .cin-text-1 { animation-name: cin-text-1; }
+  .cin-text-2 { animation-name: cin-text-2; }
+  .cin-cta    { animation-name: cin-cta; }
 
-// Scene 1: background drifts, midground rises, first text enters
-tl.to('.bg-layer', { y: -200, scale: 1.1, duration: 3 }, 0);
-tl.to('.mid-layer', { y: -80, opacity: 1, duration: 3 }, 0);
-tl.fromTo('.fg-text-1', { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 1 }, 0.3);
+  @keyframes cin-bg  { to { translate: 0 -200px; scale: 1.1; } }
+  @keyframes cin-mid { to { translate: 0 -80px; opacity: 1; } }
+  @keyframes cin-text-1 {
+    0%, 10% { opacity: 0; translate: 0 60px; }
+    20%, 50% { opacity: 1; translate: 0 0; }
+    60%, 100% { opacity: 0; translate: 0 -40px; }
+  }
+  @keyframes cin-text-2 {
+    0%, 55% { opacity: 0; translate: 0 60px; }
+    65%, 85% { opacity: 1; translate: 0 0; }
+    95%, 100% { opacity: 0; translate: 0 -40px; }
+  }
+  @keyframes cin-cta {
+    0%, 85% { opacity: 0; scale: 0.9; }
+    100%     { opacity: 1; scale: 1; }
+  }
 
-// Scene 2: first text exits, second text enters, colour shifts
-tl.to('.fg-text-1', { opacity: 0, y: -40, duration: 0.8 }, 0.55);
-tl.fromTo('.fg-text-2', { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 1 }, 0.6);
-tl.to('.bg-layer', { backgroundColor: '#1a1a2e', duration: 1.5 }, 0.5);
-
-// Scene 3: final reveal — CTA and closing visual
-tl.to('.fg-text-2', { opacity: 0, y: -40, duration: 0.8 }, 0.85);
-tl.fromTo('.cta-element', { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.8 }, 0.9);
+  @media (prefers-reduced-motion: reduce) {
+    .cin-wrap { height: auto; }
+    .cin-pin { position: static; height: auto; }
+    .cin-bg, .cin-mid, .cin-text, .cin-cta { animation: none; }
+  }
+</style>
 ```
 
-Scrub calibration: `scrub: 1` gives precise, responsive control where the animation tracks the scroll tightly — best for informational sequences where the user needs agency. `scrub: 1.5–2` creates a smoother, dreamier feel where the animation lags slightly behind the scroll — better for atmospheric, mood-driven sequences. `scrub: 0.5` or below feels twitchy for cinematic work. The `end` value (scroll distance) determines pacing: `+=2000` for a quick 2-scene sequence, `+=3000–4000` for a 3–5 scene narrative. Always use GPU-only properties (`transform`, `opacity`) — never scrub `left`, `top`, `width`, or `height` as these cause layout reflow on every scroll frame.
+Pacing is calibrated via the wrapper's `height` (longer = slower scrub) and per-layer keyframe offsets. Only `transform` and `opacity` are animated — GPU-composited, zero layout reflow.
 
 ## Premium Signals
 - Cinematic scroll sequences where layer speeds are calibrated to content depth — not uniform parallax values but values that reflect the narrative importance of each layer
@@ -53,4 +81,4 @@ Cross-aesthetic applications: A clean SaaS brand can use this when the brief say
 Implementation threshold: The sequence must contain at least 3 distinct visual states (scenes) with a genuine narrative arc — something is revealed, built toward, or resolved as you scroll through it. A section that just fades in some text while a background moves is not cinematic; it is a parallax section.
 
 ## Longevity Signal
-Ascending — still a strong differentiator due to implementation complexity. Most sites use basic scroll-triggered entrances rather than full pinned sequences. The gap between "uses ScrollTrigger" and "uses ScrollTrigger with multi-layer cinematic pacing" is where the premium signal lives.
+Ascending — still a strong differentiator due to implementation complexity. Most sites use basic scroll-triggered entrances rather than full pinned sequences. The gap between "uses `animation-timeline: view()`" and "uses `animation-timeline: scroll()` with multi-layer cinematic pacing" is where the premium signal lives.

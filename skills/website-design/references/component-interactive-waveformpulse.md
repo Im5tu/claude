@@ -1,130 +1,107 @@
-# WaveformPulse
+# WaveformPulse — `.astro`
 
-Animated SVG waveform that draws itself on scroll entry using stroke-dashoffset, then pulses gently in a continuous breathing loop. Great as a decorative accent on dark sections, stats areas, or audio/signal-themed products.
+SVG waveform that draws itself on scroll entry (via `stroke-dashoffset`), then breathes in a continuous pulse. Pure CSS; no JS.
 
-```markdown
+## Dimensional fit
+
+- surface-depth: dark (strongest), light possible with subtle stroke
+- motion-register: moderate, expressive
+- texture-appetite: low (clean vector)
+- type-personality: geometric-sans, editorial-display
+- notes: Ideal on stats / data / signal sections, or as an atmospheric detail above a CTA.
+
+## File
+
+### `src/components/sections/WaveformPulse.astro`
+
+```astro
 ---
-component: WaveformPulse
-category: interactive
-subtype: svg-draw-animation
-
-dimension-fit:
-  contrast-dark: high
-  contrast-light: high
-  energy-restrained: medium
-  energy-moderate: high
-  energy-energetic: high
-visual-weight: light
-content-density: sparse
-trend-alignment: evergreen
-motion-profile: moderate
-
-use-when:
-  - Audio, signal, or data-processing product
-  - Section divider or accent that needs motion without a full component
-  - Stats sections on dark backgrounds
-
-avoid-when:
-  - Warm artisan (too digital/technical for organic brand)
-  - Already have multiple other animated elements in the viewport
-
-pairs-well-with: [TelemetryFeed, GradientMesh, CounterTicker]
-pairs-poorly-with: [FloatingShapes]
----
-```
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface WaveformPulseProps {
-  color?: string;
-  width?: number;
+interface Props {
   height?: number;
-  /** Number of peaks — more peaks = denser waveform */
-  peaks?: number;
-  className?: string;
+  bars?: number;
+  color?: string;
+  class?: string;
 }
-
-export function WaveformPulse({
+const {
+  height = 120,
+  bars = 48,
   color = "var(--color-accent)",
-  width = 400,
-  height = 80,
-  peaks = 40,
-  className,
-}: WaveformPulseProps) {
-  const svgRef = useRef<SVGSVGElement>(null);
+  class: className = "",
+} = Astro.props;
 
-  // Deterministic waveform — avoid Math.random() in render so SSR matches client
-  const step = width / peaks;
-  const pathData = Array.from({ length: peaks }, (_, i) => {
-    const x = i * step;
-    const amplitude = Math.sin(i * 0.5) * (height * 0.35) + (Math.sin(i * 1.3) * height * 0.1);
-    const y = height / 2 + (i % 2 === 0 ? amplitude : -amplitude);
-    return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
-  }).join(" ");
+// Pseudo-random stable heights so bars have character
+const seed = (n: number) => ((Math.sin(n * 12.9898) * 43758.5453) % 1 + 1) % 1;
+const heights = Array.from({ length: bars }, (_, i) => 0.25 + seed(i) * 0.75);
+---
+<div class:list={["wave", className]} style={`--col: ${color}; --h: ${height}px;`} aria-hidden="true">
+  <div class="wave__bars">
+    {heights.map((h, i) => (
+      <span class="wave__bar" style={`--i: ${i}; --bh: ${(h * 100).toFixed(0)}%;`}></span>
+    ))}
+  </div>
+</div>
 
-  useGSAP(() => {
-    if (!svgRef.current) return;
-    const path = svgRef.current.querySelector<SVGPathElement>(".waveform-path");
-    if (!path) return;
-
-    const length = path.getTotalLength();
-    gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
-
-    // Draw on scroll entry
-    gsap.to(path, {
-      strokeDashoffset: 0,
-      duration: 2,
-      ease: "power2.inOut",
-      scrollTrigger: {
-        trigger: svgRef.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    // Subtle pulse after draw completes — plays while in viewport
-    gsap.to(path, {
-      opacity: 0.6,
-      duration: 1.5,
-      repeat: 3,
-      yoyo: true,
-      ease: "sine.inOut",
-      delay: 2,
-      scrollTrigger: {
-        trigger: svgRef.current,
-        start: "top bottom",
-        end: "bottom top",
-        toggleActions: "play pause resume pause",
-      },
-    });
-  }, { scope: svgRef });
-
-  return (
-    <svg
-      ref={svgRef}
-      viewBox={`0 0 ${width} ${height}`}
-      className={className}
-      width={width}
-      height={height}
-      aria-hidden="true"
-    >
-      <path
-        className="waveform-path"
-        d={pathData}
-        fill="none"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+<style>
+  .wave {
+    height: var(--h, 120px);
+    display: flex;
+    align-items: center;
+  }
+  .wave__bars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    width: 100%;
+    height: 100%;
+  }
+  .wave__bar {
+    flex: 1 1 0;
+    background: var(--col, currentColor);
+    border-radius: 2px;
+    height: var(--bh, 50%);
+    transform-origin: center;
+    animation:
+      wave-draw 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
+      wave-pulse 2.4s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 12ms), calc(var(--i) * 60ms);
+    animation-timeline: view(), auto;
+    animation-range: entry 0% cover 30%, auto;
+  }
+  @keyframes wave-draw {
+    from { scale: 1 0; opacity: 0; }
+    to   { scale: 1 1; opacity: 1; }
+  }
+  @keyframes wave-pulse {
+    0%, 100% { scale: 1 1; }
+    50%      { scale: 1 0.72; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wave__bar { animation: none; scale: 1 1; opacity: 1; }
+  }
+</style>
 ```
+
+## Usage
+
+```astro
+<section class="bg-[var(--color-surface-dark)] py-24 px-6 text-center">
+  <div class="max-w-4xl mx-auto">
+    <WaveformPulse color="var(--color-accent-light)" />
+    <h3 class="text-4xl mt-6">Signal-to-noise, engineered.</h3>
+  </div>
+</section>
+```
+
+## Props
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `height` | `number` | `120` | px |
+| `bars` | `number` | `48` | More bars = denser waveform |
+| `color` | `string` | `var(--color-accent)` | Stroke colour |
+
+## Dimensional adaptation
+
+- Restrained → disable the continuous pulse (drop the second animation), keep draw-in only.
+- Light surfaces → reduce bar opacity via `color-mix` of the accent with surface.
+- Technical → use a cool accent and narrower bars (6 gap instead of 3).

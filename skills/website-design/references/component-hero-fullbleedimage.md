@@ -1,156 +1,133 @@
-# FullBleedImageHero
+# FullBleedImageHero — `.astro`
 
-Full-screen background image with gradient overlay. Content anchored to bottom-left (`justify-end pb-24`). The image IS the atmosphere — the text is a caption for the feeling it creates.
+Full-viewport photograph with headline overlay. Tall, imagery-forward, register-setting. Pure `.astro`; entrance on load via CSS.
 
-```
+## Dimensional fit
+
+- surface-depth: any
+- motion-register: any (imagery does most of the work)
+- texture-appetite: medium, high
+- type-personality: humanist-serif, editorial-display
+- notes: Image must be real and intentional. Generic stock undermines everything. Keywords from direction card × brand domain.
+
+## File
+
+### `src/components/sections/FullBleedImageHero.astro`
+
+```astro
 ---
-component: FullBleedImageHero
-category: heroes
-subtype: full-bleed-image
+import HeroButton from "../ui/HeroButton.astro";
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: medium
-  energy-restrained: high
-  energy-moderate: medium
-  energy-energetic: low
-  motion-minimal: high
-  motion-moderate: low
-  motion-expressive: low
-  # escape (contrast-light): SaaS product with a human story where photography IS the brand asset and no product UI exists or is suitable as the primary hero visual
-
-visual-weight: heavy
-content-density: sparse
-trend-alignment: evergreen
-motion-profile: minimal
-
-use-when:
-  - Brand has a powerful editorial or atmospheric photograph
-  - The image communicates the brand feeling without text
-  - Dark luxury positioning or experiential/lifestyle brands
-  - Warm artisan where location or craft environment is the story
-
-avoid-when:
-  - Clean SaaS — product photography rarely has the atmospheric depth needed
-  - The image is a product mockup or screenshot (use BentoHero instead)
-  - The headline is longer than 10 words — bottom-left space is limited
-
-pairs-well-with: [LogoStrip, StatsStrip, FeaturedTestimonial]
-pairs-poorly-with: [SplitHero, BentoHero — competing visual intensity]
----
-```
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { EASE, DURATION, STAGGER } from "@/lib/animations";
-
-interface FullBleedImageHeroProps {
+interface Props {
+  image: { src: string; alt: string; };
+  eyebrow?: string;
   headline: string;
-  subline: string;
-  primaryCta: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
-  backgroundImage: string;
-  /** Overlay darkness — defaults to moderate for readability */
-  overlayIntensity?: "light" | "moderate" | "heavy";
+  sub?: string;
+  cta: { label: string; href: string };
+  overlay?: "dark" | "light" | "gradient";
 }
+const {
+  image, eyebrow, headline, sub, cta, overlay = "gradient",
+} = Astro.props;
+---
+<section class:list={["fb-image", `fb-image--${overlay}`]}>
+  <img class="fb-image__bg" src={image.src} alt={image.alt} width="2400" height="1600" loading="eager" fetchpriority="high" />
+  <div class="fb-image__scrim"></div>
+  <div class="fb-image__inner">
+    {eyebrow && <p class="fb-image__eyebrow" data-i="0">{eyebrow}</p>}
+    <h1 class="fb-image__headline" data-i="1">{headline}</h1>
+    {sub && <p class="fb-image__sub" data-i="2">{sub}</p>}
+    <div class="fb-image__cta" data-i="3">
+      <HeroButton href={cta.href}>{cta.label}</HeroButton>
+    </div>
+  </div>
+</section>
 
-const overlayMap = {
-  light: "from-black/60 via-black/30 to-black/10",
-  moderate: "from-black/80 via-black/50 to-black/20",
-  heavy: "from-black/90 via-black/60 to-black/30",
-};
+<style>
+  .fb-image {
+    position: relative;
+    min-height: 92vh;
+    display: grid;
+    place-items: end start;
+    overflow: hidden;
+    color: white;
+  }
+  .fb-image__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .fb-image__scrim {
+    position: absolute; inset: 0; z-index: 1;
+  }
+  .fb-image--dark .fb-image__scrim { background: rgb(0 0 0 / 0.42); }
+  .fb-image--light .fb-image__scrim { background: rgb(255 255 255 / 0.35); }
+  .fb-image--gradient .fb-image__scrim {
+    background: linear-gradient(180deg, transparent 30%, rgb(0 0 0 / 0.55) 85%);
+  }
+  .fb-image__inner {
+    position: relative;
+    z-index: 2;
+    max-width: 80rem;
+    width: 100%;
+    padding: 3rem 1.5rem;
+    margin: 0 auto;
+  }
+  .fb-image__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .fb-image__headline {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+    margin-top: 1rem;
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+  .fb-image__sub {
+    max-width: 48ch;
+    margin-top: 1.25rem;
+    opacity: 0.85;
+  }
+  .fb-image__cta { margin-top: 2rem; }
 
-export function FullBleedImageHero({
-  headline,
-  subline,
-  primaryCta,
-  secondaryCta,
-  backgroundImage,
-  overlayIntensity = "moderate",
-}: FullBleedImageHeroProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-    const items = ref.current.querySelectorAll("[data-animate]");
-    gsap.set(items, { y: 32, opacity: 0 });
-    gsap.to(items, {
-      y: 0,
-      opacity: 1,
-      duration: DURATION.slow,
-      stagger: STAGGER.relaxed,
-      ease: EASE.enter,
-      delay: 0.5,
-    });
-
-    // Subtle Ken Burns on the image
-    const img = ref.current.querySelector<HTMLImageElement>(".hero-bg-image");
-    if (img) {
-      gsap.fromTo(
-        img,
-        { scale: 1.08 },
-        { scale: 1, duration: 8, ease: "none" }
-      );
-    }
-  }, { scope: ref });
-
-  return (
-    <section
-      ref={ref}
-      id="hero"
-      className="relative min-h-screen flex items-end overflow-hidden"
-    >
-      {/* Background image */}
-      <div className="absolute inset-0">
-        <img
-          src={backgroundImage}
-          alt=""
-          role="presentation"
-          className="hero-bg-image h-full w-full object-cover"
-          width={1920}
-          height={1080}
-        />
-        {/* Multi-stop gradient — heavy at bottom for text legibility */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-t ${overlayMap[overlayIntensity]}`}
-        />
-      </div>
-
-      {/* Content — bottom-left anchored */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 lg:pb-28">
-        <h1
-          data-animate
-          className="max-w-[18ch] font-display font-bold text-display-xl leading-[1.05] tracking-tight text-white"
-        >
-          {headline}
-        </h1>
-        <p
-          data-animate
-          className="mt-5 max-w-[44ch] text-body-lg text-white/75 leading-relaxed"
-        >
-          {subline}
-        </p>
-        <div data-animate className="mt-8 flex flex-wrap gap-4">
-          <a
-            href={primaryCta.href}
-            className="inline-flex items-center rounded-lg bg-white px-7 py-3.5 text-body-sm font-semibold text-neutral-900 transition-all duration-200 hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            {primaryCta.label}
-          </a>
-          {secondaryCta && (
-            <a
-              href={secondaryCta.href}
-              className="inline-flex items-center rounded-lg border border-white/30 px-7 py-3.5 text-body-sm font-medium text-white transition-colors hover:bg-white/10 hover:border-white/50"
-            >
-              {secondaryCta.label}
-            </a>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
+  [data-i] {
+    opacity: 0; translate: 0 16px;
+    animation: fbi-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--d, 0) * 120ms);
+  }
+  [data-i="0"] { --d: 0; } [data-i="1"] { --d: 1; }
+  [data-i="2"] { --d: 2; } [data-i="3"] { --d: 3; }
+  @keyframes fbi-in { to { opacity: 1; translate: 0 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-i] { animation: none; opacity: 1; translate: 0 0; }
+  }
+</style>
 ```
+
+## Usage
+
+```astro
+<FullBleedImageHero
+  image={{
+    src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=2400&q=80",
+    alt: "A weathered fishing cabin in morning light on the west coast"
+  }}
+  eyebrow="Est. 1972"
+  headline="Ardnamurchan — stays that stay with you."
+  sub="Eight cabins on the loch. Booked direct. No keyboxes."
+  cta={{ label: "Check availability", href: "/book" }}
+  overlay="gradient"
+/>
+```
+
+## Dimensional adaptation
+
+- Restrained → use `overlay="dark"` at 30% opacity for uniform calm.
+- Expressive → remove the scrim; rely on colour contrast in the photo.
+- Technical → do NOT use this hero; imagery-forward hero is a poor fit for technical registers.

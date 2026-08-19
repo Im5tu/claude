@@ -1,167 +1,126 @@
-# SplitHeroPortrait
+# SplitHeroPortrait — `.astro`
 
-Text column left + full-height portrait photograph right. The portrait image is `min-h-screen object-cover` — it is not a landscape product shot but a tall, human-scale image. Specifically for refined-professional where the person is central to the brand.
+Variant of SplitHero optimised for founder-led and personal-brand sites. Text left, 4:5 or 3:4 portrait photograph right. Identical structure to SplitHero with slightly different proportions and treatment.
 
-```
+## Dimensional fit
+
+- surface-depth: light (default), dark possible with studio portrait
+- motion-register: restrained, moderate
+- texture-appetite: medium, high
+- type-personality: humanist-serif, editorial-display
+- notes: Portrait must be intentional — studio lighting, consistent with brand voice. A snapshot undercuts the rest of the site.
+
+## File
+
+### `src/components/sections/SplitHeroPortrait.astro`
+
+```astro
 ---
-component: SplitHeroPortrait
-category: heroes
-subtype: split-portrait
+import HeroButton from "../ui/HeroButton.astro";
+import Button from "../ui/Button.astro";
 
-dimension-fit:
-  contrast-dark: medium
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: medium
-  energy-energetic: low
-  motion-minimal: high
-  motion-moderate: low
-  motion-expressive: low
-  # escape (contrast-dark + energy-energetic): solo practitioner or founder whose personal energy and visual presence IS the brand's boldest claim — the portrait becomes the studio's most daring visual choice
-  # escape (contrast-light + energy-moderate + technical): founder-led SaaS or practitioner-researcher where the human identity is the primary differentiator from competitors
-
-visual-weight: medium
-content-density: moderate
-trend-alignment: evergreen
-motion-profile: minimal
-
-use-when:
-  - Refined Professional service business where the principal is the brand
-  - Warm Artisan maker/craftsperson whose face is integral to trust
-  - The image is a tall portrait photograph, not a landscape mockup
-  - Personal brand, professional services, consulting, coaching
-
-avoid-when:
-  - Bold Studio — portrait reads too safe
-  - Clean SaaS — product should be the visual, not a person
-  - When you only have landscape/wide images (use SplitHero instead)
-
-pairs-well-with: [StatsStrip, TestimonialGrid, AlternatingRows]
-pairs-poorly-with: [TypeHero, CenteredHero]
----
-```
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { EASE, DURATION, STAGGER } from "@/lib/animations";
-
-interface SplitHeroPortraitProps {
-  badge?: string;
+interface Props {
+  eyebrow?: string;
   headline: string;
-  subline: string;
-  primaryCta: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
-  /** Tall portrait image — ideally 2:3 or 3:4 aspect at source */
-  portraitImage: string;
-  portraitAlt: string;
-  /** Optional trust line beneath CTAs — e.g. "15 years advising FTSE 500 companies" */
-  trustLine?: string;
+  sub: string;
+  primary: { label: string; href: string };
+  secondary?: { label: string; href: string };
+  portrait: { src: string; alt: string; };
+  credit?: string;
 }
+const { eyebrow, headline, sub, primary, secondary, portrait, credit } = Astro.props;
+---
+<section class="shp">
+  <div class="shp__text">
+    {eyebrow && <p class="shp__eyebrow" data-i="0">{eyebrow}</p>}
+    <h1 class="shp__headline" data-i="1">{headline}</h1>
+    <p class="shp__sub" data-i="2">{sub}</p>
+    <div class="shp__cta" data-i="3">
+      <HeroButton href={primary.href}>{primary.label}</HeroButton>
+      {secondary && <Button variant="ghost" as="a" href={secondary.href}>{secondary.label}</Button>}
+    </div>
+  </div>
+  <figure class="shp__figure" data-i="4">
+    <img src={portrait.src} alt={portrait.alt} width="900" height="1200" loading="eager" />
+    {credit && <figcaption>{credit}</figcaption>}
+  </figure>
+</section>
 
-export function SplitHeroPortrait({
-  badge,
-  headline,
-  subline,
-  primaryCta,
-  secondaryCta,
-  portraitImage,
-  portraitAlt,
-  trustLine,
-}: SplitHeroPortraitProps) {
-  const ref = useRef<HTMLElement>(null);
+<style>
+  .shp {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 6rem 1.5rem 3rem;
+    min-height: 82vh;
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .shp { grid-template-columns: 6fr 5fr; gap: 4rem; }
+  }
+  .shp__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .shp__headline {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5.5vw, 4.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin-top: 1.25rem;
+    max-width: 20ch;
+    text-wrap: balance;
+  }
+  .shp__sub {
+    max-width: 56ch;
+    margin-top: 1.5rem;
+    color: var(--color-secondary);
+  }
+  .shp__cta { display: inline-flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
 
-  useGSAP(() => {
-    if (!ref.current) return;
-    const items = ref.current.querySelectorAll("[data-animate]");
-    gsap.set(items, { y: 24, opacity: 0 });
-    gsap.to(items, {
-      y: 0,
-      opacity: 1,
-      duration: DURATION.moderate,
-      stagger: STAGGER.normal,
-      ease: EASE.enter,
-      delay: 0.2,
-    });
+  .shp__figure { margin: 0; }
+  .shp__figure img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 1rem;
+    filter: saturate(0.95) contrast(1.03);
+  }
+  .shp__figure figcaption {
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-secondary);
+  }
 
-    // Portrait image: clip reveal from bottom
-    const portrait = ref.current.querySelector(".portrait-image-wrap");
-    if (portrait) {
-      gsap.fromTo(portrait,
-        { clipPath: "inset(100% 0 0 0)" },
-        { clipPath: "inset(0% 0 0 0)", duration: 0.8, ease: "power4.inOut", delay: 0.1 }
-      );
-    }
-  }, { scope: ref });
+  [data-i] {
+    opacity: 0; translate: 0 16px;
+    animation: shp-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--d, 0) * 120ms);
+  }
+  [data-i="0"] { --d: 0; } [data-i="1"] { --d: 1; }
+  [data-i="2"] { --d: 2; } [data-i="3"] { --d: 3; } [data-i="4"] { --d: 1; }
+  @keyframes shp-in { to { opacity: 1; translate: 0 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-i] { animation: none; opacity: 1; translate: 0 0; }
+  }
+</style>
+```
 
-  return (
-    <section
-      ref={ref}
-      id="hero"
-      className="relative flex min-h-screen bg-surface-primary overflow-hidden"
-    >
-      {/* Text column */}
-      <div className="flex items-start w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2">
-        <div className="flex flex-col justify-start pt-40 pb-24 lg:pr-16">
-          {badge && (
-            <span
-              data-animate
-              className="inline-block text-caption font-semibold text-accent tracking-widest uppercase mb-8"
-            >
-              {badge}
-            </span>
-          )}
-          <h1
-            data-animate
-            className="font-display font-bold text-display-xl leading-[1.05] tracking-tight text-primary max-w-[20ch]"
-          >
-            {headline}
-          </h1>
-          <p
-            data-animate
-            className="mt-6 text-body-lg text-secondary max-w-[44ch] leading-relaxed"
-          >
-            {subline}
-          </p>
-          <div data-animate className="mt-10 flex flex-wrap gap-4">
-            <a
-              href={primaryCta.href}
-              className="inline-flex items-center rounded-lg bg-accent px-7 py-3.5 text-body-sm font-semibold text-white transition-all duration-200 hover:bg-accent-light hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {primaryCta.label}
-            </a>
-            {secondaryCta && (
-              <a
-                href={secondaryCta.href}
-                className="inline-flex items-center rounded-lg border border-border px-7 py-3.5 text-body-sm font-medium text-primary transition-colors hover:bg-surface-secondary"
-              >
-                {secondaryCta.label}
-              </a>
-            )}
-          </div>
-          {trustLine && (
-            <p data-animate className="mt-8 text-caption text-secondary">
-              {trustLine}
-            </p>
-          )}
-        </div>
+## Usage
 
-        {/* Portrait image column — full height, no rounding, edge-to-edge */}
-        <div className="portrait-image-wrap hidden lg:block relative min-h-screen">
-          <img
-            src={portraitImage}
-            alt={portraitAlt}
-            className="absolute inset-0 h-full w-full object-cover object-top"
-            width={800}
-            height={1200}
-          />
-          {/* Subtle fade into background on left edge */}
-          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-surface-primary to-transparent" />
-        </div>
-      </div>
-    </section>
-  );
-}
+```astro
+<SplitHeroPortrait
+  eyebrow="Principal"
+  headline="Patricia Colenutt — advisor to independent founders."
+  sub="Twenty years guiding founder-led companies through growth, recapitalisation, and succession. Based in Edinburgh. Work in small numbers."
+  primary={{ label: "Request an introduction", href: "/contact" }}
+  secondary={{ label: "Background", href: "/about" }}
+  portrait={{ src: "/patricia.jpg", alt: "Patricia Colenutt in profile, natural light" }}
+  credit="Photography — Anna Huix"
+/>
 ```

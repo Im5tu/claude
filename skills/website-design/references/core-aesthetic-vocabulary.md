@@ -180,17 +180,12 @@ The interaction budget controls how many high-demand motion techniques are allow
 
 ---
 
-## §6 — Vocabulary File Matching
+## §6 — Your Direction Card IS the Calibration
 
-The `style-*.md` files are calibration anchors — the most fully-developed examples of how dimensional signals produce coherent output. When a generated direction shares dimensional territory with one of these files, read its "identity-defining — never override" and "why these bans exist" sections.
+There are no style presets. The six dimensions above + your generated direction card are the only calibration.
 
-| Style File | Surface Temp | Motion Restraint | Surface Depth | Authority | Type | Texture |
-|---|---|---|---|---|---|---|
-| style-refined-professional.md | Warm | Restrained | Light-first | Establishment | Humanist serif | Medium |
-| style-warm-artisan.md | Warm | Restrained | Light-first | Anti-establishment (craft) | Humanist serif | High |
-| style-bold-studio.md | Neutral | Expressive | Dark-first | Anti-establishment | Editorial display | Low |
-| style-dark-luxury.md | Cool | Restrained | Dark-first | Establishment | Humanist serif | Low |
-| style-clean-saas.md | Cool | Moderate | Light-first | Technical | Geometric sans | Low |
-| style-editorial-minimal.md | Neutral | Restrained | Light-first | Anti-establishment | Mixed (editorial) | Low |
-| style-vibrant-consumer.md | Warm | Expressive | Light-first | Consumer | Geometric sans | Low |
-| style-modern-organic.md | Warm | Restrained | Light-first | Anti-establishment (sustainability) | Humanist serif | High |
+When you assess the brief, you commit to a position on each of the six axes. Those positions — plus the typography, colour, and motion statements in your direction card — dictate every downstream decision: component selection, background rhythm, motion caps, image mood, surface treatment, copy register.
+
+Do not reach for a named aesthetic as shorthand. "Dark + restrained + humanist serif + establishment" is a position; "Dark Luxury" is a label that encourages template thinking. Author from the position.
+
+If two directions you're generating share 5 of 6 dimensional positions, they are variations — not distinct options. Regenerate.

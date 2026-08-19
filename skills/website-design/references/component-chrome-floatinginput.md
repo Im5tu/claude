@@ -1,56 +1,125 @@
-# FloatingInput
+# FloatingInput — `.astro`
 
-Form input with animated floating label. Use for contact forms, newsletter captures with fields, and any form that has more than one input. The label animates up and shrinks when the field receives focus or has a value.
+Form input with animated floating label. Pure CSS — no JS. The label sits over the input at rest and animates up + shrinks when the field has focus or contains a value, via the `:placeholder-shown` pseudo-class pattern.
 
-```tsx
-"use client";
-import { type InputHTMLAttributes } from "react";
-import { cn } from "@/lib/utils";
+## Dimensional fit
 
-interface FloatingInputProps extends InputHTMLAttributes<HTMLInputElement> {
+- surface-depth: any
+- motion-register: any
+- texture-appetite: any
+- type-personality: any
+- notes: The floating label uses `--color-secondary` at rest and `--color-accent` on focus. Borders use `--color-border` / `--color-border-strong`.
+
+## File
+
+### `src/components/ui/FloatingInput.astro`
+
+```astro
+---
+interface Props {
+  id: string;
+  name: string;
   label: string;
-  error?: string;
+  type?: "text" | "email" | "tel" | "url" | "password";
+  required?: boolean;
+  autocomplete?: string;
+  class?: string;
 }
+const {
+  id,
+  name,
+  label,
+  type = "text",
+  required = false,
+  autocomplete,
+  class: className = "",
+} = Astro.props;
+---
+<div class:list={["fi", className]}>
+  <input
+    id={id}
+    name={name}
+    type={type}
+    required={required}
+    autocomplete={autocomplete}
+    placeholder=" "
+    class="fi__input"
+  />
+  <label for={id} class="fi__label">{label}</label>
+</div>
 
-export function FloatingInput({ label, error, className, id, ...props }: FloatingInputProps) {
-  return (
-    <div className={cn("relative", className)}>
-      <input
-        id={id}
-        className={cn(
-          "peer w-full rounded-lg border bg-transparent px-4 pt-5 pb-2 text-base text-primary",
-          "outline-none transition-all duration-200",
-          error
-            ? "border-error focus:ring-2 focus:ring-error/20"
-            : "border-border focus:border-accent focus:ring-2 focus:ring-accent/20",
-        )}
-        placeholder=" "
-        aria-invalid={!!error}
-        aria-describedby={error ? `${id}-error` : undefined}
-        {...props}
-      />
-      <label
-        htmlFor={id}
-        className={cn(
-          "absolute left-4 transition-all duration-200 pointer-events-none",
-          // Resting state (placeholder visible)
-          "peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2",
-          "peer-placeholder-shown:text-base peer-placeholder-shown:text-disabled",
-          // Active / filled state
-          "peer-focus:top-2 peer-focus:text-xs peer-focus:text-accent peer-focus:-translate-y-0",
-          "peer-[:not(:placeholder-shown)]:top-2 peer-[:not(:placeholder-shown)]:text-xs",
-          "peer-[:not(:placeholder-shown)]:-translate-y-0",
-          error ? "text-error" : "text-secondary",
-        )}
-      >
-        {label}
-      </label>
-      {error && (
-        <p id={`${id}-error`} className="mt-1.5 text-xs text-error" role="alert">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
+<style>
+  .fi {
+    position: relative;
+    display: block;
+  }
+  .fi__input {
+    width: 100%;
+    padding: 1.25rem 1rem 0.75rem;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    color: var(--color-primary);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: border-color var(--motion-duration-fast) var(--ease-out-soft);
+  }
+  .fi__input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+  .fi__label {
+    position: absolute;
+    inset: 0.75rem auto auto 1rem;
+    pointer-events: none;
+    color: var(--color-secondary);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    transform-origin: left top;
+    transition:
+      translate var(--motion-duration-fast) var(--ease-out-soft),
+      scale var(--motion-duration-fast) var(--ease-out-soft),
+      color var(--motion-duration-fast) var(--ease-out-soft);
+  }
+  /* Resting state: field is empty (placeholder visible) and NOT focused */
+  .fi__input:placeholder-shown:not(:focus) + .fi__label {
+    translate: 0 0.55rem;
+    scale: 1.1;
+  }
+  /* Active state: focused OR has a value */
+  .fi__input:focus + .fi__label {
+    color: var(--color-accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fi__input, .fi__label { transition: none; }
+  }
+</style>
 ```
+
+## Props
+
+| Prop | Type | Required |
+|---|---|---|
+| `id` | `string` | yes |
+| `name` | `string` | yes |
+| `label` | `string` | yes |
+| `type` | `"text" \| "email" \| "tel" \| "url" \| "password"` | default `"text"` |
+| `required` | `boolean` | default `false` |
+| `autocomplete` | `string` | optional |
+
+## Usage
+
+```astro
+<form>
+  <FloatingInput id="name" name="name" label="Full name" required autocomplete="name" />
+  <FloatingInput id="email" name="email" label="Email" type="email" required autocomplete="email" />
+  <Button type="submit">Send</Button>
+</form>
+```
+
+## Notes
+
+- The `placeholder=" "` (single space) is load-bearing: it keeps `:placeholder-shown` working so the label animates when the field is empty.
+- For multi-line inputs, duplicate this pattern with `<textarea>` and swap the selector accordingly.
+- Validation state (`--color-error`) can be layered on by toggling a `data-invalid` attribute from a Solid form island if the direction requires inline errors.

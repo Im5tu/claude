@@ -18,16 +18,16 @@ A thin bar at the top of the viewport that grows from left to right as the user 
 }
 ```
 
-```js
-gsap.to('.scroll-progress', {
-  scaleX: 1,
-  ease: 'none',
-  scrollTrigger: {
-    start: 'top top',
-    end: 'bottom bottom',
-    scrub: 0,  // exact tracking, no smoothing
-  }
-});
+```css
+/* Scroll-linked scale — pure CSS, no JS */
+.scroll-progress {
+  animation: sp-fill linear both;
+  animation-timeline: scroll(root);
+}
+@keyframes sp-fill { to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress { animation: none; }
+}
 ```
 
 Height: 2–3px. Thinner than 2px becomes invisible; thicker than 4px becomes a design element competing with the navbar. Colour: brand accent colour, optionally with a subtle gradient (`linear-gradient(90deg, var(--color-accent), var(--color-accent-light))`). Use `scaleX` transform (not `width`) for GPU performance — animating `width` causes layout recalculation on every frame. Completion state: when `scaleX` reaches 1, optionally fade the bar out after a 1-second delay — the reader has finished, so the progress indicator is no longer needed.

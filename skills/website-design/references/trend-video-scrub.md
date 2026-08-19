@@ -5,33 +5,15 @@ The user's scroll position directly controls a video's playback position. Scroll
 
 Video requirements: preloaded (`<video preload="auto" muted playsinline>`), muted (browsers block autoplay of unmuted video), encoded for smooth scrubbing — H.264 with high keyframe density (ideally every frame is a keyframe), short duration (10–30 seconds). Long videos scrub poorly because browsers cannot seek to arbitrary frames quickly enough. High keyframe density increases file size significantly; keep scrub videos under 15 seconds for manageable payloads.
 
-Frame sequence alternative for smoother results: export the video as a numbered image sequence (`frames/frame_0000.jpg` through `frames/frame_0120.jpg`), then update the displayed image per frame index based on scroll progress. This is smoother than video scrubbing for short sequences (under 120 frames) because image loading can be prefetched and there is no codec seeking latency. Implementation: preload all frames into an array, then on ScrollTrigger `onUpdate`, set `element.style.backgroundImage = url(frames[frameIndex])` or draw to a `<canvas>` element for better performance.
+Frame sequence alternative for smoother results: export the video as a numbered image sequence (`frames/frame_0000.jpg` through `frames/frame_0120.jpg`), then update the displayed image per frame index based on scroll progress. This is smoother than video scrubbing for short sequences (under 120 frames) because image loading can be prefetched and there is no codec seeking latency. Implementation: preload all frames into an array, then inside a Solid island's scroll/`scrollY` listener, set `element.style.backgroundImage = url(frames[frameIndex])` or draw to a `<canvas>` element for better performance.
 
 ## Implementation
-```js
-const video = document.querySelector('.scrub-video');
 
-gsap.to({}, {
-  scrollTrigger: {
-    trigger: '.video-scrub-section',
-    start: 'top top',
-    end: '+=5000',       // scroll distance mapped to video duration
-    pin: true,
-    scrub: 0,            // scrub: 0 for frame-accurate sync (no smoothing)
-    onUpdate: (self) => {
-      if (video.duration) {
-        video.currentTime = self.progress * video.duration;
-      }
-    }
-  }
-});
-```
+Requires JS — `animation-timeline: scroll()` cannot drive `video.currentTime`. Use a **SolidJS island** hydrated `client:visible`. Inside `onMount`, set up a `scroll()` listener via `ScrollTimeline` / `AnimationPlaybackEvent` when available, otherwise fall back to `requestAnimationFrame` + `scrollY` — debounced to avoid hammering the video decoder.
 
-```html
-<video class="scrub-video" preload="auto" muted playsinline>
-  <source src="/video/product-rotate.mp4" type="video/mp4">
-</video>
-```
+Minimum: preloaded `<video preload="auto" muted playsinline>` sized full-viewport inside a tall wrapper using `position: sticky` for the pin. Map `window.scrollY` within the wrapper's bounds to `video.currentTime` proportionally.
+
+Under `prefers-reduced-motion`, render the video's poster frame only and skip the scroll listener. See `core-animation.md` §Things CSS cannot do today — this is one of them.
 
 Premium execution: the video or frame sequence is purpose-shot for scrubbing — a product rotating on a turntable, an ingredient dissolving into a recipe, a building being constructed floor by floor, a garment being assembled stitch by stitch. Stock footage scrubbed via scroll reads as a tech demo. The content must justify the mechanic — if the video would work just as well at normal 1x playback, scrubbing adds friction without value.
 

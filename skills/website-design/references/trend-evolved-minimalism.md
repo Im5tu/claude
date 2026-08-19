@@ -29,13 +29,8 @@ Not "very little on page" — "more with less": maximum focus with minimum visua
   </div>
 </section>
 
-// High-interaction within sparse visual
-const xTo = gsap.quickTo(".minimal-element", "x", { duration: 0.6, ease: "power3" });
-const yTo = gsap.quickTo(".minimal-element", "y", { duration: 0.6, ease: "power3" });
-document.addEventListener("mousemove", (e) => {
-  xTo(e.clientX - window.innerWidth / 2);
-  yTo(e.clientY - window.innerHeight / 2);
-});
+// High-interaction within sparse visual — Solid island mutates CSS vars, CSS transitions interpolate.
+// See trend-cursor-interactions.md for the canonical pattern.
 ```
 
 ## Premium Signals

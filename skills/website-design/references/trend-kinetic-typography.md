@@ -1,29 +1,28 @@
 # Trend: Kinetic Typography
 
 ## What It Is
-Type that moves in response to scroll or time. The dominant pattern is the TextReveal: words or lines clipped inside an overflow-hidden container, animating from `y: 100%` to `y: 0` on entrance. GSAP implementation: wrap each line in a clip container, use `gsap.from('.line', { yPercent: 100, stagger: 0.08, ease: 'power3.out' })`. Scroll-linked variants map font-size or letter-spacing to scroll progress via `ScrollTrigger` with `scrub: 1`. Character-by-character reveals are high-impact for short hero phrases. Kinetic type's purpose is to sequence information delivery — fast reveals for punchy claims, slower reveals for emotional weight.
+Type that moves in response to scroll or time. The dominant pattern is the TextReveal: words or lines clipped inside an overflow-hidden container, animating from `translate: 0 100%` to `translate: 0 0` on entrance. Scroll-linked variants map `font-size` or `letter-spacing` to scroll progress via `animation-timeline: scroll()` (and `@property` to make the value interpolatable). Character-by-character reveals are high-impact for short hero phrases. Kinetic type's purpose is to sequence information delivery — fast reveals for punchy claims, slower reveals for emotional weight.
 
 ## Implementation
-```js
-// Line-by-line text reveal
-gsap.from('.line', {
-  yPercent: 100,
-  stagger: 0.08,
-  ease: 'power3.out',
-  duration: 0.8,
-  scrollTrigger: {
-    trigger: '.headline-container',
-    start: 'top 80%',
-  }
-});
 
-// Character-by-character reveal for short phrases
-gsap.from('.char', {
-  yPercent: 100,
-  stagger: 0.02,
-  ease: 'power3.out',
-  duration: 0.6,
-});
+Use the shared `TextReveal.astro` primitive from `core-animation.md` — it handles word/char splitting at build time and drives per-part `animation-delay: calc(var(--i) * stagger)` via `animation-timeline: view()`. Pure CSS, zero JS.
+
+Scroll-linked axis changes:
+
+```css
+.kinetic-headline {
+  font-variation-settings: 'wght' 400;
+  animation: kin-weight linear both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 50%;
+}
+@property --wght { syntax: "<number>"; inherits: true; initial-value: 400; }
+@keyframes kin-weight {
+  to { font-variation-settings: 'wght' 900; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kinetic-headline { animation: none; }
+}
 ```
 
 ## Premium Signals

@@ -1,46 +1,48 @@
 # Trend: Scroll-Linked Text Effects
 
 ## What It Is
-Text properties that change continuously as the user scrolls, linked to scroll position via `scrub` rather than triggered once at viewport entry. The distinction is critical: scroll-triggered text animations fire once (text fades in, then stays) and are entrance choreography. Scroll-linked text effects are ongoing — the text's visual properties are live-mapped to scroll position and change as long as the user is scrolling through the relevant section.
+Text properties that change continuously as the user scrolls, linked to scroll position via `animation-timeline: scroll()` / `view()` rather than triggered once at viewport entry. The distinction is critical: scroll-triggered text animations fire once (text fades in, then stays) and are entrance choreography. Scroll-linked text effects are ongoing — the text's visual properties are live-mapped to scroll position and change as long as the user is scrolling through the relevant section.
 
 Examples of scroll-linked text effects: words transition from `color: #999` (grey) to `color: #000` (black) as they "pass through" the viewport centre, creating a reading-progress highlight effect (the Apple "shot on iPhone" style). A headline's `letter-spacing` narrows from `0.2em` to `0` as the user scrolls down, giving the visual impression of the text tightening or focusing. Text `color` interpolates between two brand colours over the height of a section. A word's `font-weight` shifts from 300 to 700 as it crosses the viewport midpoint (requires a variable font). Individual characters scale from `0.8` to `1` as they enter and pass through the viewport.
 
 ## Implementation
-```js
-// Word-by-word reading progress: grey to black
-gsap.utils.toArray('.scroll-word').forEach((word) => {
-  gsap.to(word, {
-    color: '#000',
-    scrollTrigger: {
-      trigger: word,
-      start: 'top 80%',
-      end: 'top 30%',
-      scrub: 1,
-    }
-  });
-});
 
-// Headline letter-spacing tightening
-gsap.to('.headline', {
-  letterSpacing: '0em',
-  scrollTrigger: {
-    trigger: '.headline-section',
-    start: 'top bottom',
-    end: 'top 20%',
-    scrub: 1,
-  }
-});
+Pure CSS. Every effect is an `@property`-registered variable interpolating via `animation-timeline: view()` (per-word) or `scroll()` (per-section).
 
-// Colour interpolation over section height
-gsap.to('.statement-text', {
-  color: 'var(--color-accent)',
-  scrollTrigger: {
-    trigger: '.statement-section',
-    start: 'top center',
-    end: 'bottom center',
-    scrub: 1,
-  }
-});
+```css
+/* Word-by-word reading progress: grey → accent */
+.scroll-word {
+  color: color-mix(in oklab, currentColor 40%, transparent);
+  animation: sw-fill linear both;
+  animation-timeline: view();
+  animation-range: entry 20% cover 60%;
+}
+@keyframes sw-fill { to { color: var(--color-primary); } }
+
+/* Headline letter-spacing tightens as the section enters */
+@property --tr { syntax: "<length>"; inherits: false; initial-value: 0.2em; }
+.headline {
+  letter-spacing: var(--tr);
+  animation: hd-tighten linear both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 80%;
+}
+@keyframes hd-tighten { to { --tr: 0em; } }
+
+/* Colour interpolation over full section scroll */
+.statement-text {
+  animation: st-colour linear both;
+  animation-timeline: view(block);
+  animation-range: cover 0% cover 100%;
+}
+@keyframes st-colour {
+  from { color: var(--color-secondary); }
+  to   { color: var(--color-accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-word, .headline, .statement-text { animation: none; }
+}
 ```
 
 Premium execution: the text effect reinforces the content's meaning. A headline about "clarity" tightens its tracking as the user scrolls, literally becoming clearer. A word about "growth" fills with brand colour from left to right as the user scrolls past it. A paragraph about "precision" narrows its letter-spacing to a tight, precise setting. When the animation is semantic — when it means something — the effect elevates from decoration to communication. When it is applied generically (every heading tightens its tracking), it becomes wallpaper.

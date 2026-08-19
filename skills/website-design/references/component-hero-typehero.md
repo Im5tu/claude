@@ -1,187 +1,106 @@
-# TypeHero
+# TypeHero — `.astro`
 
-Typography IS the visual. Oversized headline fills most of the viewport. Three-zone flex-col layout: label at top, headline in the middle zone, subline and CTA at the bottom. No background image — ever.
+Typography IS the visual. Massive display headline, often spanning 2–3 lines, with a single CTA beneath. No background image, no mesh, no video. The type carries the entire hero.
 
-```
+## Dimensional fit
+
+- surface-depth: any
+- motion-register: moderate, expressive
+- texture-appetite: any
+- type-personality: editorial-display (strongest), humanist-serif with dramatic weight contrast, geometric-sans at extreme size
+- notes: The strongest choice for anti-establishment, editorial, and bold-expressive registers. Do NOT add a background image.
+
+## File
+
+### `src/components/sections/TypeHero.astro`
+
+```astro
 ---
-component: TypeHero
-category: heroes
-subtype: typographic-statement
+import TextReveal from "../ui/TextReveal.astro";
+import HeroButton from "../ui/HeroButton.astro";
 
-dimension-fit:
-  contrast-dark: medium
-  contrast-light: low
-  energy-restrained: low
-  energy-moderate: medium
-  energy-energetic: high
-  motion-minimal: low
-  motion-moderate: high
-  motion-expressive: medium
-  # escape (contrast-light + energy-restrained): thought-leadership or philosophy-first firm where the founding conviction IS the credibility signal, and no photography or product visual exists
-  # escape (energy-restrained + texture-high): brand whose primary offering is ideas, words, or coaching — where typography IS the craft demonstration and imagery would misrepresent the product
-
-visual-weight: heavy
-content-density: sparse
-trend-alignment: trending
-motion-profile: moderate
-
-use-when:
-  - The brand's typography IS the identity
-  - Bold Studio preset — kinetic, oversized, warehouse-gallery energy
-  - Single powerful concept that needs no supporting image
-  - Dark Luxury when the statement alone is enough atmosphere
-
-avoid-when:
-  - Refined Professional — oversized type reads as aggressive, not authoritative
-  - Warm Artisan — impersonal, lacks human warmth
-  - Clean SaaS unless the product itself is exceptionally high-concept
-  - NEVER add a background image or photograph to this variant
-
-pairs-well-with: [StatsStrip, AlternatingRows, FeaturedTestimonial]
-pairs-poorly-with: [SplitHero — cannot follow with an immediately conventional layout]
----
-```
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface TypeHeroProps {
-  /** Small overline label — e.g., "Est. 2019" or "Design Studio" */
-  label: string;
-  /** The main headline — make it short and powerful */
-  headline: string;
-  /** The accent keyword within the headline to colorize */
-  accentWord?: string;
-  subline: string;
-  primaryCta: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
+interface Props {
+  eyebrow?: string;
+  headline: string;        // use "/" or "\n" as a line break if desired
+  sub?: string;
+  cta: { label: string; href: string };
 }
+const { eyebrow, headline, sub, cta } = Astro.props;
+---
+<section class="type-hero">
+  <div class="type-hero__inner">
+    {eyebrow && <p class="type-hero__eyebrow">{eyebrow}</p>}
+    <h1 class="type-hero__headline">
+      <TextReveal text={headline} stagger={70} />
+    </h1>
+    {sub && <p class="type-hero__sub">{sub}</p>}
+    <div class="type-hero__cta">
+      <HeroButton href={cta.href}>{cta.label}</HeroButton>
+    </div>
+  </div>
+</section>
 
-export function TypeHero({
-  label,
-  headline,
-  accentWord,
-  subline,
-  primaryCta,
-  secondaryCta,
-}: TypeHeroProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    // Label fades in first
-    const labelEl = ref.current.querySelector(".type-hero-label");
-    if (labelEl) {
-      gsap.fromTo(labelEl, { opacity: 0, y: 12 }, {
-        opacity: 1, y: 0,
-        duration: DURATION.moderate,
-        ease: EASE.enter,
-        delay: 0.1,
-      });
+<style>
+  .type-hero {
+    min-height: 88vh;
+    display: grid;
+    place-items: center;
+    padding: 8rem 1.5rem 4rem;
+  }
+  .type-hero__inner { max-width: 72rem; margin: 0 auto; }
+  .type-hero__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    opacity: 0;
+    animation: fade-in 500ms cubic-bezier(0.2, 0.8, 0.2, 1) 50ms forwards;
+  }
+  .type-hero__headline {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 10vw, 9rem);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    margin-top: 1.5rem;
+  }
+  .type-hero__sub {
+    max-width: 46ch;
+    margin-top: 2rem;
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    color: var(--color-secondary);
+    opacity: 0;
+    animation: fade-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) 700ms forwards;
+  }
+  .type-hero__cta {
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fade-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) 900ms forwards;
+  }
+  @keyframes fade-in {
+    to { opacity: 1; translate: 0 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .type-hero__eyebrow, .type-hero__sub, .type-hero__cta {
+      animation: none; opacity: 1;
     }
-
-    // Headline words reveal upward — clip mask technique
-    const words = ref.current.querySelectorAll(".type-hero-word");
-    gsap.fromTo(words,
-      { y: "105%", opacity: 0 },
-      {
-        y: "0%",
-        opacity: 1,
-        duration: 0.65,
-        stagger: 0.06,
-        ease: "power4.out",
-        delay: 0.25,
-      }
-    );
-
-    // Bottom zone: subline + CTAs
-    const bottom = ref.current.querySelectorAll("[data-bottom-animate]");
-    gsap.fromTo(bottom,
-      { opacity: 0, y: 16 },
-      {
-        opacity: 1, y: 0,
-        duration: DURATION.moderate,
-        stagger: 0.08,
-        ease: EASE.enter,
-        delay: 0.7,
-      }
-    );
-  }, { scope: ref });
-
-  // Split headline into words for reveal
-  const words = headline.split(" ");
-
-  return (
-    <section
-      ref={ref}
-      id="hero"
-      className="relative min-h-screen flex flex-col bg-surface-primary"
-    >
-      {/* Zone 1: Label — top */}
-      <div className="px-6 pt-32 lg:pt-40">
-        <span className="type-hero-label inline-block text-caption font-semibold text-secondary tracking-widest uppercase opacity-0">
-          {label}
-        </span>
-      </div>
-
-      {/* Zone 2: Headline — middle, starts at justify-start with top padding */}
-      <div className="flex-1 flex items-start px-6 pt-12 lg:pt-16">
-        <h1
-          className="font-display font-bold leading-[0.92] tracking-tight text-primary"
-          style={{ fontSize: "clamp(80px, 14vw, 220px)" }}
-        >
-          {words.map((word, i) => {
-            const isAccent = accentWord && word.toLowerCase().replace(/[.,!?;:]$/, "") === accentWord.toLowerCase();
-            return (
-              <span key={i} className="inline-block overflow-hidden align-bottom">
-                <span
-                  className={`type-hero-word inline-block ${
-                    isAccent ? "text-accent italic" : ""
-                  }`}
-                >
-                  {word}
-                  {i < words.length - 1 && "\u00A0"}
-                </span>
-              </span>
-            );
-          })}
-        </h1>
-      </div>
-
-      {/* Zone 3: Subline + CTA — bottom */}
-      <div className="px-6 pb-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-8">
-        <p
-          data-bottom-animate
-          className="text-body-lg text-secondary max-w-[44ch] leading-relaxed opacity-0"
-        >
-          {subline}
-        </p>
-        <div data-bottom-animate className="flex flex-wrap gap-4 shrink-0 opacity-0">
-          <a
-            href={primaryCta.href}
-            className="inline-flex items-center rounded-lg bg-primary px-7 py-3.5 text-body-sm font-semibold text-white transition-all duration-200 hover:opacity-80 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            {primaryCta.label}
-          </a>
-          {secondaryCta && (
-            <a
-              href={secondaryCta.href}
-              className="inline-flex items-center rounded-lg border border-border px-7 py-3.5 text-body-sm font-medium text-primary transition-all duration-200 hover:bg-surface-secondary"
-            >
-              {secondaryCta.label}
-            </a>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
+  }
+</style>
 ```
+
+## Usage
+
+```astro
+<TypeHero
+  eyebrow="Est. 2015"
+  headline="We build the quiet part."
+  sub="An independent product studio for teams that would rather ship than pitch."
+  cta={{ label: "Start a project", href: "/contact" }}
+/>
+```
+
+## Dimensional adaptation
+
+- Restrained + editorial → use a humanist serif with heavy weight contrast (mix light italic + heavy upright).
+- Expressive → push `font-size` to `11vw`, raise `letter-spacing` to `-0.04em`.
+- Dark surface → invert colours; let the eyebrow accent glow against black.

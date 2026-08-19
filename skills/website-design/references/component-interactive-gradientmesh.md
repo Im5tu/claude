@@ -1,109 +1,86 @@
-# GradientMesh
+# GradientMesh — `.astro`
 
-Animated gradient background with slowly shifting color orbs. Atmosphere, not animation — the motion should be nearly imperceptible. This is a **background layer**, not a standalone section. Always use it inside another section's `absolute inset-0` context.
+Animated gradient background — atmospheric, not attention-grabbing. Layered radial gradients drift slowly via `background-position` keyframes. Pure CSS. Use as a background layer inside another section (`position: absolute; inset: 0`).
 
-```markdown
+## Dimensional fit
+
+- surface-depth: dark (most effective), light (possible with pale tints)
+- motion-register: any (motion is intentionally slow)
+- texture-appetite: low / medium — texture-high directions can pair but watch for muddiness
+- type-personality: any
+- notes: Keep orb opacity below 40%. The mesh should recede, not compete.
+
+## File
+
+### `src/components/sections/GradientMesh.astro`
+
+```astro
 ---
-component: GradientMesh
-category: interactive
-subtype: atmospheric-background
-
-dimension-fit:
-  contrast-dark: high
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: high
-  energy-energetic: high
-visual-weight: light
-content-density: sparse
-trend-alignment: trending
-motion-profile: minimal
-
-use-when:
-  - Hero section needs visual energy without a photograph
-  - Dark section needs depth and atmosphere
-  - Paired with GlassCard for a frosted-overlay treatment
-
-avoid-when:
-  - warm-artisan (too digital, undermines handcrafted feel — BANNED)
-  - editorial-minimal (competes with typography as design system — BANNED)
-  - On a flat white background section (orbs become muddy blobs)
-
-pairs-well-with: [GlassCard, FloatingShapes, TelemetryFeed]
-pairs-poorly-with: [Manifesto, MarqueeScroller]
+interface Props {
+  colorA?: string;
+  colorB?: string;
+  colorC?: string;
+  class?: string;
+}
+const {
+  colorA = "var(--color-accent)",
+  colorB = "var(--color-accent-light)",
+  colorC = "var(--color-accent-dark)",
+  class: className = "",
+} = Astro.props;
 ---
+<div
+  class:list={["mesh", className]}
+  style={`--a: ${colorA}; --b: ${colorB}; --c: ${colorC};`}
+  aria-hidden="true"
+></div>
+
+<style>
+  .mesh {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(600px at 20% 20%, color-mix(in oklab, var(--a) 35%, transparent), transparent 70%),
+      radial-gradient(700px at 80% 30%, color-mix(in oklab, var(--b) 28%, transparent), transparent 70%),
+      radial-gradient(500px at 60% 80%, color-mix(in oklab, var(--c) 30%, transparent), transparent 70%);
+    background-size: 200% 200%;
+    background-position: 0% 0%, 100% 0%, 50% 100%;
+    animation: mesh-drift 24s ease-in-out infinite alternate;
+    filter: blur(40px);
+  }
+  @keyframes mesh-drift {
+    to {
+      background-position: 30% 40%, 70% 60%, 40% 30%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mesh { animation: none; }
+  }
+</style>
 ```
 
-**Note:** This is a background layer, not a standalone section. Always position it inside a `relative` parent with `absolute inset-0` overflow-hidden.
+## Usage
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-
-interface GradientMeshProps {
-  /** Three color stops for the orbs. Use preset palette colors. */
-  colors: [string, string, string];
-  className?: string;
-}
-
-export function GradientMesh({ colors, className }: GradientMeshProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-    const orbs = ref.current.querySelectorAll<HTMLDivElement>(".mesh-orb");
-
-    orbs.forEach((orb, i) => {
-      gsap.to(orb, {
-        x: () => gsap.utils.random(-100, 100),
-        y: () => gsap.utils.random(-80, 80),
-        scale: gsap.utils.random(0.8, 1.3),
-        duration: gsap.utils.random(8, 14),
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: 3,
-        delay: i * 1.5,
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top bottom",
-          end: "bottom top",
-          toggleActions: "play pause resume pause",
-        },
-      });
-    });
-  }, { scope: ref });
-
-  return (
-    <div
-      ref={ref}
-      className={`absolute inset-0 overflow-hidden ${className ?? ""}`}
-      aria-hidden="true"
-    >
-      <div
-        className="mesh-orb absolute top-1/4 left-1/4 h-[50vh] w-[50vh] rounded-full opacity-30 blur-[120px]"
-        style={{ backgroundColor: colors[0] }}
-      />
-      <div
-        className="mesh-orb absolute top-1/3 right-1/4 h-[40vh] w-[40vh] rounded-full opacity-25 blur-[100px]"
-        style={{ backgroundColor: colors[1] }}
-      />
-      <div
-        className="mesh-orb absolute bottom-1/4 left-1/3 h-[45vh] w-[45vh] rounded-full opacity-20 blur-[110px]"
-        style={{ backgroundColor: colors[2] }}
-      />
-    </div>
-  );
-}
-```
-
-**Usage:**
-```tsx
-<section className="relative min-h-screen flex items-center">
-  <GradientMesh colors={["#6366F1", "#A78BFA", "#06B6D4"]} />
-  <div className="relative z-10">
-    {/* Hero content */}
+```astro
+<section class="relative overflow-hidden bg-[var(--color-surface-dark)] text-[var(--color-primary-on-dark)] py-24">
+  <GradientMesh />
+  <div class="relative z-10 max-w-4xl mx-auto px-6">
+    <h2 class="text-6xl tracking-tight">Quiet systems, loud outcomes.</h2>
   </div>
 </section>
 ```
+
+## Props
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `colorA` | `string` | `--color-accent` | Any colour token or literal |
+| `colorB` | `string` | `--color-accent-light` | |
+| `colorC` | `string` | `--color-accent-dark` | |
+
+## Dimensional adaptation
+
+- Restrained → extend animation duration to 45–60s, drop opacity to 20%.
+- Expressive → reduce blur to 28px, raise opacity to 45%.
+- Dark + technical → use cool accent trios (slate, steel, teal).

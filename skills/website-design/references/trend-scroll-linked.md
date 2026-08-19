@@ -1,20 +1,28 @@
 # Trend: Scroll-Linked Animations
 
 ## What It Is
-Animations whose progress is continuously mapped to scroll position rather than triggered once at scroll entry. GSAP ScrollTrigger with `scrub: true` (or `scrub: 1` for 1-second lag smoothing). Use cases: parallax layer depth (background at 0.3x scroll rate, foreground at 1x), colour transitions between sections (background-color interpolated via ScrollTrigger `onUpdate`), scale transformations that begin oversized and reduce to final scale as the user reaches the section, and text tracking changes tied to scroll progress. The key distinction from triggered animation: the user feels in control of the motion, as though they are pulling the animation forward with their scroll. Premium scrub lag: 0.8–1.2 seconds. Too little (0.1) feels jerky; too much (3+) feels broken.
+Animations whose progress is continuously mapped to scroll position rather than triggered once at scroll entry. Native CSS `animation-timeline: scroll()` and `view()` handle this directly, composited off-main-thread by the browser. Use cases: parallax layer depth (background at 0.3x scroll rate, foreground at 1x), colour transitions between sections, scale transformations that begin oversized and reduce to final scale as the section enters, text tracking changes tied to scroll progress. The user feels in control of the motion, as though pulling the animation forward with their scroll.
 
 ## Implementation
-```js
-gsap.to('.parallax-bg', {
-  y: -200,
-  scrollTrigger: {
-    trigger: '.section',
-    start: 'top bottom',
-    end: 'bottom top',
-    scrub: 1, // 1-second lag smoothing
-  }
-});
+
+Pure CSS:
+
+```css
+.parallax-bg {
+  animation: parallax-y linear both;
+  animation-timeline: view();
+  animation-range: entry 0% exit 100%;
+}
+@keyframes parallax-y {
+  from { translate: 0 -200px; }
+  to   { translate: 0  200px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .parallax-bg { animation: none; translate: 0 0; }
+}
 ```
+
+For document-scoped timelines (progress bars, nav morph) use `animation-timeline: scroll(root)` — see `core-animation.md` §ParallaxLayer and §Navbar scroll morph. No JS, no scrub lag — the browser interpolates on the compositor thread.
 
 ## Premium Signals
 - Scrub animations calibrated to content length — a longer horizontal scroll section uses a faster scrub rate to maintain proportion

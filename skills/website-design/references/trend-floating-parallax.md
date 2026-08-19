@@ -1,46 +1,44 @@
 # Trend: Floating / Drifting Parallax Hero Elements
 
 ## What It Is
-Multiple absolutely-positioned decorative elements within a hero section, each responding to cursor movement at different speeds to create a layered depth illusion. The hero container listens for `mousemove` events and computes normalised coordinates: `(mouseX - centerX) / width` and `(mouseY - centerY) / height`, yielding values from -0.5 to +0.5. Each floating element receives `gsap.to(element, { x: normalizedX * depth, y: normalizedY * depth, duration: 0.5, ease: 'power2.out' })` where `depth` varies per layer — 20 for the furthest elements, 40 and 60 for mid-layers, 80 for the closest. The variation in depth values is what manufactures the perception of three-dimensional space; uniform depth collapses the effect into a flat wobble. Independently, each element carries a CSS idle drift: `@keyframes float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-20px) } }` on a 6–8 second cycle, with per-element `animation-delay` values so the drift feels asynchronous and organic rather than synchronised. On mobile, cursor parallax is replaced with scroll-driven parallax (`gsap.to(element, { y: scrollOffset * depthFactor })`) since touch devices have no persistent cursor position.
+Multiple absolutely-positioned decorative elements within a hero, each responding to cursor movement at different speeds to create a layered depth illusion. Each floating element gets a per-layer `depth` value (e.g. 20, 40, 60, 80) — varied depth is what manufactures the three-dimensional illusion; uniform depth collapses to a flat wobble. Independently, each element carries a slow idle drift on a 6–8 second CSS cycle with staggered `animation-delay`. On touch devices, cursor parallax becomes scroll-driven via `animation-timeline: scroll(root)`.
 
 ## Implementation
-```js
-// Cursor-driven parallax
-const hero = document.querySelector('.hero');
-const layers = document.querySelectorAll('.float-element');
-const depths = [20, 40, 60, 80];
 
-hero.addEventListener('mousemove', (e) => {
-  const rect = hero.getBoundingClientRect();
-  const normalizedX = (e.clientX - rect.left) / rect.width - 0.5;
-  const normalizedY = (e.clientY - rect.top) / rect.height - 0.5;
+Idle drift is pure CSS. Cursor parallax requires a tiny **SolidJS island** (there's no native cursor-timeline yet).
 
-  layers.forEach((layer, i) => {
-    gsap.to(layer, {
-      x: normalizedX * depths[i],
-      y: normalizedY * depths[i],
-      duration: 0.5,
-      ease: 'power2.out'
-    });
-  });
-});
+```astro
+<!-- src/components/sections/FloatingParallaxHero.astro -->
+<section class="fph">
+  <div class="fph__shape" style="--d: 20;"></div>
+  <div class="fph__shape" style="--d: 40;"></div>
+  <div class="fph__shape" style="--d: 60;"></div>
+  <div class="fph__shape" style="--d: 80;"></div>
+  <slot />
+</section>
+
+<style>
+  .fph { position: relative; overflow: hidden; }
+  .fph__shape {
+    position: absolute;
+    --mx: 0; --my: 0;
+    translate: calc(var(--mx, 0) * var(--d) * 1px) calc(var(--my, 0) * var(--d) * 1px);
+    transition: translate 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: fph-drift 7s ease-in-out infinite;
+  }
+  .fph__shape:nth-child(2) { animation-delay: -2s; }
+  .fph__shape:nth-child(3) { animation-delay: -4s; }
+  .fph__shape:nth-child(4) { animation-delay: -6s; }
+  @keyframes fph-drift {
+    50% { translate: calc(var(--mx, 0) * var(--d) * 1px) calc(var(--my, 0) * var(--d) * 1px + -20px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fph__shape { animation: none; transition: none; translate: 0 0; }
+  }
+</style>
 ```
 
-```css
-/* Idle drift animation */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-
-.float-element {
-  animation: float 7s ease-in-out infinite;
-}
-
-.float-element:nth-child(2) { animation-delay: -2s; }
-.float-element:nth-child(3) { animation-delay: -4s; }
-.float-element:nth-child(4) { animation-delay: -6s; }
-```
+In a lightweight Solid island (`client:visible`), attach a single `mousemove` to the section and mutate `--mx` / `--my` CSS vars on each shape. No GSAP needed — CSS transitions smooth the interpolation.
 
 ## Premium Signals
 - Floating parallax elements with genuinely varied depth values (20, 40, 60, 80) — not uniform translation distances

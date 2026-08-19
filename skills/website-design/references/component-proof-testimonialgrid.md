@@ -1,218 +1,89 @@
-# TestimonialGrid
+# TestimonialGrid — `.astro`
 
-2-3 testimonial cards in a grid. Each card: stars + quote + name + role + optional avatar. The standard testimonials section for most sites.
+4–6 shorter testimonials laid out in a grid. Each card has a quote, a short attribution, optional company logo.
 
-```
+## Dimensional fit
+
+- surface-depth: any
+- motion-register: any
+- texture-appetite: any
+- type-personality: any
+
+## File
+
+### `src/components/sections/TestimonialGrid.astro`
+
+```astro
 ---
-component: TestimonialGrid
-category: proof
-subtype: testimonial-card-grid
-
-dimension-fit:
-  contrast-dark: medium
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: high
-  energy-energetic: medium
-visual-weight: medium
-content-density: moderate
-trend-alignment: evergreen
-motion-profile: minimal
-
-use-when:
-  - 2-4 client testimonials of roughly equal quality
-  - Standard homepage testimonials section
-  - After a process section — proof that the process delivers
-  - Clean SaaS or Refined Professional where multiple voices reinforce trust
-
-avoid-when:
-  - The design system prioritises extreme restraint and editorial weight — a card grid structure competes with the deliberate minimalism
-  - When you have one exceptional testimonial that clearly outweighs the others (use FeaturedTestimonial instead)
-  - Immediately after another testimonial or proof section (redundant proof pattern)
-
-pairs-well-with: [StatsStrip, LogoStrip, CaseStudyTeaser]
-pairs-poorly-with: [FeaturedTestimonial in same section — both are quote-based, choose one]
----
-```
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Star } from "lucide-react";
-import { EASE, DURATION } from "@/lib/animations";
-
-gsap.registerPlugin(ScrollTrigger);
-
 interface Testimonial {
   quote: string;
   name: string;
   role: string;
-  company?: string;
-  rating?: number;
-  avatar?: string;
-  /** Optional: highlights a specific result — shown as accent pill above quote */
-  result?: string;
+  company: string;
+  logo?: { src: string; alt: string };
 }
-
-interface TestimonialGridProps {
-  eyebrow?: string;
-  headline: string;
-  subline?: string;
-  testimonials: Testimonial[];
-  /** 2 or 3 columns */
-  cols?: 2 | 3;
-  /** Layout variant — grid-3 (default equal columns), grid-2-offset (2 cols, second offset 40px), masonry (natural card heights) */
-  layout?: "grid-3" | "grid-2-offset" | "masonry";
-}
-
-function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
-  const rating = testimonial.rating ?? 5;
-
-  return (
-    <div className="testimonial-card flex flex-col rounded-2xl border border-border bg-surface-secondary p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-      {/* Result pill — if provided */}
-      {testimonial.result && (
-        <span className="mb-5 inline-block self-start rounded-full bg-accent/10 px-3.5 py-1 text-caption font-semibold text-accent">
-          {testimonial.result}
-        </span>
-      )}
-
-      {/* Stars */}
-      <div className="flex gap-0.5 text-accent mb-4" aria-label={`${rating} out of 5 stars`}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Star
-            key={i}
-            className={`h-4 w-4 ${i < rating ? "fill-current" : "fill-transparent opacity-30"}`}
-          />
-        ))}
-      </div>
-
-      {/* Quote */}
-      <blockquote className="flex-1 text-body text-primary leading-relaxed">
-        &ldquo;{testimonial.quote}&rdquo;
-      </blockquote>
-
-      {/* Attribution */}
-      <div className="mt-6 flex items-center gap-3 border-t border-border pt-6">
-        {testimonial.avatar ? (
-          <img
-            src={testimonial.avatar}
-            alt={testimonial.name}
-            className="h-10 w-10 rounded-full object-cover shrink-0"
-            width={40}
-            height={40}
-          />
-        ) : (
-          <div
-            className="h-10 w-10 shrink-0 rounded-full bg-accent/20 flex items-center justify-center text-accent font-semibold text-body-sm"
-            aria-hidden="true"
-          >
-            {testimonial.name.charAt(0)}
+interface Props { testimonials: Testimonial[]; kicker?: string; title?: string; }
+const { testimonials, kicker, title } = Astro.props;
+---
+<section class="tg">
+  {(kicker || title) && (
+    <header class="tg__header">
+      {kicker && <p class="tg__kicker">{kicker}</p>}
+      {title && <h2 class="tg__title">{title}</h2>}
+    </header>
+  )}
+  <ul class="tg__grid">
+    {testimonials.map((t, i) => (
+      <li class="tg__card" style={`--i: ${i};`}>
+        <blockquote class="tg__quote">“{t.quote}”</blockquote>
+        <figcaption class="tg__caption">
+          <div>
+            <p class="tg__name">{t.name}</p>
+            <p class="tg__role">{t.role}, {t.company}</p>
           </div>
-        )}
-        <div>
-          <p className="text-body-sm font-semibold text-primary">{testimonial.name}</p>
-          <p className="text-caption text-secondary">
-            {testimonial.role}
-            {testimonial.company && `, ${testimonial.company}`}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
+          {t.logo && <img src={t.logo.src} alt={t.logo.alt} height="20" loading="lazy" />}
+        </figcaption>
+      </li>
+    ))}
+  </ul>
+</section>
 
-export function TestimonialGrid({
-  eyebrow,
-  headline,
-  subline,
-  testimonials,
-  cols = 3,
-  layout = "grid-3",
-}: TestimonialGridProps) {
-  const ref = useRef<HTMLElement>(null);
+<style>
+  .tg { max-width: 80rem; margin: 0 auto; padding: 5rem 1.5rem; }
+  .tg__header { max-width: 52rem; margin-bottom: 3rem; }
+  .tg__kicker { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent); }
+  .tg__title { font-family: var(--font-display); font-size: clamp(1.75rem, 3.5vw, 2.5rem); letter-spacing: -0.02em; margin-top: 0.75rem; }
 
-  useGSAP(() => {
-    if (!ref.current) return;
+  .tg__grid {
+    list-style: none; padding: 0;
+    display: grid; gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) { .tg__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .tg__grid { grid-template-columns: repeat(3, 1fr); } }
 
-    const header = ref.current.querySelectorAll("[data-header]");
-    gsap.set(header, { y: 20, opacity: 0 });
-    gsap.to(header, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.08,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
+  .tg__card {
+    padding: 1.75rem;
+    background: var(--color-surface-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    opacity: 0; translate: 0 12px;
+    animation: tg-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 70ms);
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+  .tg__quote { margin: 0; font-family: var(--font-display); font-size: 1.125rem; line-height: 1.45; letter-spacing: -0.01em; }
+  .tg__caption { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .tg__name { font-weight: 500; font-size: 0.9375rem; }
+  .tg__role { font-size: 0.8125rem; color: var(--color-secondary); }
 
-    const cards = ref.current.querySelectorAll(".testimonial-card");
-    gsap.set(cards, { y: 32, opacity: 0, scale: 0.97 });
-    gsap.to(cards, {
-      y: 0, opacity: 1, scale: 1,
-      duration: DURATION.moderate,
-      stagger: 0.09,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 70%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  return (
-    <section ref={ref} className="py-16 lg:py-24 bg-surface-primary">
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Header */}
-        <div className="mb-12 max-w-[48ch]">
-          {eyebrow && (
-            <p data-header className="text-caption font-semibold text-accent tracking-widest uppercase mb-4">
-              {eyebrow}
-            </p>
-          )}
-          <h2 data-header className="font-display font-bold text-h1 leading-tight tracking-tight text-primary">
-            {headline}
-          </h2>
-          {subline && (
-            <p data-header className="mt-4 text-body-lg text-secondary leading-relaxed">
-              {subline}
-            </p>
-          )}
-        </div>
-
-        {/* Grid */}
-        <div
-          className={[
-            "grid grid-cols-1 gap-6",
-            layout === "grid-3" && `md:grid-cols-2 ${cols === 3 ? "lg:grid-cols-3" : ""}`,
-            layout === "grid-2-offset" && "md:grid-cols-2",
-            layout === "masonry" && "md:columns-2 lg:columns-3 md:block md:space-y-6",
-          ].filter(Boolean).join(" ")}
-        >
-          {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className={
-                layout === "grid-2-offset" && i % 2 === 1
-                  ? "md:translate-y-10"
-                  : layout === "masonry"
-                    ? "md:break-inside-avoid"
-                    : undefined
-              }
-            >
-              <TestimonialCard testimonial={t} />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+  @keyframes tg-in { to { opacity: 1; translate: 0 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .tg__card { animation: none; opacity: 1; translate: 0 0; }
+  }
+</style>
 ```

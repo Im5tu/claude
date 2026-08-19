@@ -4,50 +4,8 @@
 A burst of particles — coloured shapes, brand-coloured dots, or thematic elements — that erupts when a user completes a significant action. Form submission, account creation, payment confirmation, milestone achievement. The confetti appears for 1.5–3 seconds, then fades or falls out of view. It is the digital equivalent of applause.
 
 ## Implementation
-Implementation with canvas-confetti (lightweight library) or a custom GSAP particle system.
 
-```js
-// canvas-confetti
-confetti({
-  particleCount: 100,
-  spread: 70,
-  origin: { y: 0.6 },
-  colors: ['var(--color-accent)', 'var(--color-accent-light)', '#ffffff'],
-  gravity: 1.2,
-  scalar: 0.9
-});
-
-// Custom GSAP particle system
-function celebrationBurst(origin) {
-  const particles = Array.from({ length: 60 }, () => {
-    const el = document.createElement('div');
-    el.style.cssText = `
-      position: fixed;
-      width: ${4 + Math.random() * 4}px;
-      height: ${4 + Math.random() * 4}px;
-      background: var(--color-accent);
-      border-radius: 50%;
-      pointer-events: none;
-      left: ${origin.x}px;
-      top: ${origin.y}px;
-    `;
-    document.body.appendChild(el);
-    return el;
-  });
-
-  particles.forEach((p) => {
-    gsap.to(p, {
-      x: gsap.utils.random(-200, 200),
-      y: gsap.utils.random(-300, 50),
-      rotation: gsap.utils.random(0, 720),
-      opacity: 0,
-      duration: gsap.utils.random(1.5, 2.5),
-      ease: 'power2.out',
-      onComplete: () => p.remove()
-    });
-  });
-}
-```
+Inside a **SolidJS island** triggered by the celebration event (form success, purchase complete). Use `canvas-confetti` — a lightweight, framework-neutral library — OR spawn 40–80 absolutely-positioned DOM particles and animate each with WAAPI (`element.animate()`). Colours drawn from the brand palette via `getComputedStyle(document.documentElement).getPropertyValue('--color-accent')`. Skip entirely when `matchMedia("(prefers-reduced-motion: reduce)").matches`.
 
 ## Premium Signals
 - Confetti colours are drawn from the brand palette (not generic rainbow)

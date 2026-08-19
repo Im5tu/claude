@@ -1,202 +1,159 @@
-# FeatureTabs
+# FeatureTabs — Solid island
 
-Tabbed section where each tab reveals a distinct product area. Horizontal tab selector on mobile, optional vertical on desktop. Content area: large label, description, feature list, and product screenshot. GSAP cross-fade between tabs.
+Tabbed feature comparison. State drives which panel is visible. Solid island. Hydrate `client:visible`.
 
-```
----
-component: FeatureTabs
-category: content
-subtype: interactive-tabs
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: medium
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: high
-  energy-energetic: medium
-visual-weight: medium
-content-density: rich
-trend-alignment: evergreen
-motion-profile: moderate
+- surface-depth: any
+- motion-register: moderate, expressive
+- texture-appetite: low
+- type-personality: geometric-sans, editorial-display
+- notes: 2–4 tabs. Five tabs becomes a list.
 
-use-when:
-  - 3-5 distinct product areas or service categories
-  - Each area has its own screenshot or visual
-  - Clean SaaS where the product depth needs to be demonstrated without overwhelming
-  - Refined Professional services with distinct practice areas
+## File
 
-avoid-when:
-  - Warm Artisan — tabs feel transactional and UI-like, not warm
-  - Editorial Minimal — interaction disrupts the deliberate stillness
-  - Fewer than 3 tabs (use BentoGrid or AlternatingRows instead)
-  - More than 6 tabs (tab bar becomes unwieldy)
-
-pairs-well-with: [BentoGrid, StatsStrip, LogoStrip]
-pairs-poorly-with: [AccordionProcess — both are reveal-on-click interactions, sequential feels redundant]
----
-```
+### `src/components/islands/FeatureTabs.tsx`
 
 ```tsx
-"use client";
-import { useRef, useState } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface TabFeature {
-  text: string;
-}
+import { createSignal, For, Show } from "solid-js";
 
 interface Tab {
   id: string;
   label: string;
-  eyebrow: string;
-  headline: string;
-  description: string;
-  features: TabFeature[];
-  image: string;
-  imageAlt: string;
+  title: string;
+  body: string;
+  media: { src: string; alt: string };
+  bullets?: string[];
 }
+interface Props { tabs: Tab[] }
 
-interface FeatureTabsProps {
-  sectionEyebrow?: string;
-  sectionHeadline: string;
-  tabs: Tab[];
-}
-
-export function FeatureTabs({ sectionEyebrow, sectionHeadline, tabs }: FeatureTabsProps) {
-  const ref = useRef<HTMLElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState(0);
-
-  // Section entrance
-  useGSAP(() => {
-    if (!ref.current) return;
-    const header = ref.current.querySelectorAll("[data-header]");
-    gsap.set(header, { y: 20, opacity: 0 });
-    gsap.to(header, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.08,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  function handleTabChange(index: number) {
-    if (index === activeTab || !contentRef.current) return;
-
-    // Fade out current content
-    gsap.to(contentRef.current, {
-      opacity: 0,
-      y: 8,
-      duration: 0.2,
-      ease: "power2.in",
-      onComplete: () => {
-        setActiveTab(index);
-        // Fade in new content
-        gsap.fromTo(
-          contentRef.current!,
-          { opacity: 0, y: 8 },
-          { opacity: 1, y: 0, duration: 0.35, ease: EASE.enter }
-        );
-      },
-    });
-  }
-
-  const active = tabs[activeTab];
+export default function FeatureTabs(props: Props) {
+  const [active, setActive] = createSignal(props.tabs[0]?.id);
 
   return (
-    <section ref={ref} className="py-16 lg:py-24 bg-surface-secondary">
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Section header */}
-        <div className="mb-10 max-w-[48ch]">
-          {sectionEyebrow && (
-            <p data-header className="text-caption font-semibold text-accent tracking-widest uppercase mb-4">
-              {sectionEyebrow}
-            </p>
-          )}
-          <h2 data-header className="font-display font-bold text-h1 leading-tight tracking-tight text-primary">
-            {sectionHeadline}
-          </h2>
-        </div>
-
-        {/* Tab bar */}
-        <div
-          data-header
-          className="flex gap-2 overflow-x-auto pb-1 mb-10 border-b border-border"
-          role="tablist"
-        >
-          {tabs.map((tab, i) => (
+    <div class="ft">
+      <div class="ft__rail" role="tablist">
+        <For each={props.tabs}>
+          {(t) => (
             <button
-              key={tab.id}
               role="tab"
-              aria-selected={activeTab === i}
-              aria-controls={`tab-panel-${tab.id}`}
-              onClick={() => handleTabChange(i)}
-              className={`shrink-0 rounded-md px-5 py-2.5 text-body-sm font-medium transition-all duration-200 ${
-                activeTab === i
-                  ? "bg-accent text-white"
-                  : "text-secondary hover:text-primary hover:bg-surface-primary"
-              }`}
+              aria-selected={active() === t.id}
+              aria-controls={`panel-${t.id}`}
+              id={`tab-${t.id}`}
+              classList={{ "ft__tab": true, "is-active": active() === t.id }}
+              onClick={() => setActive(t.id)}
             >
-              {tab.label}
+              {t.label}
             </button>
-          ))}
-        </div>
-
-        {/* Tab content */}
-        <div
-          ref={contentRef}
-          id={`tab-panel-${active.id}`}
-          role="tabpanel"
-          className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 items-center"
-        >
-          {/* Text side */}
-          <div>
-            <p className="text-caption font-semibold text-accent tracking-widest uppercase mb-4">
-              {active.eyebrow}
-            </p>
-            <h3 className="font-display font-bold text-h2 leading-tight tracking-tight text-primary max-w-[26ch]">
-              {active.headline}
-            </h3>
-            <p className="mt-5 text-body-lg text-secondary max-w-[50ch] leading-relaxed">
-              {active.description}
-            </p>
-            <ul className="mt-6 space-y-3">
-              {active.features.map((f, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                      <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                  <span className="text-body text-secondary">{f.text}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Visual side */}
-          <div className="overflow-hidden rounded-2xl border border-border shadow-md">
-            <img
-              src={active.image}
-              alt={active.imageAlt}
-              className="w-full object-cover"
-              width={800}
-              height={560}
-            />
-          </div>
-        </div>
+          )}
+        </For>
       </div>
-    </section>
+
+      <For each={props.tabs}>
+        {(t) => (
+          <Show when={active() === t.id}>
+            <div
+              class="ft__panel"
+              role="tabpanel"
+              id={`panel-${t.id}`}
+              aria-labelledby={`tab-${t.id}`}
+            >
+              <div class="ft__body">
+                <h3 class="ft__title">{t.title}</h3>
+                <p class="ft__text">{t.body}</p>
+                <Show when={t.bullets?.length}>
+                  <ul class="ft__bullets">
+                    <For each={t.bullets}>{(b) => <li>{b}</li>}</For>
+                  </ul>
+                </Show>
+              </div>
+              <figure class="ft__media">
+                <img src={t.media.src} alt={t.media.alt} width="1200" height="800" loading="lazy" />
+              </figure>
+            </div>
+          </Show>
+        )}
+      </For>
+
+      <style>{`
+        .ft {
+          max-width: 80rem; margin: 0 auto; padding: 5rem 1.5rem;
+        }
+        .ft__rail {
+          display: inline-flex; gap: 0.25rem;
+          padding: 0.25rem;
+          background: var(--color-surface-secondary);
+          border: 1px solid var(--color-border);
+          border-radius: 999px;
+          margin-bottom: 2.5rem;
+        }
+        .ft__tab {
+          padding: 0.6rem 1.25rem;
+          font-size: 0.875rem;
+          color: var(--color-secondary);
+          border-radius: 999px;
+          transition: background 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                      color 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .ft__tab.is-active {
+          background: var(--color-surface);
+          color: var(--color-primary);
+          box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+        }
+        .ft__tab:focus-visible {
+          outline: 2px solid var(--color-accent); outline-offset: 2px;
+        }
+        .ft__panel {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 3rem;
+          align-items: center;
+          animation: ft-in 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+        @media (min-width: 1024px) {
+          .ft__panel { grid-template-columns: 5fr 7fr; gap: 4rem; }
+        }
+        .ft__title {
+          font-family: var(--font-display);
+          font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+          letter-spacing: -0.02em;
+        }
+        .ft__text {
+          margin-top: 0.75rem;
+          max-width: 54ch;
+          color: var(--color-secondary);
+        }
+        .ft__bullets {
+          margin-top: 1rem; padding-left: 1.25rem;
+          display: grid; gap: 0.25rem;
+          color: var(--color-secondary);
+        }
+        .ft__media img { width: 100%; border-radius: 1.25rem; aspect-ratio: 3 / 2; object-fit: cover; }
+
+        @keyframes ft-in {
+          from { opacity: 0; translate: 0 8px; }
+          to   { opacity: 1; translate: 0 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ft__tab { transition: none; }
+          .ft__panel { animation: none; }
+        }
+      `}</style>
+    </div>
   );
 }
+```
+
+## Usage
+
+```astro
+---
+import FeatureTabs from "../components/islands/FeatureTabs.tsx";
+const tabs = [
+  { id: "auth", label: "Auth", title: "Passwordless by default.", body: "Passkeys + email magic link + social. MFA, session revocation, admin tools out of the box.", media: { src: "/auth.png", alt: "Passkey login screen" } },
+  { id: "billing", label: "Billing", title: "Stripe + Polar, no glue.", body: "Subscriptions, metered, and one-off — unified.", media: { src: "/billing.png", alt: "Billing dashboard" } },
+  { id: "obs", label: "Observability", title: "OpenTelemetry, your data.", body: "Logs, traces, metrics — exported to your destination.", media: { src: "/obs.png", alt: "Traces view" } },
+];
+---
+<FeatureTabs tabs={tabs} client:visible />
 ```

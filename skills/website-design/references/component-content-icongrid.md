@@ -1,149 +1,119 @@
-# IconGrid
+# IconGrid — `.astro`
 
-4-6 item uniform grid. Small lucide-react icon + bold title + 2-line description. Quick-scan section. Anti-bento: all cards are the same size. For sections where the content IS uniform — no hierarchy needed.
+Grid of icon + title + short body. Short feature lists at 3, 4, or 6 items. Icons from `astro-icon` (or inline SVG). Pure `.astro`; per-cell staggered entrance.
 
-```
+## Dimensional fit
+
+- surface-depth: any
+- motion-register: any
+- texture-appetite: low, medium
+- type-personality: any
+- notes: The most flexible content component. Drop in anywhere a short list of facets is needed.
+
+## File
+
+### `src/components/sections/IconGrid.astro`
+
+```astro
 ---
-component: IconGrid
-category: content
-subtype: icon-feature-grid
-
-dimension-fit:
-  contrast-dark: low
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: high
-  energy-energetic: low
-visual-weight: light
-content-density: moderate
-trend-alignment: evergreen
-motion-profile: minimal
-
-use-when:
-  - 4-6 features that are genuinely equal in importance
-  - Quick-scan section below the fold (not the primary features section)
-  - Clean SaaS — technical feature checklist with clean visual rhythm
-  - Refined Professional — services overview before more detailed AlternatingRows
-
-avoid-when:
-  - Bold Studio as primary features section (too uniform, lacks kinetic energy)
-  - When features are clearly hierarchical (use BentoGrid instead)
-  - Dark Luxury — the grid lightness conflicts with restrained opulence
-
-pairs-well-with: [StatsStrip, LogoStrip, AlternatingRows as deeper dive]
-pairs-poorly-with: [BentoGrid — both are grids; choose one or the other]
----
-```
-
-```tsx
-"use client";
-import { useRef, type ReactNode } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface IconFeature {
-  /** Lucide-react icon component (or any ReactNode) */
-  icon: ReactNode;
+interface Item {
+  iconSvg: string;      // Inline SVG markup (path d) — kept simple to avoid dependency
   title: string;
-  description: string;
+  body: string;
 }
-
-interface IconGridProps {
-  eyebrow?: string;
-  headline: string;
-  subline?: string;
-  features: IconFeature[];
-  /** Number of columns on desktop — default 3 */
-  cols?: 2 | 3 | 4;
+interface Props {
+  kicker?: string;
+  title?: string;
+  items: Item[];
+  columns?: 3 | 4;
 }
-
-const colClass: Record<number, string> = {
-  2: "sm:grid-cols-2",
-  3: "sm:grid-cols-2 lg:grid-cols-3",
-  4: "sm:grid-cols-2 lg:grid-cols-4",
-};
-
-export function IconGrid({ eyebrow, headline, subline, features, cols = 3 }: IconGridProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    const header = ref.current.querySelectorAll("[data-header]");
-    gsap.set(header, { y: 20, opacity: 0 });
-    gsap.to(header, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.08,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    const items = ref.current.querySelectorAll(".icon-card");
-    gsap.set(items, { y: 24, opacity: 0 });
-    gsap.to(items, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.07,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 70%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  return (
-    <section ref={ref} className="py-16 lg:py-24 bg-surface-secondary">
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Header */}
-        <div className="mb-12 text-center max-w-[52ch] mx-auto">
-          {eyebrow && (
-            <p data-header className="text-caption font-semibold text-accent tracking-widest uppercase mb-4">
-              {eyebrow}
-            </p>
-          )}
-          <h2 data-header className="font-display font-bold text-h1 leading-tight tracking-tight text-primary">
-            {headline}
-          </h2>
-          {subline && (
-            <p data-header className="mt-4 text-body-lg text-secondary leading-relaxed">
-              {subline}
-            </p>
-          )}
-        </div>
-
-        {/* Uniform grid */}
-        <div className={`grid grid-cols-1 gap-8 ${colClass[cols]}`}>
-          {features.map((feature, i) => (
-            <div
-              key={i}
-              className="icon-card group"
-            >
-              {/* Icon */}
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-surface-primary text-accent transition-colors duration-200 group-hover:bg-accent group-hover:text-white group-hover:border-accent">
-                {feature.icon}
-              </div>
-              <h3 className="font-display font-semibold text-h4 text-primary mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-body-sm text-secondary leading-relaxed max-w-[32ch]">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
+const { kicker, title, items, columns = 3 } = Astro.props;
+---
+<section class="ig">
+  {(kicker || title) && (
+    <header class="ig__header">
+      {kicker && <p class="ig__kicker">{kicker}</p>}
+      {title && <h2 class="ig__title">{title}</h2>}
+    </header>
+  )}
+  <div class="ig__grid" style={`--cols: ${columns};`}>
+    {items.map((it, i) => (
+      <div class="ig__cell" style={`--i: ${i};`}>
+        <span class="ig__icon" set:html={it.iconSvg}></span>
+        <h3 class="ig__cell-title">{it.title}</h3>
+        <p class="ig__cell-body">{it.body}</p>
       </div>
-    </section>
-  );
-}
+    ))}
+  </div>
+</section>
+
+<style>
+  .ig { max-width: 80rem; margin: 0 auto; padding: 5rem 1.5rem; }
+  .ig__header { max-width: 52rem; margin-bottom: 3rem; }
+  .ig__kicker { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent); }
+  .ig__title { font-family: var(--font-display); font-size: clamp(1.75rem, 3.5vw, 2.5rem); letter-spacing: -0.02em; margin-top: 0.75rem; max-width: 24ch; }
+
+  .ig__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem 2rem;
+  }
+  @media (min-width: 640px) {
+    .ig__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .ig__grid { grid-template-columns: repeat(var(--cols, 3), 1fr); }
+  }
+
+  .ig__cell {
+    opacity: 0; translate: 0 14px;
+    animation: ig-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 70ms);
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+  .ig__icon {
+    display: inline-flex;
+    width: 2.5rem; height: 2.5rem;
+    color: var(--color-accent);
+    margin-bottom: 1rem;
+  }
+  .ig__icon svg { width: 100%; height: 100%; }
+  .ig__cell-title {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    letter-spacing: -0.01em;
+  }
+  .ig__cell-body { margin-top: 0.5rem; color: var(--color-secondary); max-width: 44ch; }
+
+  @keyframes ig-in { to { opacity: 1; translate: 0 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .ig__cell { animation: none; opacity: 1; translate: 0 0; }
+  }
+</style>
 ```
+
+## Usage
+
+```astro
+---
+const arrow = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>`;
+---
+<IconGrid
+  kicker="What's included"
+  title="Everything you'd expect, nothing you wouldn't."
+  items={[
+    { iconSvg: arrow, title: "Passkey login", body: "One-tap sign-in on iOS, Android, and desktop." },
+    { iconSvg: arrow, title: "Magic links", body: "Email fallback for devices that don't support passkeys." },
+    { iconSvg: arrow, title: "Social sign-in", body: "Google and Apple out of the box." },
+    { iconSvg: arrow, title: "Admin tools", body: "Impersonate, suspend, audit — built in." },
+    { iconSvg: arrow, title: "Two-factor", body: "TOTP + backup codes. Configurable per tenant." },
+    { iconSvg: arrow, title: "Session control", body: "Revoke any device, any time." },
+  ]}
+/>
+```
+
+## Rules
+
+- No "icons inside coloured circles" — that's banned by `core-anti-patterns.md`. Use the icon inline at natural size.
+- If you don't have real icons, use letterforms (A, B, C) or number decoration instead of generic pictograms.

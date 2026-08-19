@@ -115,52 +115,78 @@ Always constrain text width for readability:
 
 ---
 
-## Google Fonts Loading (Next.js)
+## Font Loading (Astro)
 
-Always use `next/font/google` for optimal loading. Never use CDN `<link>` tags.
+Pick one of the two approaches below per project. Do NOT use an unconnected CDN `<link>` tag — both options below either self-host or preconnect properly.
 
-```tsx
-// app/layout.tsx
-import { Space_Grotesk, Figtree, JetBrains_Mono } from "next/font/google";
+### Option A — Self-hosted via `@fontsource-variable` (preferred)
 
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-  weight: ["500", "600", "700"],
-});
+Better performance (no third-party round-trip, no FOIT), fully offline, CSP-friendly. Each variable font is ~50–100KB gzipped.
 
-const body = Figtree({
-  subsets: ["latin"],
-  variable: "--font-body",
-  display: "swap",
-  weight: ["400", "500", "600"],
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: "swap",
-  weight: ["400", "500"],
-});
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <body className="font-body antialiased">{children}</body>
-    </html>
-  );
-}
+```bash
+pnpm add @fontsource-variable/space-grotesk @fontsource-variable/figtree @fontsource-variable/jetbrains-mono
 ```
 
-Then in Tailwind v4 `@theme`:
+```astro
+---
+// src/layouts/BaseLayout.astro
+import "@fontsource-variable/space-grotesk";
+import "@fontsource-variable/figtree";
+import "@fontsource-variable/jetbrains-mono";
+import "../styles/global.css";
+---
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <slot name="head" />
+  </head>
+  <body class="font-body antialiased">
+    <slot />
+  </body>
+</html>
+```
+
+### Option B — Google Fonts with `<link>` + preconnect
+
+Only use when the project has a specific reason to stay on Google's CDN (e.g., client requirement). Always preconnect.
+
+```astro
+---
+// src/layouts/BaseLayout.astro
+import "../styles/global.css";
+---
+<html lang="en">
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <slot name="head" />
+  </head>
+  <body class="font-body antialiased">
+    <slot />
+  </body>
+</html>
+```
+
+### Wire fonts into Tailwind v4 `@theme`
+
+In `src/styles/global.css` (imported once from `BaseLayout.astro`):
+
 ```css
+@import "tailwindcss";
+
 @theme {
-  --font-display: var(--font-display), sans-serif;
-  --font-body: var(--font-body), sans-serif;
-  --font-mono: var(--font-mono), monospace;
+  --font-display: "Space Grotesk Variable", "Space Grotesk", sans-serif;
+  --font-body: "Figtree Variable", "Figtree", sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
 }
 ```
+
+Tailwind v4 derives `font-display`, `font-body`, `font-mono` utilities from `--font-*` theme tokens automatically.
 
 ---
 
@@ -236,7 +262,7 @@ Every site needs exactly three font roles. No more, no fewer.
 #### When Users Provide Custom Fonts
 
 If the user specifies their own fonts:
-1. Verify the font is on Google Fonts (required for `next/font/google` loading)
+1. Verify the font is on Google Fonts or available as `@fontsource-variable/<slug>`
 2. Check it's not on the banned list in `anti-patterns.md`
 3. Load only the weights actually needed
 4. If it's a body font, verify readability at 16px

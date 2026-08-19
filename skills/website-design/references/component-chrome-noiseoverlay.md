@@ -1,54 +1,91 @@
-# NoiseOverlay
+# NoiseOverlay — `.astro`
 
-SVG feTurbulence noise texture at fixed position. Adds subtle film grain that elevates perceived quality — the difference between "polished" and "generic template." Mandatory on every site.
+SVG `feTurbulence` noise texture at fixed position over the entire viewport. Adds film-grain polish that separates a premium site from a generic template. Mandatory on every site. Opacity comes from the direction card's texture-appetite.
 
-```
-// Placement: layout.tsx, after {children}, pointer-events-none, z-[9999]
-// Opacity: varies by dimensional signal — see index for table
-```
+## Dimensional fit
 
-```tsx
-// NoiseOverlay — authoritative version (from component-recipes.md)
-// The micro-interactions.md version is the simplified fallback — use this one.
+- surface-depth: any
+- motion-register: any
+- texture-appetite: any (value tunes opacity — see index file)
+- type-personality: any
 
-export function NoiseOverlay({ opacity = 0.03 }: { opacity?: number }) {
-  return (
-    <div
-      className="pointer-events-none fixed inset-0 z-[9999]"
-      style={{ opacity }}
-      aria-hidden="true"
-    >
-      <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-        <filter id="noise-filter">
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.85"
-            numOctaves="4"
-            stitchTiles="stitch"
-          />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#noise-filter)" />
-      </svg>
-    </div>
-  );
+## File
+
+### `src/components/ui/NoiseOverlay.astro`
+
+```astro
+---
+interface Props {
+  opacity?: number;      // 0.01 – 0.08
+  baseFrequency?: number; // 0.6 – 1.2 — higher = finer grain
+  class?: string;
 }
+const {
+  opacity = 0.03,
+  baseFrequency = 0.9,
+  class: className = "",
+} = Astro.props;
+---
+<div class:list={["noise", className]} aria-hidden="true" style={`--noise-opacity: ${opacity};`}>
+  <svg width="100%" height="100%" viewBox="0 0 200 200" preserveAspectRatio="none">
+    <filter id="noise-filter">
+      <feTurbulence type="fractalNoise" baseFrequency={baseFrequency} numOctaves="2" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noise-filter)" />
+  </svg>
+</div>
+
+<style>
+  .noise {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: var(--noise-opacity, 0.03);
+    mix-blend-mode: overlay;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    /* Noise is static — no motion concern; retained as-is. */
+  }
+</style>
 ```
 
-**Placement in `src/app/layout.tsx`:**
-```tsx
-import { NoiseOverlay } from "@/components/ui/noise-overlay";
+## Placement
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <GSAPProvider>
-          {children}
-        </GSAPProvider>
-        <NoiseOverlay opacity={0.03} /> {/* Use dimensional-signal-specific opacity value */}
-      </body>
-    </html>
-  );
-}
+In `src/layouts/BaseLayout.astro`:
+
+```astro
+---
+import NoiseOverlay from "../components/ui/NoiseOverlay.astro";
+---
+<html lang="en">
+  <head><!-- … --></head>
+  <body>
+    <slot />
+    <NoiseOverlay opacity={0.03} />
+  </body>
+</html>
 ```
+
+## Props
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `opacity` | `number` | `0.03` | Tune to direction's texture-appetite — see chrome index table |
+| `baseFrequency` | `number` | `0.9` | Lower = coarser grain, higher = finer |
+
+## Opacity recipe
+
+- Light + restrained → `0.03`
+- Light + restrained + texture-high → `0.04`
+- Dark + expressive → `0.05`
+- Dark + restrained → `0.025`
+- Light + moderate + technical → `0.02`
+- Light + restrained + editorial → `0.03`
+
+## Notes
+
+- SVG inline is intentional — avoids a PNG asset and scales perfectly.
+- `mix-blend-mode: overlay` gives the grain character on both dark and light backgrounds.
+- For aggressive grain, increase `opacity` first; raise `baseFrequency` second.

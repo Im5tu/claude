@@ -1,22 +1,47 @@
 # Trend: Horizontal Scroll Sections
 
 ## What It Is
-Mid-page sections where vertical scrolling is pinned while content scrolls horizontally. GSAP implementation: `ScrollTrigger.create({ pin: true, scrub: 1 })` with horizontal translate driven by scroll progress. Correct use cases: portfolio image galleries, feature comparison steps (step 1 -> step 2 -> step 3), timeline sequences. The key test: would this content be worse if laid out vertically? If not, the horizontal scroll is forced and should be removed.
+Mid-page sections where vertical scrolling is pinned while content scrolls horizontally. Correct use cases: portfolio image galleries, feature comparison steps (step 1 → step 2 → step 3), timeline sequences. The key test: would this content be worse if laid out vertically? If not, the horizontal scroll is forced and should be removed.
 
 ## Implementation
-```js
-const sections = gsap.utils.toArray('.horizontal-panel');
-gsap.to(sections, {
-  xPercent: -100 * (sections.length - 1),
-  ease: 'none',
-  scrollTrigger: {
-    trigger: '.horizontal-container',
-    pin: true,
-    scrub: 1,
-    end: () => '+=' + document.querySelector('.horizontal-container').offsetWidth,
+
+Pure CSS. Use `position: sticky` on the outer wrapper combined with `animation-timeline: scroll(root)` on the inner track:
+
+```astro
+<section class="hs-wrap">
+  <div class="hs-pin">
+    <div class="hs-track">
+      <article class="hs-panel">…</article>
+      <article class="hs-panel">…</article>
+      <article class="hs-panel">…</article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hs-wrap { height: 300vh; }
+  .hs-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+  .hs-track {
+    display: flex;
+    height: 100%;
+    animation: hs-scroll linear both;
+    animation-timeline: scroll(root);
+    animation-range: contain 0% contain 100%;
   }
-});
+  @keyframes hs-scroll {
+    to { translate: calc(-100% + 100vw) 0; }
+  }
+  .hs-panel { flex: 0 0 100vw; height: 100%; }
+  @media (prefers-reduced-motion: reduce) {
+    .hs-wrap { height: auto; }
+    .hs-pin { position: static; height: auto; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .hs-track { animation: none; translate: 0 0; }
+    .hs-panel { scroll-snap-align: start; }
+  }
+</style>
 ```
+
+Under `prefers-reduced-motion`, the section degrades to a native horizontal scroller with scroll-snap — no transform, no pinning.
 
 ## Premium Signals
 - Horizontal scroll sections where the content genuinely benefits (portfolio work that should be scanned laterally)

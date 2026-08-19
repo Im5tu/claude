@@ -4,53 +4,10 @@
 Three-dimensional objects as primary design elements — distinct from card tilt effects (cursor-driven 2D perspective rotation). Patterns: scroll-linked 3D scene state changes (a 3D object transforms, rotates, or morphs as the user scrolls through content); glassmorphism combined with 3D elements (glass-effect logos or brand objects with mouse parallax layers); 3D carousels with scroll-triggered perspective; mixed 2D-and-3D layouts (flat type and line art alongside 3D background elements); brand metaphors rendered literally in 3D ("reach" = hand reaching outward). Homepage-heavy pattern — 3D effort concentrated on the hero and one feature section; inner pages remain clear and conventional. Design principle: connect every 3D element to scroll or cursor interaction — idle, non-responsive 3D feels decorative and gratuitous.
 
 ## Implementation
-```tsx
-// Spline embed (simplest approach for non-Three.js teams)
-import Spline from "@splinetool/react-spline";
 
-export function Hero3D() {
-  return (
-    <section className="relative min-h-screen overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        <Spline scene="https://prod.spline.design/[scene-id]/scene.splinecode" />
-      </div>
-      <div className="relative z-10 flex min-h-screen items-center">
-        {/* Hero text content */}
-      </div>
-    </section>
-  );
-}
+Render 3D inside a **SolidJS island** hydrated `client:visible`. Use `solid-three-fiber`, `threlte`, or raw Three.js — never React-coupled bindings. Drive scroll-linked state with the native `scrollTimeline` (WAAPI) or plain `window.scroll` deltas inside the island's render loop; do NOT introduce GSAP ScrollTrigger. For zero-code scenes, embed a Spline export via a standard `<iframe>`.
 
-// Three.js + GSAP ScrollTrigger for scroll-linked state
-import * as THREE from "three";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-// In useEffect/useGSAP:
-ScrollTrigger.create({
-  trigger: ".scene-section",
-  start: "top top",
-  end: "bottom bottom",
-  scrub: 1,
-  onUpdate: (self) => {
-    // Map scroll progress to object rotation
-    mesh.rotation.y = self.progress * Math.PI * 2;
-    mesh.position.y = self.progress * -2;
-  },
-});
-
-// React Three Fiber (for Next.js integration)
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useScroll } from "@react-three/drei";
-
-function ScrollLinkedMesh() {
-  const scroll = useScroll();
-  const meshRef = useRef();
-  useFrame(() => {
-    meshRef.current.rotation.y = scroll.offset * Math.PI * 2;
-  });
-  return <mesh ref={meshRef}><boxGeometry /><meshStandardMaterial /></mesh>;
-}
-```
+See `core-animation.md` for the WAAPI + `animation-timeline: scroll()` patterns that drive state from scroll position. Guard rendering with `matchMedia("(prefers-reduced-motion: reduce)").matches` and a GPU/mobile capability check — fall back to a poster image.
 
 ## Premium Signals
 - 3D objects that animate their STATE per scroll section — not continuous rotation, but meaningful transformations (closed → open, simple → complex, whole → exploded) that reinforce the content
@@ -67,7 +24,7 @@ function ScrollLinkedMesh() {
 Use when: the brief describes a product, service, or concept that is inherently three-dimensional (physical product, architectural space, technical system, machinery); the brand describes itself as "technical," "innovative," "ahead," or "next-generation"; the homepage is the primary impression vehicle and the brand has budget for 3D asset production.
 Avoid when: the business is service-led with no physical or spatial component (accounting, legal, therapy, writing); the target audience is on mobile-primary (3D performance degrades significantly); the brief describes a "clean," "minimal," or "text-first" direction where 3D would add unnecessary complexity.
 Cross-aesthetic applications: A logistics company can use a scroll-linked 3D truck or warehouse element when the brief describes "state-of-the-art infrastructure" — the 3D signals technological sophistication without changing the brand's professional register. A financial planning tool can use a 3D data visualization (a rotating sphere of numbers or a physical bar chart) in a restrained, data-first context.
-Implementation threshold: Spline is appropriate for teams without Three.js expertise. Three.js/React Three Fiber for teams needing full control. Always implement: progressive loading with poster, GPU capability check, mobile 2D fallback, and scroll/cursor linkage for every 3D element. 3D effort concentrated on homepage only — product pages and subpages use conventional layouts.
+Implementation threshold: Spline (iframe embed) is appropriate for teams without Three.js expertise. Raw Three.js, `threlte`, or `solid-three-fiber` for teams needing full control — always inside a Solid island, never a React one. Always implement: progressive loading with poster, GPU capability check, mobile 2D fallback, and scroll/cursor linkage for every 3D element. 3D effort concentrated on homepage only — product pages and subpages use conventional layouts.
 
 ## Longevity Signal
 Ascending — 3D is becoming an expected feature for technology and innovation brands; differentiation is now in the quality and intentionality of the 3D work, not the mere presence of it.
