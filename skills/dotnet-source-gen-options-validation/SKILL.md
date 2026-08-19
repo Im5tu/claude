@@ -6,7 +6,7 @@ metadata:
   author: Im5tu
   version: "1.0"
   repositoryUrl: https://github.com/im5tu/dotnet-skills
-allowed-tools: Bash(dotnet:*) Read Glob Grep AskUserQuestion
+allowed-tools: Bash(dotnet:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
 ---
 
 Convert options validation to use the compile-time source generator, enabling AOT-compatible, reflection-free validation at startup.

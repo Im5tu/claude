@@ -59,7 +59,6 @@ Context-aware capabilities auto-triggered when relevant:
 |-------|---------|
 | `dotnet-aot-analysis` | Analyzes AOT compatibility |
 | `dotnet-centralise-packages` | Central Package Management |
-| `dotnet-enable-autocomplete` | CLI tab autocomplete |
 | `dotnet-enable-testing-platform` | New testing platform |
 | `dotnet-json-polymorphic` | Polymorphic JSON serialization |
 | `dotnet-source-gen-json` | JSON source generation |
@@ -67,9 +66,7 @@ Context-aware capabilities auto-triggered when relevant:
 | `dotnet-source-gen-options-validation` | Options validation source gen |
 | `dotnet-source-gen-regex` | Regex source generation |
 | `dotnet-update-packages` | NuGet package updates |
-| `competitor-alternatives` | Competitor comparison / alternative pages |
 | `copywriting` | Marketing copy for landing and product pages |
-| `launch-strategy` | Product launch and go-to-market planning |
 | `website-design` | Framework-agnostic website design system (default adapter: Astro) |
 | `website-seo` | SEO strategy, technical SEO, schema, reporting |
 | `plan-feature` | In-depth interview to produce a detailed feature spec |
