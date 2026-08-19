@@ -4,6 +4,7 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
+    "defaultMode": "plan",
     "allow": [
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
@@ -22,22 +23,57 @@
       "Bash(find:*)",
       "Bash(rustfmt:*)"
     ],
-    "deny": [],
-    "defaultMode": "plan"
+    "deny": []
   },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/fable-mode-autoload.py"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ]
+  },
+  "worktree": {
+    "baseRef": "head"
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "csharp-lsp@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true,
+    "mcp-server-dev@claude-plugins-official": true,
+    "stripe@claude-plugins-official": true
+  },
+  "effortLevel": "medium",
+  "tui": "fullscreen",
+  "theme": "auto",
+  "verbose": false,
+  "autoCompactEnabled": true,
+  "fileCheckpointingEnabled": false,
+  "remoteControlAtStartup": false,
+  "agentPushNotifEnabled": true,
   "statusLine": {
     "type": "command",
     "command": "input=$(cat); current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model=$(echo \"$input\" | jq -r '.model.display_name'); if [ -d \"$current_dir/.git\" ]; then cd \"$current_dir\"; branch=$(git branch --show-current 2>/dev/null || echo 'detached'); status=$(git status --porcelain 2>/dev/null | wc -l); if [ \"$status\" -gt 0 ]; then git_info=\"\\033[0;33m$branch\\033[0m \\033[0;31m($status)\\033[0m\"; else git_info=\"\\033[0;32m$branch\\033[0m\"; fi; else git_info=\"\\033[0;37mno git\\033[0m\"; fi; dir_name=$(basename \"$current_dir\"); printf \"\\033[0;36m%s\\033[0m | %s | \\033[0;35m%s\\033[0m\" \"$dir_name\" \"$git_info\" \"$model\""
-  },
-  "enabledPlugins": {
-    "csharp-lsp@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": false
-  },
-  "autoUpdatesChannel": "latest",
-  "skipDangerousModePermissionPrompt": true,
-  "feedbackSurveyState": {
-    "lastShownTime": 1754386890430
-  },
-  "learnMode": false
+  }
 }
