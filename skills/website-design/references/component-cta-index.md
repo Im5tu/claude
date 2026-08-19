@@ -2,12 +2,12 @@
 
 The final section before the footer. Its job: convert the page. Pick one — never two — and tune to the direction.
 
-| Component | File kind | Best for |
+| Component | Kind | Best for |
 |---|---|---|
-| CTABanner | `.astro` | Classic closing banner with headline + primary CTA |
-| ContactGateway | `.astro` | Contact form + supporting info (address, hours, alt channels) |
-| Manifesto | `.astro` | Philosophy-led brands; word-by-word reveal of a power statement |
-| NewsletterCapture | `.astro` shell + Solid island form | Content-heavy or editorial sites |
+| CTABanner | static | Classic closing banner with headline + primary CTA |
+| ContactGateway | needs JS behavior (form states) | Contact form + supporting info (address, hours, alt channels) |
+| Manifesto | static | Philosophy-led brands; word-by-word reveal of a power statement |
+| NewsletterCapture | needs JS behavior (form states) | Content-heavy or editorial sites |
 
 ## Selection
 
@@ -22,9 +22,9 @@ The final section before the footer. Its job: convert the page. Pick one — nev
 
 ## Rules
 
-- Manifesto must use word-by-word CSS reveal (`TextReveal` from `core-animation.md`). Static paragraph = not a manifesto.
+- Manifesto must use the word-by-word CSS reveal (TextReveal primitive from `core-animation.md`). Static paragraph = not a manifesto.
 - ContactGateway must show at least one non-form channel (email, phone, address) — never a form in isolation.
-- NewsletterCapture form must be a Solid island so submit states (loading, success, error) can render without a page reload.
+- NewsletterCapture and ContactGateway forms must render their submit states (loading, success, error) in place, without a page reload.
 
 ## Component files
 

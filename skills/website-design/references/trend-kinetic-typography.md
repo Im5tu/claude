@@ -5,7 +5,7 @@ Type that moves in response to scroll or time. The dominant pattern is the TextR
 
 ## Implementation
 
-Use the shared `TextReveal.astro` primitive from `core-animation.md` — it handles word/char splitting at build time and drives per-part `animation-delay: calc(var(--i) * stagger)` via `animation-timeline: view()`. Pure CSS, zero JS.
+Use the shared TextReveal pattern from `core-animation.md`: split words/chars at build time, wrap each part in a span carrying `--i`, and drive the stagger with per-part `animation-range` offsets on `animation-timeline: view()` inside an `@supports` guard (time delays are ignored on scroll timelines). Pure CSS, zero JS.
 
 Scroll-linked axis changes:
 

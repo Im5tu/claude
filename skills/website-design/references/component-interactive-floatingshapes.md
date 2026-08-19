@@ -1,6 +1,6 @@
-# FloatingShapes — `.astro`
+# FloatingShapes
 
-Abstract blurred shapes that drift on scroll. Decorative-only. Maximum 3–5 per page — more and they become visual noise. Pure CSS; each shape is a positioned circle with `filter: blur(...)` and scroll-driven translate via `animation-timeline: scroll(root)`.
+Abstract blurred shapes that drift on scroll. Decorative only. Maximum 3 to 5 per page; more and they become visual noise. Pure CSS: each shape is a positioned circle with `filter: blur(...)` and a scroll-driven translate via `animation-timeline: scroll(root)`.
 
 ## Dimensional fit
 
@@ -10,85 +10,63 @@ Abstract blurred shapes that drift on scroll. Decorative-only. Maximum 3–5 per
 - type-personality: any
 - notes: Do NOT compete with hero typography. Keep opacity under 30%.
 
-## File
+## Structure
 
-### `src/components/sections/FloatingShapes.astro`
+- `.fs` wrapper, `aria-hidden="true"`, absolutely filling its section (the section needs `position: relative; overflow: hidden`)
+  - one `.fs__dot` `<span>` per shape, each carrying per-shape custom properties: `--size` (px), `--x` / `--y` (% position), `--c` (color), `--speed` (parallax multiplier, default 0.3)
+- Section content sits in a sibling wrapper with `position: relative; z-index: 10` so it stays above the shapes.
 
-```astro
----
-interface Shape {
-  size: number;         // px
-  x: number;            // % of container width
-  y: number;            // % of container height
-  color: string;        // CSS colour
-  speed?: number;       // scroll parallax multiplier (default 0.3)
+Default shape set (used when no explicit shapes are given):
+
+| size | x | y | color | speed |
+|---|---|---|---|---|
+| 320px | 10% | 20% | var(--color-accent) | 0.4 |
+| 260px | 80% | 40% | var(--color-accent-light) | 0.2 |
+| 200px | 55% | 75% | var(--color-accent-dark) | 0.5 |
+
+## CSS
+
+```css
+.fs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
-interface Props {
-  shapes?: Shape[];
-  class?: string;
+.fs__dot {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--c) 40%, transparent);
+  filter: blur(60px);
+  translate: -50% -50%;
 }
-const { shapes, class: className = "" } = Astro.props;
-const defaultShapes: Shape[] = [
-  { size: 320, x: 10, y: 20, color: "var(--color-accent)", speed: 0.4 },
-  { size: 260, x: 80, y: 40, color: "var(--color-accent-light)", speed: 0.2 },
-  { size: 200, x: 55, y: 75, color: "var(--color-accent-dark)", speed: 0.5 },
-];
-const list = shapes ?? defaultShapes;
----
-<div class:list={["fs", className]} aria-hidden="true">
-  {list.map((s, i) => (
-    <span
-      class="fs__dot"
-      style={`--size: ${s.size}px; --x: ${s.x}%; --y: ${s.y}%; --c: ${s.color}; --speed: ${s.speed ?? 0.3}; --i: ${i};`}
-    ></span>
-  ))}
-</div>
-
-<style>
-  .fs {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-  }
+@supports (animation-timeline: scroll()) {
   .fs__dot {
-    position: absolute;
-    left: var(--x);
-    top: var(--y);
-    width: var(--size);
-    height: var(--size);
-    border-radius: 999px;
-    background: color-mix(in oklab, var(--c) 40%, transparent);
-    filter: blur(60px);
-    translate: -50% -50%;
     animation: fs-drift linear both;
     animation-timeline: scroll(root);
     animation-range: 0 100vh;
   }
-  @keyframes fs-drift {
-    from { translate: calc(-50% + (var(--speed) * -30px)) calc(-50% + (var(--speed) * -40px)); }
-    to   { translate: calc(-50% + (var(--speed) *  30px)) calc(-50% + (var(--speed) *  40px)); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .fs__dot { animation: none; }
-  }
-</style>
+}
+@keyframes fs-drift {
+  from { translate: calc(-50% + (var(--speed) * -30px)) calc(-50% + (var(--speed) * -40px)); }
+  to   { translate: calc(-50% + (var(--speed) *  30px)) calc(-50% + (var(--speed) *  40px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fs__dot { animation: none; }
+}
 ```
 
-## Usage
+## Notes
 
-```astro
-<section class="relative overflow-hidden py-24 bg-[var(--color-surface)]">
-  <FloatingShapes />
-  <div class="relative z-10 max-w-4xl mx-auto px-6">
-    <h2 class="text-6xl tracking-tight">Studio</h2>
-    <p class="max-w-[55ch] mt-4">We design infrastructure that lives quietly in production.</p>
-  </div>
-</section>
-```
+- The host section supplies the page background (`var(--color-surface-primary)`), padding (typically 6rem vertical), and the stacking context.
+- Shapes are purely decorative; without scroll-timeline support they render static, which is fine because the base `translate: -50% -50%` centers each dot on its anchor point.
 
 ## Dimensional adaptation
 
-- Restrained → 2 shapes, opacity 15%, blur 80px. Motion range tighter (0 → 40vh).
-- Expressive → 5 shapes, opacity 30%, varied sizes.
-- Texture-high → shapes become less defined — skip in favour of a background photograph.
+- Restrained: 2 shapes, opacity 15%, blur 80px. Motion range tighter (0 to 40vh).
+- Expressive: 5 shapes, opacity 30%, varied sizes.
+- Texture-high: shapes become less defined; skip in favour of a background photograph.

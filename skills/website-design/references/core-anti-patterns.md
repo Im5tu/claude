@@ -39,14 +39,13 @@ Never use these fonts anywhere. They are overused to the point of being invisibl
 
 | Pattern | Why It's Banned | What To Do Instead |
 |---------|----------------|-------------------|
-| Reaching for GSAP before CSS was tried | CSS `animation-timeline: scroll()` / `view()`, `@keyframes`, and transitions handle ~90% of scroll and entrance animations with zero runtime cost. GSAP adds ~70KB for capabilities you usually don't need. | Default to CSS. Only escalate to WAAPI (inside a Solid island) when state drives timing. Motion One is the last resort and never installed by default. |
+| Reaching for GSAP before CSS was tried | CSS `animation-timeline: scroll()` / `view()`, `@keyframes`, and transitions handle ~90% of scroll and entrance animations with zero runtime cost. GSAP adds ~70KB for capabilities you usually don't need. | Default to CSS. Only escalate to WAAPI when state drives timing. Motion One is the last resort and never installed by default. |
 | Installing Framer Motion, Motion One, or `@gsap/react` for single fade-ins | A 6-line `@keyframes` + `animation-timeline: view()` block does the same job with no dependency. | Use the CSS ScrollReveal pattern from `core-animation.md`. |
 | Manual `requestAnimationFrame` scroll listeners (or `window.addEventListener("scroll", …)` driving visual changes) | Jank-prone, runs on main thread, reimplements what the browser already provides. | Use `animation-timeline: scroll()` (or `scroll(root)`) — the compositor drives it off-main-thread. |
-| Hydrating a Solid island that has no state or interaction | Wasted hydration cost; the island didn't need to be an island. | Use `.astro` + `<slot />`. Reserve Solid components for genuine interactivity. |
-| Using `client:load` when `client:visible` or `client:idle` would suffice | Delays First Input Delay, blocks the main thread at startup. | Default to `client:visible`. Use `client:idle` for non-critical interactivity, `client:load` only when the island is above-the-fold and immediately interactive. |
+| Shipping JS for a component that has no state or interaction | Wasted hydration cost | Render it statically. Reserve scripted components for genuine interactivity, hydrated lazily where the stack supports it. |
 | Bounce / elastic easing on entrances for restrained or establishment registers | Feels cheap and playful — incongruent with the dimensional position. | Use `cubic-bezier(0.2, 0.8, 0.2, 1)` or `cubic-bezier(0.4, 0, 0.2, 1)` for weighted entrances. |
 | Animations longer than 1.2s | Feels sluggish, blocks user progress | Keep entrances 300–600ms. Only scroll-linked parallax or ambient loops can be slow. |
-| All elements animating at once | Overwhelming, no hierarchy | Stagger children (80–150ms gap) via per-child `animation-delay: calc(var(--i) * 80ms)`. Headline first, then subtext, then CTA. |
+| All elements animating at once | Overwhelming, no hierarchy | Stagger children (80–150ms gap): per-child `animation-delay: calc(var(--i) * 80ms)` for load-time entrances, per-child `animation-range` offsets for scroll-driven ones (time delays are ignored on scroll timelines). Headline first, then subtext, then CTA. |
 | Below-fold content animating on page load | Wastes performance, invisible animation | Use `animation-timeline: view()` with `animation-range` — only animates when element enters viewport. |
 | Infinite loop animations | Distracting, increases power consumption | Only allowed for loading spinners or subtle ambient loops on expressive registers. Everything else: trigger once, done. |
 | Opacity-only fade (no transform) | Flat, lifeless entrance | Combine opacity with `translate: 0 20-30px` or `scale(0.95)` in the starting keyframe. |
@@ -77,14 +76,14 @@ Never use these fonts anywhere. They are overused to the point of being invisibl
 
 | Pattern | Why It's Banned | What To Do Instead |
 |---------|----------------|-------------------|
-| Inline styles | Unmaintainable, fights Tailwind | Use Tailwind utilities. Scoped `<style>` in `.astro` is fine for animation recipes. |
+| Inline styles | Unmaintainable, fights Tailwind | Use utility classes or a stylesheet. Component-scoped styles are fine for animation recipes. |
 | `setTimeout` for animation timing | Unreliable, not synced to frame rate | Chain CSS `animation-delay` or use WAAPI `anim.finished.then(...)` |
-| Missing animation cleanup in Solid islands | Memory leak when the component unmounts | `const anim = el.animate(...)` inside `onMount` + `onCleanup(() => anim.cancel())` |
+| Missing animation cleanup in scripted components | Memory leak when the component unmounts | Keep the `Animation` handle from `el.animate(...)` and cancel it on teardown |
 | Hard-coded `px` for font sizes | Not responsive, breaks on zoom | Use `clamp()` for headings, `rem` for body |
 | Firing a scroll listener to implement animation | Jank, main-thread cost | Use `animation-timeline: scroll()` / `view()` |
 | Images without dimensions | Layout shift (CLS penalty) | Always set `width`, `height`, or use `aspect-ratio` |
 | Importing `gsap` or `@gsap/react` | Banned in this stack | Use CSS first; WAAPI or Motion One if genuinely necessary |
-| React syntax in a Solid island (`useState`, `useEffect`, `"use client"`) | Wrong framework | Solid uses `createSignal`, `createEffect`, `onMount`, `onCleanup`. No `"use client"` directive — hydration is controlled by `client:*` directives on the component in the `.astro` parent. |
+| Mixing one framework's idioms into another's components (e.g. React hooks in a Solid file) | Wrong framework | Use the idioms of the stack the project actually uses; see the stack adapter. |
 
 ---
 
@@ -104,14 +103,14 @@ Every page built by this skill MUST have ALL of these. If any are missing, the o
 - [ ] All headings use `clamp()` for fluid sizing
 - [ ] Display text has negative letter-spacing (-0.02em or tighter)
 - [ ] Body text constrained to `max-w-[65ch]`
-- [ ] Font loaded via `@fontsource-variable/*` (imported in `BaseLayout.astro`) or preconnected Google Fonts `<link>` tag — not an unconnected CDN `<link>`
+- [ ] Font loaded via self-hosted files or preconnected Google Fonts `<link>` tags, not an unconnected CDN `<link>`
 
 ### Animation
 - [ ] Hero section has a CSS-driven entrance (`@keyframes` on load, or `animation-timeline: view()` if below-fold)
 - [ ] Below-fold sections use `animation-timeline: view()` (not page-load animation)
-- [ ] Staggered entrance timing via per-child `--i` + `animation-delay: calc(var(--i) * 80ms)` (80–150ms range)
+- [ ] Staggered entrance timing via per-child `--i` (80–150ms perceived gap): `animation-delay` for load-time entrances, `animation-range` offsets for scroll-driven ones
 - [ ] Every animation block has a matching `@media (prefers-reduced-motion: reduce)` override
-- [ ] Solid islands that animate use WAAPI with `onMount`/`onCleanup` cleanup
+- [ ] Scripted components that animate use WAAPI and cancel their animations on teardown
 
 ### Interaction
 - [ ] Navbar has a scroll state — morphs via `animation-timeline: scroll(root)` (transparent → backdrop-blur) or uses a persistent style appropriate to the direction's navigation pattern (see component-chrome-index.md)
@@ -121,11 +120,11 @@ Every page built by this skill MUST have ALL of these. If any are missing, the o
 - [ ] Dark mode toggle works and dark mode is intentionally designed
 
 ### Code Quality
-- [ ] `.astro` for static markup; Solid `.tsx` islands only when interactive; the minimum `client:*` directive needed (`client:visible` preferred)
+- [ ] Static markup by default; JS-bearing components only when interactive, hydrated as lazily as the stack allows
 - [ ] TypeScript strict mode — no `any` types
 - [ ] Semantic HTML (`<section>`, `<nav>`, `<main>`, `<article>`, `<footer>`)
 - [ ] Accessible: ARIA labels, keyboard navigation, focus management
-- [ ] `pnpm astro build` succeeds (no build errors)
+- [ ] The production build succeeds (no build errors)
 
 ---
 

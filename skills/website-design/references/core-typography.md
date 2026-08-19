@@ -115,7 +115,7 @@ Always constrain text width for readability:
 
 ---
 
-## Font Loading (Astro)
+## Font loading
 
 Pick one of the two approaches below per project. Do NOT use an unconnected CDN `<link>` tag — both options below either self-host or preconnect properly.
 
@@ -123,58 +123,36 @@ Pick one of the two approaches below per project. Do NOT use an unconnected CDN 
 
 Better performance (no third-party round-trip, no FOIT), fully offline, CSP-friendly. Each variable font is ~50–100KB gzipped.
 
-```bash
-pnpm add @fontsource-variable/space-grotesk @fontsource-variable/figtree @fontsource-variable/jetbrains-mono
+Self-host via `@fontsource-variable/*` packages (one per family), imported once in the
+site's root layout before the global stylesheet:
+
+```
+@fontsource-variable/space-grotesk
+@fontsource-variable/figtree
+@fontsource-variable/jetbrains-mono
 ```
 
-```astro
----
-// src/layouts/BaseLayout.astro
-import "@fontsource-variable/space-grotesk";
-import "@fontsource-variable/figtree";
-import "@fontsource-variable/jetbrains-mono";
-import "../styles/global.css";
----
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <slot name="head" />
-  </head>
-  <body class="font-body antialiased">
-    <slot />
-  </body>
-</html>
-```
+(Any stack: install the packages and import them from the file every page shares — the root
+layout, `_app`, or the global entry module. See the stack adapter for exact wiring.)
 
 ### Option B — Google Fonts with `<link>` + preconnect
 
 Only use when the project has a specific reason to stay on Google's CDN (e.g., client requirement). Always preconnect.
 
-```astro
----
-// src/layouts/BaseLayout.astro
-import "../styles/global.css";
----
-<html lang="en">
-  <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-    <slot name="head" />
-  </head>
-  <body class="font-body antialiased">
-    <slot />
-  </body>
-</html>
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+  rel="stylesheet"
+/>
 ```
+
+Place in the shared `<head>` of the site's root layout.
 
 ### Wire fonts into Tailwind v4 `@theme`
 
-In `src/styles/global.css` (imported once from `BaseLayout.astro`):
+In the global stylesheet (imported once from the root layout):
 
 ```css
 @import "tailwindcss";

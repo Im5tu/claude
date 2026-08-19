@@ -1,7 +1,7 @@
 # Trend: Micro-Animation on Interaction
 
 ## What It Is
-Hover, focus, and active states that provide immediate physical feedback. Standard values: `scale(1.02)` on hover for cards and large elements, `scale(0.98)` on active/mousedown (simulates physical depression), `translateY(-2px)` on button hover. CSS transition timing: `150ms ease` for hover in, `100ms ease` for hover out (faster out feels more responsive). GSAP for complex states (color + scale + shadow simultaneously). The physicality of micro-interaction is what separates interaction design from styling — elements should feel touchable.
+Hover, focus, and active states that provide immediate physical feedback. Standard values: `scale(1.02)` on hover for cards and large elements, `scale(0.98)` on active/mousedown (simulates physical depression), `translateY(-2px)` on button hover. CSS transition timing: `150ms ease` for hover in, `100ms ease` for hover out (faster out feels more responsive). For compound states (color + scale + shadow simultaneously), transition each property in one CSS rule; no library needed. The physicality of micro-interaction is what separates interaction design from styling — elements should feel touchable.
 
 ## Implementation
 ```css

@@ -1,18 +1,18 @@
-# Component Content — Index
+# Component content index
 
-Content components present what the business does: services, features, value props. Most are pure `.astro` with `ScrollReveal` for entrance. FAQAccordion and FeatureTabs are Solid islands because state drives timing.
+Content components present what the business does: services, features, value props. Most are static markup with a scroll-driven entrance. FAQAccordion and FeatureTabs need JS behavior because state drives timing.
 
 ## Components
 
-| Component | File kind | Best for |
+| Component | Kind | Best for |
 |---|---|---|
-| BentoGrid | `.astro` | Multi-product / platform; 4–9 tiles of varied content |
-| AlternatingRows | `.astro` | 3–5 features each with text + visual; narrative flow |
-| FeatureTabs | Solid island | Comparing variants of one thing; technical directions |
-| MagazineGrid | `.astro` | Editorial register; asymmetric article/work grids |
-| StackedValueProps | `.astro` | 3 core value props at section scale; restrained |
-| IconGrid | `.astro` | Short feature list with icons; any register |
-| FAQAccordion | Solid island | FAQ content; uses WAAPI height animation |
+| BentoGrid | static | Multi-product / platform; 4–9 tiles of varied content |
+| AlternatingRows | static | 3–5 features each with text + visual; narrative flow |
+| FeatureTabs | needs JS behavior | Comparing variants of one thing; technical directions |
+| MagazineGrid | static | Editorial register; asymmetric article/work grids |
+| StackedValueProps | static | 3 core value props at section scale; restrained |
+| IconGrid | static | Short feature list with icons; any register |
+| FAQAccordion | needs JS behavior | FAQ content; animates panel height via the Web Animations API |
 
 ## Selection by dimensional position
 
@@ -28,10 +28,10 @@ Content components present what the business does: services, features, value pro
 
 ## Rules
 
-- At most two "grid"-style components per page. If you need BentoGrid AND IconGrid, you don't — merge.
+- At most two "grid"-style components per page. If you need BentoGrid AND IconGrid, you don't: merge.
 - FeatureTabs must have 2–4 tabs. Five tabs is a list masquerading as a selector.
 - FAQAccordion: 5–8 items ideal. Under 5, use `AlternatingRows`. Over 8, split into categories.
-- Every below-fold content section uses `ScrollReveal` (see `core-animation.md`) for entrance.
+- Every below-fold content section gets a scroll-driven entrance (see `core-animation.md`).
 
 ## Component files
 

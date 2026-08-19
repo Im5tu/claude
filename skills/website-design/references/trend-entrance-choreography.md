@@ -31,7 +31,7 @@ Pure CSS. Assign each element a `--i` and drive `animation-delay: calc(var(--i) 
 </style>
 ```
 
-For below-fold sections, swap to `animation-timeline: view()` so the choreography fires on viewport entry rather than page load.
+For below-fold sections, swap to `animation-timeline: view()` (inside an `@supports` guard) so the choreography fires on viewport entry rather than page load — and replace the time delays with per-element `animation-range` offsets, because time-valued `animation-delay` is ignored on scroll-driven timelines. See `core-animation.md`.
 
 ## Premium Signals
 - Entrance choreography where the sequence reveals the argument — the most important claim enters last within a group, not first

@@ -1,13 +1,13 @@
-# Component Process — Index
+# Component process index
 
 Process components present how the business works. Pick by register and step count.
 
-| Component | File kind | Best for |
+| Component | Kind | Best for |
 |---|---|---|
-| NumberedSteps | `.astro` | 3–5 steps, any register |
-| VerticalTimeline | `.astro` | 4–7 dated milestones, editorial / restrained |
-| HorizontalTimeline | `.astro` (scroll-snap) | 4–6 equally-weighted phases, moderate register |
-| AccordionProcess | Solid island | 3–6 steps where body is optional detail |
+| NumberedSteps | static | 3–5 steps, any register |
+| VerticalTimeline | static | 4–7 dated milestones, editorial / restrained |
+| HorizontalTimeline | static (scroll-snap) | 4–6 equally-weighted phases, moderate register |
+| AccordionProcess | needs JS behavior | 3–6 steps where body is optional detail |
 
 ## Selection
 
@@ -23,8 +23,8 @@ Process components present how the business works. Pick by register and step cou
 ## Rules
 
 - Never combine two process components in a single page.
-- Step numbers (01, 02, 03) are static text — never CounterTicker.
-- Use `StickyCardStack` (interactive) when you want a *single* high-motion process treatment — but count it against the motion budget.
+- Step numbers (01, 02, 03) are static text, never CounterTicker.
+- Use `StickyCardStack` (needs JS behavior) when you want a *single* high-motion process treatment, but count it against the motion budget.
 
 ## Component files
 

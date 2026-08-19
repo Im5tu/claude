@@ -1,8 +1,8 @@
 ---
 name: website-design
-version: 4.0.0
+version: 5.0.0
 argument-hint: [business name]
-description: When the user wants to design and build a premium multi-page website for any business type. Produces working Astro + SolidJS + Tailwind CSS v4 code with CSS-first animation — not specification documents. Also use when the user says "website design," "design a website," "build a website," "site design," "landing page," "multi-page site," or "website pages." For brand identity without website, see brand-design.
+description: When the user wants to design and build a premium multi-page website for any business type. Framework-agnostic design system (composition rules, component specs, CSS-first animation) implemented in the project's own stack; the default adapter for greenfield builds is Astro + SolidJS + Tailwind CSS v4. Also use when the user says "website design," "design a website," "build a website," "site design," "landing page," "multi-page site," or "website pages." For brand identity without a website, see brand-design. For page copy without code, see copywriting.
 allowed-tools: WebSearch, WebFetch, AskUserQuestion, Write, Read, Glob, Grep, Bash, Edit
 ---
 
@@ -10,23 +10,17 @@ allowed-tools: WebSearch, WebFetch, AskUserQuestion, Write, Read, Glob, Grep, Ba
 
 ## Role
 
-You are a world-class Principal Creative Technologist. You compose bespoke digital experiences by selecting from a vocabulary of aesthetics, a library of composable components, and a grounding in what's current. You produce **working code**, not specification documents.
+You are a principal creative technologist. You compose sites by selecting from a vocabulary of aesthetics, a library of component specs, and a grounding in what's current. You deliver **working code in the project's stack**, derived from framework-agnostic specs.
 
 **Creative Execution Directive:**
 
 > You are a principal designer with a style vocabulary, a component library, trend context, and composition principles. Compose a unique site that no template could produce. If two different businesses using the same style would produce the same section structure, you have not composed — you have templated.
 
-**Scope:** Multi-page websites for any business type. Produces working Astro code with SolidJS islands, Tailwind CSS v4, and CSS-first animation. Builds page-by-page — homepage first, then additional pages on request.
+**Scope:** Multi-page websites for any business type. Builds page-by-page: homepage first, then additional pages on request.
 
-**Tech Stack:**
-- Astro (file-based routing in `src/pages/`, layouts in `src/layouts/`)
-- SolidJS (interactive islands only, hydrated via `client:load` / `client:visible` / `client:idle`)
-- Tailwind CSS v4 (via `@tailwindcss/vite`)
-- **CSS-first animation** — `@keyframes`, CSS transitions, `animation-timeline: scroll()` / `view()`, Astro's View Transitions (`<ClientRouter />`). Escape hatch: Web Animations API inside Solid islands. Last resort: Motion One (opt-in, not installed by default).
-- TypeScript (strict)
-- `lucide-solid` for icons in islands; raw SVG or `astro-icon` in `.astro`
-- **Auth (optional, only when requested):** BetterAuth with plugins `admin`, `organization`, `polar`, `two-factor`, `passkey`, `last-login-method` always-on; `mcp`, `api-key`, `jwt` asked per-engagement. Default login UI: email magic link + Google + Apple + passkey.
-- **Analytics (always):** datafa.st — plain `<script>` tag in `BaseLayout.astro`, no npm package.
+**Stack:** The design system in this skill (composition rules, component specs, animation primitives) is framework-agnostic. Implement it in the project's existing stack. For greenfield builds with no stated preference, use the default adapter in `@references/stack-adapter-astro.md` (Astro + SolidJS + Tailwind CSS v4); it also carries the analytics embed (datafa.st, always) and the optional BetterAuth scaffold.
+
+**Animation (any stack):** CSS-first. `@keyframes`, transitions, `animation-timeline: scroll()` / `view()` inside `@supports` guards, the View Transitions API. Escape hatch: Web Animations API in scripted components. Last resort: Motion One (opt-in, never installed by default).
 
 **Do NOT install:** GSAP, ScrollTrigger, `@gsap/react`, Framer Motion, Lenis. Animation stays in CSS until CSS genuinely cannot do it.
 
@@ -52,7 +46,7 @@ Use `AskUserQuestion` to gather requirements. Ask all questions in a **single ca
 
 6. **"What pages do you need?"** — Multi-select: Homepage, About, Services, Pricing, Contact, Blog, Portfolio, Case Studies. Homepage always included.
 
-7. **"Does this site need authentication?"** — Yes / No. If Yes, the auth scaffold is added in Phase 6 (sign-in, sign-up, account, admin shell) with email magic link + Google + Apple + passkey by default. Leave unchecked for pure marketing sites.
+7. **"Does this site need authentication?"** — Yes / No. If Yes, the auth scaffold from the stack adapter is added in Phase 6 (sign-in, sign-up, account, admin shell) with email magic link + Google + Apple + passkey by default. Leave unchecked for pure marketing sites.
 
 8. **"Which optional BetterAuth plugins do you need?"** — Multi-select, only shown if Q7 = Yes: `mcp` (expose auth as an MCP server), `api-key` (programmatic API access), `jwt` (JWT token issuance). Always-on regardless: `admin`, `organization`, `polar`, `two-factor`, `passkey`, `last-login-method`.
 
@@ -131,7 +125,7 @@ Verify neither display nor body font appears on the hard-banned list:
 Inter, Roboto, Open Sans, Lato, Montserrat, Poppins, Nunito, Raleway, Source Sans Pro, Work Sans, DM Sans, Manrope, Rubik.
 If either is banned, select an alternative before writing the brief. Do not proceed with a banned font.
 
-[Google Fonts <link> tags for BaseLayout.astro <head> (fonts.googleapis.com), or @fontsource-variable imports]
+[Font loading plan: self-hosted @fontsource-variable packages or preconnected Google Fonts <link> tags — see core-typography.md]
 [CSS @theme additions code block]
 
 ## Motion Constitution
@@ -178,43 +172,7 @@ Identity-defining bans — never override:
 **Step 7 — Read chrome component index** (`@references/component-chrome-index.md`)
 Select navbar variant. The index's adaptation guide maps dimensional position to navbar variant.
 
-**Step 8 — Install dependencies** in the target project:
-```bash
-# Astro + Solid + Tailwind v4
-pnpm add -D tailwindcss@latest @tailwindcss/vite@latest
-pnpm add solid-js @astrojs/solid-js lucide-solid
-
-# Auth (only if Phase 1 Q7 = Yes)
-pnpm add better-auth
-# optional BetterAuth plugins per Phase 1 Q8 (import paths: better-auth/plugins/{mcp,api-key,jwt})
-
-# Animation escape hatch — install ONLY if a specific section genuinely needs JS animation
-# pnpm add motion
-```
-
-**Note:** datafa.st has no npm package — it's a plain `<script>` tag embedded in `BaseLayout.astro` (see Step 10).
-
-**Step 9 — Configure Astro with Solid + Tailwind v4** in `astro.config.mjs`:
-```js
-import { defineConfig } from "astro/config";
-import solid from "@astrojs/solid-js";
-import tailwindcss from "@tailwindcss/vite";
-
-export default defineConfig({
-  integrations: [solid()],
-  vite: { plugins: [tailwindcss()] },
-});
-```
-
-**Step 10 — Create `src/styles/global.css`** from the Color System in `core-visual-brief.md`:
-```css
-@import "tailwindcss";
-
-@theme {
-  /* colors, fonts, spacing derived from core-visual-brief.md */
-}
-```
-Import it once from `src/layouts/BaseLayout.astro`.
+**Step 8 — Set up the stack.** Greenfield with no stated preference: follow `@references/stack-adapter-astro.md` (install, config, global stylesheet, file structure, analytics embed). Existing project: locate its global stylesheet and component conventions, and create the design tokens there from the Color System in `core-visual-brief.md`. Either way, the tokens land in one global stylesheet the whole site imports.
 
 ---
 
@@ -297,23 +255,17 @@ Read `@references/trend-index.md`. Based on the Visual Brief dimensions and sele
 
 ### Phase 4: Implement
 
-Build section by section. Every implementation decision is an application of the direction card (color system, typography, motion personality) to the component structure.
+Build section by section, translating each selected component spec into the project's stack. Every implementation decision is an application of the direction card (color system, typography, motion personality) to the component structure.
 
 **Build order:**
-1. `src/layouts/BaseLayout.astro` — Root layout: fonts (from direction card), `<ClientRouter />` for View Transitions, NoiseOverlay, datafa.st analytics script, `<slot />`. Import `src/styles/global.css`.
-2. `src/styles/animations.css` — Shared `@keyframes`, scroll-timeline utilities, `prefers-reduced-motion` guards. Imported once from `global.css`.
-3. `src/components/layout/Navbar.astro` — Scroll-driven morph via `animation-timeline: scroll()`. Solid island only if a stateful mobile menu is needed.
-4. `src/components/layout/Footer.astro`.
-5. `src/pages/index.astro` — Homepage composing sections in the order from your Phase 3 composition.
-
-**datafa.st embed** — place inside `<head>` of `BaseLayout.astro`:
-```html
-<script defer data-website-id="dfid_REPLACE_ME" data-domain="your_domain.com" src="https://datafa.st/js/script.js"></script>
-```
-Replace both placeholders with the client's real values. datafa.st auto-disables on localhost.
+1. Root layout: fonts (from direction card), page-transition wiring, NoiseOverlay, analytics script (see the stack adapter), main slot. Imports the global stylesheet.
+2. Shared animation stylesheet: `@keyframes`, guarded scroll-timeline utilities, `prefers-reduced-motion` guards (from `core-animation.md`). Imported once from the global stylesheet.
+3. Navbar: scroll-driven morph via `animation-timeline: scroll()`; scripted only if a stateful mobile menu is needed.
+4. Footer.
+5. Homepage, composing sections in the order from your Phase 3 composition.
 
 **Every section must:**
-- Have a scroll-linked entrance — CSS `animation-timeline: view()` with `animation-range` is the default. No JS unless state drives timing.
+- Have a scroll-linked entrance: CSS `animation-timeline: view()` with `animation-range`, inside an `@supports` guard so unsupported engines render statically (see `core-animation.md`). No JS unless state drives timing.
 - Use fluid typography via `clamp()` for all headings.
 - Contain visible, meaningful, brand-specific content.
 - Have at least one element that distinguishes it from a generic template.
@@ -325,7 +277,7 @@ Replace both placeholders with the client's real values. datafa.st auto-disables
 - Minimum 3 real photographs on the homepage
 - Derive keywords from the brand's actual domain × the direction's mood register — never from style presets
 
-**Noise overlay:** Add `NoiseOverlay` in `BaseLayout.astro`. Opacity is set per the direction card's texture appetite.
+**Noise overlay:** Add `NoiseOverlay` in the root layout. Opacity is set per the direction card's texture appetite.
 
 ---
 
@@ -339,48 +291,13 @@ When the user asks for the next page, build it at the same quality standard. Eac
 
 Triggered only if Phase 1 Q7 = Yes. Do not build auth pages for marketing-only sites.
 
-**Files:**
-- `src/lib/auth.ts` — BetterAuth server instance. Plugins: `admin`, `organization`, `polar`, `twoFactor`, `passkey`, `lastLoginMethod` + any user-selected from `mcp` / `apiKey` / `jwt`.
-- `src/lib/auth-client.ts` — BetterAuth client (browser) matching the server plugins.
-- `src/pages/api/auth/[...all].ts` — Astro API route delegating to `auth.handler`.
-- `src/pages/auth/sign-in.astro`, `src/pages/auth/sign-up.astro`, `src/pages/auth/verify.astro` — login UI with: email magic link, Google, Apple, passkey. The `last-login-method` plugin value drives a "Continue with {provider}" hint above the provider buttons.
-- `src/pages/account.astro` + `src/pages/admin/index.astro` — minimal shells gated by session / admin role.
-
-**Env vars** (document in a `.env.example`): `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET`, `APPLE_KEY_ID`, `APPLE_TEAM_ID`, `APPLE_PRIVATE_KEY`, `RESEND_API_KEY` (or equivalent magic-link sender), `POLAR_ACCESS_TOKEN`.
+Follow the Auth section of `@references/stack-adapter-astro.md` (or the equivalent in the project's own stack): BetterAuth server + client instances, the API route (which requires server output — the adapter documents the SSR configuration), the sign-in/sign-up/verify pages with email magic link + Google + Apple + passkey, minimal account/admin shells, and the `.env.example` variable list.
 
 ---
 
-## File Structure
+## File structure
 
-```
-src/
-├── layouts/
-│   └── BaseLayout.astro        ← Root layout (fonts, <ClientRouter />, NoiseOverlay, datafa.st script)
-├── pages/
-│   ├── index.astro             ← Homepage
-│   ├── about.astro             ← (on request)
-│   ├── services.astro          ← (on request)
-│   ├── contact.astro           ← (on request)
-│   ├── auth/                   ← (Phase 6 only)
-│   │   ├── sign-in.astro
-│   │   ├── sign-up.astro
-│   │   └── verify.astro
-│   └── api/
-│       └── auth/[...all].ts    ← (Phase 6 only)
-├── components/
-│   ├── layout/
-│   │   ├── Navbar.astro        ← Scroll-morphing navbar (CSS animation-timeline)
-│   │   └── Footer.astro
-│   ├── sections/               ← Page-specific .astro sections
-│   ├── ui/                     ← Shared primitives (Button.astro, GlassCard.astro, NoiseOverlay.astro)
-│   └── islands/                ← SolidJS interactive islands (.tsx)
-├── lib/
-│   ├── auth.ts                 ← (Phase 6 only)
-│   └── auth-client.ts          ← (Phase 6 only)
-└── styles/
-    ├── global.css              ← Tailwind v4 @theme + imports
-    └── animations.css          ← @keyframes, scroll-timeline utilities, reduced-motion
-```
+Stack-dependent: the Astro layout lives in `@references/stack-adapter-astro.md`. For other stacks, mirror its shape (root layout, pages, layout/sections/ui/scripted-component folders, one global stylesheet plus one animation stylesheet).
 
 ---
 
@@ -403,12 +320,13 @@ Read files selectively — only what your composition requires. Loading every fi
 | File | Purpose | When to Read |
 |---|---|---|
 | `@references/core-aesthetic-vocabulary.md` | Dimensional vocabulary — maps brief signals to implementation | Phase 2 Step 1 — always |
-| `@references/core-anti-patterns.md` | Banned patterns — visual, animation, layout, composition | Phase 2 Step 7 — always |
+| `@references/core-anti-patterns.md` | Banned patterns — visual, animation, layout, composition | Phase 2 Step 1 — always |
 | `@references/core-composition.md` | Interaction budget, weight alternation, content→component decision tree | Phase 3 — always |
-| `@references/core-animation.md` | CSS-first animation primitives: `animation-timeline: view()/scroll()`, View Transitions, WAAPI escape hatch | When implementing animations |
+| `@references/core-animation.md` | CSS-first animation primitives: guarded `animation-timeline: view()/scroll()`, range-offset staggers, View Transitions, WAAPI escape hatch | When implementing animations |
 | `@references/core-typography.md` | clamp() type scale systems, fluid heading formulas | When building typography |
 | `@references/core-color-systems.md` | Palette generation, dark mode, semantic color mapping | When customising palette |
-| `@references/core-references.md` | Premium reference sites and what to borrow | For inspiration only |
+| `@references/core-references.md` | Reference sites and what to borrow | For inspiration only |
+| `@references/stack-adapter-astro.md` | Default stack binding: install, config, file structure, analytics, auth | Phase 2 Step 8 (greenfield) and Phase 6 |
 
 ### Component Files (read selectively via indexes)
 
@@ -416,11 +334,11 @@ Use `component-[cat]-index.md` to compare candidates, then read only the individ
 
 | Category | Index File | Components |
 |---|---|---|
-| Chrome | `@references/component-chrome-index.md` | Navbar, SidebarNav, EnhancedFooter, NoiseOverlay, Button, GlassCard, ThemeToggle, form inputs |
+| Chrome | `@references/component-chrome-index.md` | Navbar, SidebarNav, Footer, NoiseOverlay, Button, GlassCard, ThemeToggle, form inputs |
 | Heroes | `@references/component-hero-index.md` | SplitHero, FullBleedImageHero, TypeHero, CenteredHero, SplitHeroPortrait, GradientMeshHero, BentoHero, FullBleedVideoHero |
 | Content | `@references/component-content-index.md` | BentoGrid, AlternatingRows, FeatureTabs, MagazineGrid, StackedValueProps, IconGrid |
 | Process | `@references/component-process-index.md` | NumberedSteps, HorizontalTimeline, VerticalTimeline, AccordionProcess |
-| Proof | `@references/component-proof-index.md` | StatsStrip, LogoStrip, MarqueeLogoStrip, TestimonialGrid, FeaturedTestimonial, CaseStudyTeaser |
+| Proof | `@references/component-proof-index.md` | StatsStrip, LogoStrip, TestimonialGrid, TestimonialMarquee, TestimonialSplit, FeaturedTestimonial, CaseStudyTeaser |
 | Interactive | `@references/component-interactive-index.md` | StickyCardStack, CardShuffler, TelemetryFeed, WaveformPulse, GradientMesh, FloatingShapes, ScrollColorShift, MarqueeScroller |
 | CTA | `@references/component-cta-index.md` | CTABanner, Manifesto, NewsletterCapture, ContactGateway |
 
@@ -449,7 +367,7 @@ Every headline, description, CTA, and label must be real copy derived from the b
 All headings use `clamp()` for fluid scaling. Never use fixed font sizes for display text. See `core-typography.md`.
 
 ### 5. Animation Has Purpose — and Stays in CSS
-Every animation must pass the utility test: if removing it reduces usability or brand expression, it stays. Default to CSS (`animation-timeline: scroll()` / `view()`, `@keyframes`, transitions, Astro View Transitions). Reach for JS (WAAPI in a Solid island) only when state drives timing. Respect `prefers-reduced-motion` in every animation block — see `core-animation.md` for the template.
+Every animation must pass the utility test: if removing it reduces usability or brand expression, it stays. Default to CSS (`animation-timeline: scroll()` / `view()` inside `@supports` guards, `@keyframes`, transitions, View Transitions). Reach for JS (WAAPI in a scripted component) only when state drives timing. Respect `prefers-reduced-motion` in every animation block — see `core-animation.md` for the template.
 
 ### 6. Images are Real and Contextually Right
 Use real Unsplash URLs. Minimum 3 photographs per homepage. Derive search keywords from the direction card's mood register × the brand's actual subject matter — never from generic stock or preset examples.
@@ -486,7 +404,7 @@ Before delivering, verify:
 - [ ] Hero visual matches direction card (type-led → no background image; image-led → real photo; mesh-led → gradient mesh)
 - [ ] No placeholder text anywhere — all copy is real and brand-specific
 - [ ] Social proof uses real image files for logos — never plain text company names
-- [ ] Footer built using EnhancedFooter from component-chrome index
+- [ ] Footer built from the Footer spec in the component-chrome index
 
 **Typography & Visual Quality:**
 - [ ] All headings use `clamp()` for fluid sizing
@@ -502,23 +420,22 @@ Before delivering, verify:
 **Interactions & Animation:**
 - [ ] Hero has an entrance animation — CSS `@keyframes` fired on load, or `animation-timeline: view()` if below fold
 - [ ] Navbar morphs on scroll via `animation-timeline: scroll()` (no JS)
-- [ ] Every below-fold section uses `animation-timeline: view()` for entrance
-- [ ] Every button has hover + active + focus states (Tailwind + CSS transitions)
+- [ ] Every below-fold section uses `animation-timeline: view()` for entrance, inside an `@supports` guard with a statically-visible fallback (no unguarded `opacity: 0`)
+- [ ] Every button has hover + active + focus states (CSS transitions)
 - [ ] Every card has a hover interaction
-- [ ] Solid islands that animate use WAAPI (`element.animate`) inside `onMount`, cancelled in `onCleanup`
+- [ ] Scripted components that animate use WAAPI (`element.animate`) and cancel their animations on teardown
 - [ ] Counter tickers used ONLY on numeric stats — step numbers (01, 02, 03) are static text
 - [ ] No GSAP, ScrollTrigger, @gsap/react, Framer Motion, or Lenis in package.json
 - [ ] Every animation block has a `@media (prefers-reduced-motion: reduce)` guard
-- [ ] Page-to-page navigation uses Astro View Transitions (`<ClientRouter />` + `transition:name`)
+- [ ] Scroll-driven staggers use per-item `animation-range` offsets, never time-valued `animation-delay` (ignored on scroll timelines)
+- [ ] Page-to-page navigation uses the View Transitions API (wired per the stack adapter)
 
 **Analytics & Auth:**
-- [ ] datafa.st `<script>` tag present in `BaseLayout.astro` with both placeholders (`data-website-id`, `data-domain`) documented
+- [ ] Analytics script present in the root layout with both placeholders (`data-website-id`, `data-domain`) documented (see stack adapter)
 - [ ] No `@datafast/*` npm package installed
 - [ ] Auth scaffold built only if Phase 1 Q7 = Yes — marketing-only sites have no auth pages
 
 **Technical:**
-- [ ] `pnpm astro build` succeeds
+- [ ] The production build succeeds
 - [ ] Responsive on mobile (320px minimum)
-- [ ] No TypeScript `any` types
-- [ ] Solid islands use the minimum hydration directive needed (`client:visible` > `client:idle` > `client:load`)
-- [ ] No `"use client"`, `next/*`, or `src/app/` references anywhere
+- [ ] The stack adapter's own checklist passes (for Astro: `pnpm astro build`, hydration directives, no `any`, no foreign-framework references)

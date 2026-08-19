@@ -5,23 +5,23 @@ Interactive components are high-signal visual moments. Each one has an opinion a
 **Interaction budget:** the direction card sets a max count per page (from `core-aesthetic-vocabulary.md §5`). Do not exceed it.
 
 All interactive components in this stack are either:
-- **Pure CSS** (`animation-timeline: scroll()` / `view()`, keyframes) in an `.astro` component, or
-- **SolidJS island** (`.tsx`) with Web Animations API — only when state drives timing.
+- **Static** — pure CSS (`animation-timeline: scroll()` / `view()`, keyframes), no scripting, or
+- **Needs JS behavior** — small scripted state driving Web Animations API calls, only when state drives timing.
 
 No GSAP, no ScrollTrigger, no Framer Motion.
 
 ## Components
 
-| Component | File kind | Mechanism | Best for |
+| Component | Kind | Mechanism | Best for |
 |---|---|---|---|
-| ScrollColorShift | `.astro` | CSS `animation-timeline: scroll(root)` swapping CSS custom properties | Chaptered storytelling; cinematic palette shifts |
-| MarqueeScroller | `.astro` | CSS `@keyframes` translating a duplicated track | Editorial statement tickers, logo strips |
-| GradientMesh | `.astro` | Layered radial gradients + slow `background-position` keyframes | Hero backgrounds; atmospheric moments |
-| FloatingShapes | `.astro` | CSS `animation-timeline: scroll(root)` on blurred abstract shapes | Hero decoration, section breaks |
-| WaveformPulse | `.astro` | SVG path + CSS `stroke-dashoffset` + pulse keyframes | Data/audio/signal-themed sections |
-| StickyCardStack | `.astro` | CSS `position: sticky` + `animation-timeline: view()` for scale/opacity | Process steps, feature reveals |
-| CardShuffler | Solid island | WAAPI FLIP with `element.animate()` | Testimonials, rotating props |
-| TelemetryFeed | Solid island | `createSignal` + `setInterval` + WAAPI enter animation | SaaS/data product moments |
+| ScrollColorShift | static | CSS `animation-timeline: scroll()` interpolating registered color custom properties | Chaptered storytelling; cinematic palette shifts |
+| MarqueeScroller | static | CSS `@keyframes` translating a duplicated track | Editorial statement tickers, logo strips |
+| GradientMesh | static | Layered radial gradients + slow `background-position` keyframes | Hero backgrounds; atmospheric moments |
+| FloatingShapes | static | CSS `animation-timeline: scroll(root)` on blurred abstract shapes | Hero decoration, section breaks |
+| WaveformPulse | static | Bar row with scroll-driven draw-in (`view()` + `animation-range` stagger) + pulse keyframes | Data/audio/signal-themed sections |
+| StickyCardStack | static | CSS `position: sticky` + `animation-timeline: view()` for scale/opacity | Process steps, feature reveals |
+| CardShuffler | needs JS behavior | FLIP reorder with Web Animations API + interval state | Testimonials, rotating props |
+| TelemetryFeed | needs JS behavior | Timer-driven typewriter state + CSS enter animation | SaaS/data product moments |
 
 ## Selection by dimensional position
 
@@ -39,8 +39,8 @@ No GSAP, no ScrollTrigger, no Framer Motion.
 
 - Never combine more than 2 interactive components on one page.
 - Never place two interactive components in adjacent sections — interleave with content/proof.
-- `StickyCardStack` should be preferred over `CardShuffler` when state isn't required — it's pure CSS.
-- Every component in this list has its own `prefers-reduced-motion` guard. The global nuke in `src/styles/animations.css` is a safety net, not a substitute.
+- `StickyCardStack` should be preferred over `CardShuffler` when state isn't required — it's static.
+- Every component in this list has its own `prefers-reduced-motion` guard. A site-wide reduced-motion override in the global stylesheet is a safety net, not a substitute.
 
 ## Component files
 

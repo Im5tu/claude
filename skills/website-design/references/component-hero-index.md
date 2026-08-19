@@ -1,8 +1,8 @@
-# Component Hero — Index
+# Component hero — index
 
 The hero is the first section on every homepage. Its job: establish identity + set register + deliver the primary CTA in the first viewport. Pick the variant that matches the direction card.
 
-All hero components are `.astro`. Entrance animation runs on page load via CSS `@keyframes` with per-element staggered `animation-delay`. No JS unless state drives timing.
+All hero variants are static; none needs JS behavior. Entrance animation runs on page load via CSS `@keyframes` with per-element staggered `animation-delay`.
 
 ## Variants at a glance
 
@@ -36,7 +36,7 @@ All hero components are `.astro`. Entrance animation runs on page load via CSS `
 - **FullBleedVideoHero must have a poster image** that renders for `prefers-reduced-motion: reduce` users and for first-frame LCP.
 - **BentoHero tiles stagger in** via CSS `animation-delay: calc(var(--i) * 80ms)`. Don't animate them all simultaneously.
 - Every hero's headline uses `clamp()` for fluid scaling.
-- Every hero's primary CTA uses `HeroButton` (see `component-chrome-button.md`).
+- Every hero's primary CTA uses the HeroButton variant of the Button spec (see `component-chrome-button.md`).
 
 ## Component files
 

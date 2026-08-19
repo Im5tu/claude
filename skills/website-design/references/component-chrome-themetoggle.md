@@ -1,113 +1,47 @@
-# ThemeToggle — Solid island
+# Theme toggle
 
-Dark mode toggle. Reads `prefers-color-scheme` on mount, persists to `localStorage`, applies a `.dark` class on `<html>`. Use in the navbar only when the site actually supports both themes.
-
-Hydration: `client:load` — it's above-the-fold and must apply the correct initial state before paint to avoid a flash.
+Dark mode toggle. Reads `prefers-color-scheme` on first load, persists the choice to `localStorage`, applies a `.dark` class on `<html>`. Use in the navbar only when the site actually supports both themes. Needs JS.
 
 ## Dimensional fit
 
 - surface-depth: only relevant when both are supported
 - motion-register: any
-- notes: The Tailwind v4 `@theme` block in `src/styles/global.css` should define colour tokens for both themes via `@variant dark`.
+- notes: The global stylesheet should define colour tokens for both themes, with the `.dark` class on `<html>` switching the dark set on.
 
-## File
+## Structure
 
-### `src/components/islands/ThemeToggle.tsx`
+- `<button class="theme-toggle" aria-pressed aria-label="Switch to light|dark mode">` containing a sun icon (in dark mode) or moon icon (in light mode) as inline SVG, 16px
 
-```tsx
-import { createSignal, onMount } from "solid-js";
-import { Sun, Moon } from "lucide-solid";
+## CSS
 
-type Theme = "light" | "dark";
-
-function readInitial(): Theme {
-  if (typeof document === "undefined") return "light";
-  const stored = localStorage.getItem("theme") as Theme | null;
-  if (stored === "light" || stored === "dark") return stored;
-  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+```css
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  color: var(--color-primary);
+  transition: background 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-
-function apply(theme: Theme) {
-  document.documentElement.classList.toggle("dark", theme === "dark");
-  localStorage.setItem("theme", theme);
-}
-
-export default function ThemeToggle() {
-  const [theme, setTheme] = createSignal<Theme>("light");
-
-  onMount(() => {
-    const initial = readInitial();
-    setTheme(initial);
-    apply(initial);
-  });
-
-  const toggle = () => {
-    const next: Theme = theme() === "dark" ? "light" : "dark";
-    setTheme(next);
-    apply(next);
-  };
-
-  return (
-    <button
-      onClick={toggle}
-      class="theme-toggle"
-      aria-label={`Switch to ${theme() === "dark" ? "light" : "dark"} mode`}
-      aria-pressed={theme() === "dark"}
-    >
-      {theme() === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-      <style>{`
-        .theme-toggle {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 2rem;
-          height: 2rem;
-          border-radius: 999px;
-          color: var(--color-primary);
-          transition: background 180ms cubic-bezier(0.2,0.8,0.2,1);
-        }
-        .theme-toggle:hover { background: color-mix(in oklab, currentColor 8%, transparent); }
-        .theme-toggle:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
-      `}</style>
-    </button>
-  );
-}
+.theme-toggle:hover { background: color-mix(in oklab, currentColor 8%, transparent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 ```
 
-## Anti-flash inline script (mandatory)
+## Behavior
 
-To avoid a light→dark flash on first paint, add a blocking script to `<head>` in `BaseLayout.astro` BEFORE any stylesheet that depends on `.dark`:
+- Initial state: read `localStorage.theme`; if absent or invalid, fall back to `matchMedia("(prefers-color-scheme: dark)")`.
+- Clicking the toggle flips the theme, toggles the `dark` class on `document.documentElement`, writes the new value to `localStorage.theme`, swaps the icon, and updates `aria-pressed` (true when dark) and the `aria-label` to name the mode it will switch to.
+- Anti-flash script (mandatory): a small blocking inline script in `<head>`, placed before any stylesheet that depends on `.dark`, reads `localStorage.theme`, falls back to `prefers-color-scheme`, and adds the `dark` class to `<html>` when dark. It runs synchronously before first paint so the page never flashes the wrong theme, whatever script later manages the button.
 
-```astro
-<script is:inline>
-  (function () {
-    const stored = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const theme = stored ?? (prefersDark ? "dark" : "light");
-    if (theme === "dark") document.documentElement.classList.add("dark");
-  })();
-</script>
-```
+## Notes
 
-This runs synchronously before first paint, pinning the correct class before the Solid island hydrates.
-
-## Props
-
-None — the component is self-contained.
-
-## Usage
-
-```astro
----
-import ThemeToggle from "../islands/ThemeToggle.tsx";
----
-<header>
-  <ThemeToggle client:load />
-</header>
-```
+- The component is self-contained; no configuration.
+- The toggle button itself can attach its behavior lazily; only the anti-flash script must block.
 
 ## Dimensional adaptation
 
 - Icon-only default is sufficient for most directions.
-- Editorial register → swap icons for labelled text: `Light / Dark`.
-- Expressive register → add a subtle rotate on toggle via CSS transition on an inner `<span>`.
+- Editorial register: swap icons for labelled text: `Light / Dark`.
+- Expressive register: add a subtle rotate on toggle via CSS transition on an inner `<span>`.

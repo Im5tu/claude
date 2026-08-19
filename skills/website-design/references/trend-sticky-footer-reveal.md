@@ -43,7 +43,7 @@ Two CSS approaches:
 
 Both require the main content background to be fully opaque — if transparent, the footer bleeds through during scroll.
 
-For the reveal moment to feel premium, footer content should sequence in with staggered entrance animations as it becomes visible. Drive those with pure CSS: each inner element takes `animation-timeline: view()` with a per-element `animation-delay: calc(var(--i) * 80ms)` — no IntersectionObserver wrangling required.
+Sequence the footer content in as it becomes visible, with pure CSS: each inner element takes `animation-timeline: view()` inside an `@supports (animation-timeline: view())` guard, staggered via per-element `animation-range` offsets (time-valued `animation-delay` is ignored on scroll-driven timelines). See the stagger pattern in `core-animation.md`.
 
 ## Premium Signals
 - Footer reveal where the footer is designed as a destination composition, not a navigation utility — large brand mark, closing statement, generous whitespace

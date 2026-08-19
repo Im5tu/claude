@@ -82,7 +82,7 @@ Context-aware capabilities auto-triggered when relevant:
 | `copywriting` | Marketing copy for landing and product pages |
 | `launch-strategy` | Product launch and go-to-market planning |
 | `marketing-psychology` | Mental models applied to marketing |
-| `website-design` | Astro + SolidJS + Tailwind v4 multi-page sites |
+| `website-design` | Framework-agnostic website design system (default adapter: Astro) |
 | `website-seo` | SEO strategy, technical SEO, schema, reporting |
 | `plan-feature` | In-depth interview to produce a detailed feature spec |
 | `reprompt` | Restructure a prompt into Goal/Constraints/Format/Failure |

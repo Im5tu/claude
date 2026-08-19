@@ -1,4 +1,4 @@
-# LogoStrip — `.astro`
+# LogoStrip
 
 Horizontal strip of client logos. Logos are real image files (SVG preferred). Plain-text company names are banned by `core-anti-patterns.md`.
 
@@ -10,99 +10,70 @@ Horizontal strip of client logos. Logos are real image files (SVG preferred). Pl
 - type-personality: any
 - notes: Grayscale + desaturate by default so the strip reads as proof, not a logo parade.
 
-## File
+## Structure
 
-### `src/components/sections/LogoStrip.astro`
+- `<section class="ls">` centered container; add `data-gs="true"` for the default grayscale treatment
+  - optional kicker `<p class="ls__kicker">` (e.g. "Trusted by")
+  - `<ul class="ls__row">` grid: 3 columns, 4 at >=768px, 6 at >=1024px
+    - one `<li>` per logo, each containing an `<img>` with real alt text, explicit width/height (defaults 140x40), `loading="lazy"`
 
-```astro
----
-interface Logo { src: string; alt: string; width?: number; height?: number; }
-interface Props {
-  kicker?: string;
-  logos: Logo[];          // 6-12 recommended
-  grayscale?: boolean;
+## CSS
+
+```css
+.ls { max-width: 80rem; margin: 0 auto; padding: 3rem 1.5rem; }
+.ls__kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
-const { kicker, logos, grayscale = true } = Astro.props;
----
-<section class="ls" data-gs={grayscale}>
-  {kicker && <p class="ls__kicker">{kicker}</p>}
-  <ul class="ls__row">
-    {logos.map((l, i) => (
-      <li style={`--i: ${i};`}>
-        <img
-          src={l.src}
-          alt={l.alt}
-          width={l.width ?? 140}
-          height={l.height ?? 40}
-          loading="lazy"
-        />
-      </li>
-    ))}
-  </ul>
-</section>
+.ls__row {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem 3rem;
+  align-items: center;
+  justify-items: center;
+  padding: 0;
+}
+@media (min-width: 768px) { .ls__row { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1024px) { .ls__row { grid-template-columns: repeat(6, 1fr); } }
+.ls__row img {
+  max-height: 2rem;
+  width: auto;
+  opacity: 0.7;
+  transition: opacity var(--motion-duration-fast) var(--ease-out-soft),
+              filter var(--motion-duration-fast) var(--ease-out-soft);
+}
+.ls[data-gs="true"] .ls__row img { filter: grayscale(1); }
+.ls__row li:hover img { opacity: 1; filter: grayscale(0); }
 
-<style>
-  .ls { max-width: 80rem; margin: 0 auto; padding: 3rem 1.5rem; }
-  .ls__kicker {
-    font-family: var(--font-mono);
-    font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--color-secondary);
-    text-align: center;
-    margin-bottom: 1.5rem;
-  }
-  .ls__row {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem 3rem;
-    align-items: center;
-    justify-items: center;
-    padding: 0;
-  }
-  @media (min-width: 768px) { .ls__row { grid-template-columns: repeat(4, 1fr); } }
-  @media (min-width: 1024px) { .ls__row { grid-template-columns: repeat(6, 1fr); } }
+/* entrance: scroll-driven stagger via per-item animation-range offsets
+   (never a time delay — those are ignored on scroll timelines) */
+@keyframes ls-in { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+@supports (animation-timeline: view()) {
   .ls__row li {
-    opacity: 0; translate: 0 10px;
     animation: ls-in 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-    animation-delay: calc(var(--i) * 50ms);
     animation-timeline: view();
     animation-range: entry 0% cover 30%;
   }
-  .ls__row img {
-    max-height: 2rem;
-    width: auto;
-    opacity: 0.7;
-    transition: opacity var(--motion-duration-fast) var(--ease-out-soft),
-                filter var(--motion-duration-fast) var(--ease-out-soft);
-  }
-  .ls[data-gs="true"] .ls__row img { filter: grayscale(1); }
-  .ls__row li:hover img { opacity: 1; filter: grayscale(0); }
-
-  @keyframes ls-in { to { opacity: 1; translate: 0 0; } }
-  @media (prefers-reduced-motion: reduce) {
-    .ls__row li { animation: none; opacity: 1; translate: 0 0; }
-    .ls__row img, .ls__row li:hover img { transition: none; }
-  }
-</style>
+  /* stagger repeats every 6 items to match the widest grid row */
+  .ls__row li:nth-child(6n+2) { animation-range: entry 4% cover 34%; }
+  .ls__row li:nth-child(6n+3) { animation-range: entry 8% cover 38%; }
+  .ls__row li:nth-child(6n+4) { animation-range: entry 12% cover 42%; }
+  .ls__row li:nth-child(6n+5) { animation-range: entry 16% cover 46%; }
+  .ls__row li:nth-child(6n)   { animation-range: entry 20% cover 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ls__row li { animation: none; }
+  .ls__row img, .ls__row li:hover img { transition: none; }
+}
 ```
 
-## Usage
+## Notes
 
-```astro
-<LogoStrip
-  kicker="Trusted by"
-  logos={[
-    { src: "/logos/apex.svg", alt: "Apex Financial", width: 130 },
-    { src: "/logos/meridian.svg", alt: "Meridian Labs", width: 150 },
-    { src: "/logos/halcyon.svg", alt: "Halcyon", width: 120 },
-    { src: "/logos/atlas.svg", alt: "Atlas Shipping", width: 120 },
-    { src: "/logos/kestrel.svg", alt: "Kestrel Audio", width: 130 },
-    { src: "/logos/orbit.svg", alt: "Orbit Systems", width: 110 },
-  ]}
-/>
-```
-
-## Rules
-
+- 6-12 logos recommended; fewer looks sparse.
 - Every logo must be a real file with a real alt — never a `<span>` with company text.
 - If you do not have real logos, omit this section and use testimonials or case studies instead.
+- Per-logo widths vary (110-150 works well); keep heights visually equal via the shared `max-height: 2rem`.

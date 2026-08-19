@@ -2,15 +2,17 @@
 
 Proof components present the evidence: client logos, stats, testimonials, case studies. Include only when the evidence is real and specific. A thin proof section is worse than none.
 
-| Component | File kind | Best for |
+| Component | Kind | Best for |
 |---|---|---|
-| LogoStrip | `.astro` | 6–12 real client logos (image files, never text) |
-| StatsStrip | `.astro` | 3–4 genuinely impressive numbers with CounterTicker |
-| FeaturedTestimonial | `.astro` | One extended testimonial with portrait, long-form |
-| TestimonialGrid | `.astro` | 4–6 shorter testimonials in a grid |
-| TestimonialSplit | `.astro` | One testimonial + supporting case-study summary |
-| TestimonialMarquee | `.astro` | Scrolling ticker of short quotes (CSS marquee) |
-| CaseStudyTeaser | `.astro` | Single case study preview linking to the full page |
+| LogoStrip | static | 6–12 real client logos (image files, never text) |
+| StatsStrip | static | 3–4 genuinely impressive numbers with the CSS counter ticker |
+| FeaturedTestimonial | static | One extended testimonial with portrait, long-form |
+| TestimonialGrid | static | 4–6 shorter testimonials in a grid |
+| TestimonialSplit | static | One testimonial + supporting case-study summary |
+| TestimonialMarquee | static | Scrolling ticker of short quotes (CSS marquee) |
+| CaseStudyTeaser | static | Single case study preview linking to the full page |
+
+None of these components needs JS behavior; all motion is CSS (scroll-driven entrances, the counter ticker, the marquee loop).
 
 ## Selection
 
@@ -25,7 +27,7 @@ Proof components present the evidence: client logos, stats, testimonials, case s
 ## Rules
 
 - **LogoStrip logos must be image files.** A row of plain-text company names is a list, not proof.
-- **StatsStrip numbers must use CounterTicker** (`core-animation.md`). Static "0+" on load means the timeline isn't firing — debug before ship.
+- **StatsStrip numbers must animate via the CSS counter ticker** (specced in StatsStrip). Static "0+" on load means the scroll timeline isn't firing — debug before ship. On engines without scroll timelines the static fallback number must show.
 - Only include a proof section when you have specific, attributable, verifiable evidence. Invented testimonials are worse than none.
 - Two proof components per page max.
 

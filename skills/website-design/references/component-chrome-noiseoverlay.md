@@ -1,4 +1,4 @@
-# NoiseOverlay — `.astro`
+# Noise overlay
 
 SVG `feTurbulence` noise texture at fixed position over the entire viewport. Adds film-grain polish that separates a premium site from a generic template. Mandatory on every site. Opacity comes from the direction card's texture-appetite.
 
@@ -9,71 +9,31 @@ SVG `feTurbulence` noise texture at fixed position over the entire viewport. Add
 - texture-appetite: any (value tunes opacity — see index file)
 - type-personality: any
 
-## File
+## Structure
 
-### `src/components/ui/NoiseOverlay.astro`
+- `<div class="noise" aria-hidden="true">`, last child of `<body>`, with `--noise-opacity` set inline per the opacity recipe
+  - full-bleed inline `<svg width="100%" height="100%" viewBox="0 0 200 200" preserveAspectRatio="none">`
+    - `<filter id="noise-filter">` containing `<feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />` and `<feColorMatrix type="saturate" values="0" />`
+    - `<rect width="100%" height="100%" filter="url(#noise-filter)" />`
 
-```astro
----
-interface Props {
-  opacity?: number;      // 0.01 – 0.08
-  baseFrequency?: number; // 0.6 – 1.2 — higher = finer grain
-  class?: string;
+## CSS
+
+```css
+.noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: var(--noise-opacity, 0.03);
+  mix-blend-mode: overlay;
 }
-const {
-  opacity = 0.03,
-  baseFrequency = 0.9,
-  class: className = "",
-} = Astro.props;
----
-<div class:list={["noise", className]} aria-hidden="true" style={`--noise-opacity: ${opacity};`}>
-  <svg width="100%" height="100%" viewBox="0 0 200 200" preserveAspectRatio="none">
-    <filter id="noise-filter">
-      <feTurbulence type="fractalNoise" baseFrequency={baseFrequency} numOctaves="2" stitchTiles="stitch" />
-      <feColorMatrix type="saturate" values="0" />
-    </filter>
-    <rect width="100%" height="100%" filter="url(#noise-filter)" />
-  </svg>
-</div>
-
-<style>
-  .noise {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 100;
-    opacity: var(--noise-opacity, 0.03);
-    mix-blend-mode: overlay;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    /* Noise is static — no motion concern; retained as-is. */
-  }
-</style>
+/* Noise is static, so no reduced-motion handling is needed. */
 ```
 
-## Placement
+## Tuning
 
-In `src/layouts/BaseLayout.astro`:
-
-```astro
----
-import NoiseOverlay from "../components/ui/NoiseOverlay.astro";
----
-<html lang="en">
-  <head><!-- … --></head>
-  <body>
-    <slot />
-    <NoiseOverlay opacity={0.03} />
-  </body>
-</html>
-```
-
-## Props
-
-| Prop | Type | Default | Notes |
-|---|---|---|---|
-| `opacity` | `number` | `0.03` | Tune to direction's texture-appetite — see chrome index table |
-| `baseFrequency` | `number` | `0.9` | Lower = coarser grain, higher = finer |
+- `--noise-opacity`: 0.01 to 0.08, default 0.03; set per the recipe below.
+- `baseFrequency`: 0.6 to 1.2, default 0.9. Lower = coarser grain, higher = finer.
 
 ## Opacity recipe
 
@@ -86,6 +46,7 @@ import NoiseOverlay from "../components/ui/NoiseOverlay.astro";
 
 ## Notes
 
-- SVG inline is intentional — avoids a PNG asset and scales perfectly.
+- SVG inline is intentional; it avoids a PNG asset and scales perfectly.
 - `mix-blend-mode: overlay` gives the grain character on both dark and light backgrounds.
-- For aggressive grain, increase `opacity` first; raise `baseFrequency` second.
+- For aggressive grain, increase opacity first; raise `baseFrequency` second.
+- Place it once in the base page layout, after the main content, so it overlays every page.

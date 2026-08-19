@@ -1,7 +1,7 @@
 # Trend Index
 
 ## How to Use
-Read this index during Phase 3 Step 9. Based on the Visual Brief dimensions and selected components, identify 1–3 relevant trend techniques. Read only those individual trend files — do not load all trend files.
+Read this index during Phase 3 Step 8. Based on the Visual Brief dimensions and selected components, identify 1–3 relevant trend techniques. Read only those individual trend files — do not load all trend files.
 
 ## Context Notes
 Aesthetic decisions in 2025–2026 are increasingly polarised — sites choose a distinct visual language and commit fully. Motion is the clearest differentiator between template and premium. Typography has moved from supporting element to primary design medium. Component choices are one of the fastest signals an experienced designer reads. Layout is a design tool in its own right. Scroll storytelling controls attention through pacing. Micro-delight earns the right to exist by being rare — budget 2–3 moments per homepage, 1–2 per product page, exactly 1 on conversion flows.
