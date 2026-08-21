@@ -1,153 +1,87 @@
 # StackedValueProps
 
-Vertical stack of 3-4 rows. Each row: large decorative static number + divider line + short description beside it. Full width. Typographic hierarchy carries the whole section — no images needed. For brands where authority is communicated through restraint.
+Three large stacked value propositions, each a section-height block with number, title, body, optional visual. Restrained, considered pacing. Entrance on a scroll-driven timeline.
 
-```
----
-component: StackedValueProps
-category: content
-subtype: numbered-value-stack
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: low
-  energy-energetic: medium
-visual-weight: light
-content-density: moderate
-trend-alignment: evergreen
-motion-profile: minimal
+- surface-depth: any
+- motion-register: restrained, moderate
+- texture-appetite: any
+- type-personality: humanist-serif, editorial-display
+- notes: 3 props exactly. More becomes repetitive. Each prop should earn its section.
 
-use-when:
-  - Refined Professional or Editorial Minimal where typography does the heavy lifting
-  - Dark Luxury with 3-4 core philosophy or service statements
-  - The brand can be distilled into 3-4 powerful one-line propositions
-  - You want authoritative weight without photography or illustrations
+## Structure
 
-avoid-when:
-  - Clean SaaS — product features need screenshots, not typography alone
-  - Warm Artisan — the architectural coolness conflicts with human warmth
-  - When you have more than 4 items (the stack becomes a list, not a statement)
+- `<section class="svp">`
+  - optional `.svp__kicker` `<p>`
+  - `<ol class="svp__list">` of exactly 3 items
+    - each `<li class="svp__item">`
+      - `.svp__text`: `.svp__num` `<p>` ("01", "02", "03", static text, never animated), `.svp__title` `<h3>`, `.svp__body` `<p>`
+      - optional `.svp__media` `<figure>` with `<img width="1200" height="900" loading="lazy">` and meaningful alt text
 
-pairs-well-with: [FeaturedTestimonial, CenteredHero, MagazineGrid]
-pairs-poorly-with: [BentoGrid, IconGrid — both carry numerical/icon weight]
----
-```
+## CSS
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
+```css
+.svp { max-width: 80rem; margin: 0 auto; padding: 5rem 1.5rem; }
+.svp__kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-accent); margin-bottom: 3rem;
+}
+.svp__list { display: grid; gap: 5rem; padding: 0; list-style: none; }
 
-gsap.registerPlugin(ScrollTrigger);
-
-interface ValueProp {
-  /** Static decorative label — e.g. "01", "I", "A" */
-  marker: string;
-  headline: string;
-  description: string;
-  /** Optional link — rendered as "Learn more →" */
-  href?: string;
+.svp__item {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+@media (min-width: 1024px) {
+  .svp__item { grid-template-columns: 6fr 5fr; gap: 4rem; }
+  .svp__item:nth-child(even) .svp__text { order: 2; }
 }
 
-interface StackedValuePropsProps {
-  eyebrow?: string;
-  props: ValueProp[];
+.svp__num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.12em;
+  color: var(--color-accent);
+}
+.svp__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  margin-top: 0.5rem;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+.svp__body {
+  margin-top: 1rem;
+  max-width: 56ch;
+  color: var(--color-text-secondary);
+}
+.svp__media img {
+  width: 100%; aspect-ratio: 4 / 3; object-fit: cover;
+  border-radius: 1.25rem;
 }
 
-export function StackedValueProps({ eyebrow, props }: StackedValuePropsProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    const rows = ref.current.querySelectorAll(".value-row");
-    gsap.set(rows, { y: 24, opacity: 0 });
-    gsap.to(rows, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.1,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 75%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    // Lines draw across
-    const lines = ref.current.querySelectorAll(".value-line");
-    gsap.set(lines, { scaleX: 0, transformOrigin: "left center" });
-    gsap.to(lines, {
-      scaleX: 1,
-      duration: 0.7,
-      stagger: 0.12,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 75%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  return (
-    <section ref={ref} className="py-16 lg:py-24 bg-surface-primary">
-      <div className="mx-auto max-w-7xl px-6">
-        {eyebrow && (
-          <p className="text-caption font-semibold text-accent tracking-widest uppercase mb-12">
-            {eyebrow}
-          </p>
-        )}
-
-        <div className="divide-y divide-border">
-          {props.map((prop, i) => (
-            <div
-              key={i}
-              className="value-row grid grid-cols-1 gap-6 py-10 lg:grid-cols-12 lg:gap-12 lg:items-start"
-            >
-              {/* Decorative marker — static text, never CounterTicker */}
-              <div className="lg:col-span-2">
-                <span
-                  className="font-display font-bold text-primary/15 leading-none select-none"
-                  style={{ fontSize: "clamp(3rem, 5vw, 5rem)" }}
-                  aria-hidden="true"
-                >
-                  {prop.marker}
-                </span>
-              </div>
-
-              {/* Divider line — animates */}
-              <div className="hidden lg:col-span-1 lg:flex lg:items-center">
-                <div className="value-line h-px w-full bg-border" />
-              </div>
-
-              {/* Content */}
-              <div className="lg:col-span-9">
-                <h3 className="font-display font-semibold text-h2 leading-tight tracking-tight text-primary">
-                  {prop.headline}
-                </h3>
-                <p className="mt-3 text-body-lg text-secondary max-w-[60ch] leading-relaxed">
-                  {prop.description}
-                </p>
-                {prop.href && (
-                  <a
-                    href={prop.href}
-                    className="mt-5 inline-block text-body-sm font-medium text-accent underline underline-offset-4 decoration-accent/30 hover:decoration-accent transition-colors"
-                  >
-                    Learn more &rarr;
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+/* Entrance. Items sit a full 5rem gap apart, so each enters on its own
+   view() timeline; no per-item stagger offsets are needed. */
+@keyframes svp-in { from { opacity: 0; translate: 0 18px; } to { opacity: 1; translate: 0 0; } }
+@supports (animation-timeline: view()) {
+  .svp__item {
+    animation: svp-in 750ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .svp__item { animation: none; }
 }
 ```
+
+## Notes
+
+- Numbers ("01", "02", "03") are static text. Never wrap them in CounterTicker; that's for real stats.
+- Titles work best as short declarative sentences (e.g. "Ship small, often."), 18ch max.
+- Even items flip text/media order on desktop; that alternation is structural, keep it.

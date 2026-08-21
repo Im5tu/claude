@@ -41,23 +41,38 @@ Neo-brutalism is not binary. The spectrum from brutal-lite to full-brutal enable
 Menu reveal as physical event: the navigation "drops from the ceiling" on click — a full-screen menu that descends with physical weight and momentum, as if it fell into place rather than fading in. Implementation: `clip-path` from `inset(0 0 100% 0)` to `inset(0 0 0% 0)` over 600–800ms with `power4.out` easing — the deceleration creates the sense of weight settling. Distinct from standard slide/fade navigation.
 
 ```tsx
-// Dramatic drop menu
-const menuRef = useRef<HTMLDivElement>(null);
-const [open, setOpen] = useState(false);
+// Solid island — WAAPI drop
+import { createSignal, onMount, onCleanup } from "solid-js";
 
-useGSAP(() => {
-  if (!menuRef.current) return;
-  if (open) {
-    gsap.fromTo(menuRef.current,
-      { clipPath: "inset(0 0 100% 0)" },
-      { clipPath: "inset(0 0 0% 0)", duration: 0.7, ease: "power4.out" }
+export default function DropMenu() {
+  const [open, setOpen] = createSignal(false);
+  let menu: HTMLDivElement | undefined;
+  let current: Animation | undefined;
+
+  const play = (to: "open" | "close") => {
+    if (!menu) return;
+    current?.cancel();
+    current = menu.animate(
+      to === "open"
+        ? [{ clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0% 0)" }]
+        : [{ clipPath: "inset(0 0 0% 0)" }, { clipPath: "inset(0 0 100% 0)" }],
+      {
+        duration: to === "open" ? 700 : 400,
+        easing: to === "open" ? "cubic-bezier(0.22, 1, 0.36, 1)" : "cubic-bezier(0.4, 0, 1, 1)",
+        fill: "forwards",
+      },
     );
-  } else {
-    gsap.to(menuRef.current,
-      { clipPath: "inset(0 0 100% 0)", duration: 0.4, ease: "power2.in" }
-    );
-  }
-}, { dependencies: [open] });
+  };
+
+  onMount(() => onCleanup(() => current?.cancel()));
+
+  return (
+    <>
+      <button onClick={() => { const next = !open(); setOpen(next); play(next ? "open" : "close"); }}>Menu</button>
+      <div ref={menu} class="drop-menu" style="clip-path: inset(0 0 100% 0);">…</div>
+    </>
+  );
+}
 ```
 
 This pattern is compatible with both brutal-lite and full-brutal, since the physics of the drop motion signals intentionality regardless of the surrounding aesthetic.

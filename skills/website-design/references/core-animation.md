@@ -1,634 +1,306 @@
-# Animation Choreography — GSAP Recipes & Scroll Patterns
+# Core animation — CSS-first
 
-Full TSX implementations for Next.js 15 + React 19 + GSAP 3 + Tailwind CSS v4.
+This file defines the animation primitives available to the skill. The rules here OVERRIDE any animation pattern shown in a component file.
 
----
+## Principles
 
-## Global GSAP Setup
+**Hierarchy (strict priority order):**
+1. **CSS-first default.** `@keyframes`, `transition`, `animation-timeline: scroll()` and `view()` with `animation-range`, CSS `@property` for interpolatable custom properties, and the View Transitions API for page-to-page animation. This covers ~90% of entrance, scroll-linked, and hover animations.
+2. **Escape hatch: Web Animations API.** `element.animate(keyframes, options)` from a small script or the framework's mount hook. Cancel on teardown. Use only when state drives timing (accordion, card shuffle, user-triggered sequence, reactive value).
+3. **Last resort: Motion One.** Opt-in, never installed by default. Only for orchestrated sequenced timelines genuinely beyond CSS+WAAPI.
 
-### Registration (do once in layout or provider)
+**Do NOT install or reference:**
+- `gsap`, `@gsap/react`, `ScrollTrigger`, `ScrollSmoother`
+- `framer-motion`
+- `lenis` (unless the brief explicitly requests smooth-scroll)
+- AOS, Animate.css, any "drop-in animation library"
 
-```tsx
-"use client";
-import { useEffect } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-export function GSAPProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Respect reduced motion globally
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (prefersReduced.matches) {
-      gsap.globalTimeline.timeScale(1000); // effectively instant
-      ScrollTrigger.defaults({ animation: undefined });
-    }
-
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
-  }, []);
-
-  return <>{children}</>;
-}
-```
-
-### Easing Library (`lib/animations.ts`)
-
-```ts
-export const EASE = {
-  /** Standard smooth — most transitions */
-  default: "power2.out",
-  /** Entrance — elements appearing */
-  enter: "power3.out",
-  /** Exit — elements leaving */
-  exit: "power2.in",
-  /** Signature — overridden by preset. Default is smooth deceleration */
-  signature: "power3.inOut",
-  // Spring easing NOT included globally — most styles ban it.
-  // If the Visual Brief explicitly permits spring, define it inline
-  // in that specific component only: "back.out(1.2)"
-  /** Smooth — for scroll-linked animations */
-  smooth: "none",
-} as const;
-
-export const DURATION = {
-  instant: 0.08,
-  fast: 0.15,
-  normal: 0.3,
-  moderate: 0.5,
-  slow: 0.8,
-  deliberate: 1.0,
-} as const;
-
-export const STAGGER = {
-  tight: 0.06,  // 60ms hard minimum — below this is sub-perceptual
-  normal: 0.07,   // ↓ tighter — snappy stagger between siblings
-  relaxed: 0.10,
-  dramatic: 0.15,
-} as const;
-
-// ─── Animation Snappiness Philosophy ─────────────────────────────────────────
-// Reference sites (Proctors Group, hm.la, BraveLittleBeast) feel fast and
-// intentional — not floaty or slow. Target timings:
-//   Entrance duration:  0.4–0.55s  (not 0.8s)
-//   Clip reveals:       0.6–0.7s   (power4.inOut for crispness)
-//   Stagger:            60–80ms    (not 120–150ms)
-//   Y travel:           20–24px    (not 40px — subtle lift, not PowerPoint)
-//   Counters:           1.2s       (intentionally dramatic — they're the payoff)
-// ─────────────────────────────────────────────────────────────────────────────
-```
+**Do NOT write:**
+- Manual `window.addEventListener("scroll", ...)` driving transforms. Use `animation-timeline: scroll()`.
+- `setTimeout` for animation sequencing. Use `animation-range` offsets (scroll-driven), `animation-delay` (time-driven only), or WAAPI `anim.finished.then(...)`.
+- Time-valued `animation-delay` on a rule that also sets a scroll-driven `animation-timeline`. The spec ignores the delay; stagger scroll-driven entrances with per-item `animation-range` offsets instead.
 
 ---
 
-## Core Animation Components
+## CSS vs scripted behavior: when to use which
 
-### ScrollReveal
+| Situation | Where it lives | Mechanism |
+|---|---|---|
+| Entrance on scroll (fade, slide, stagger) | stylesheet | CSS `animation-timeline: view()` inside an `@supports` guard |
+| Scroll-linked (parallax, nav morph, progress bar) | stylesheet | CSS `animation-timeline: scroll()` |
+| Hover, focus, active states | stylesheet | CSS `transition` |
+| Page-to-page transitions | layout | View Transitions API (`view-transition-name`; in frameworks, their VT integration) |
+| Counter ticking to a target number | stylesheet | CSS `@property --n` animated via `animation-timeline: view()` |
+| Accordion / collapsible reacting to state | script | WAAPI `element.animate()` |
+| Card shuffle / reorder / reactive list | script | WAAPI with FLIP pattern |
+| Drag, gesture, pointer-driven | script | Pointer events + WAAPI |
+| Orchestrated multi-step sequence with branching | script | Motion One (opt-in) |
 
-Reusable wrapper that triggers entrance animations when elements scroll into view.
+**Decision rule:** If the trigger is "the element is in viewport" or "the user is hovering", use CSS. If the trigger is "state changed", use a script with WAAPI.
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION, STAGGER } from "@/lib/animations";
+---
 
-gsap.registerPlugin(ScrollTrigger);
+## Support guard (mandatory for every scroll-driven entrance)
 
-type Animation = "fade-up" | "fade-scale" | "clip-reveal" | "slide-left" | "slide-right";
+`animation-timeline` is not universal. An entrance that starts elements at `opacity: 0` without a guard leaves the page permanently blank below the fold on unsupported engines. Two rules, no exceptions:
 
-interface ScrollRevealProps {
-  children: React.ReactNode;
-  animation?: Animation;
-  delay?: number;
-  duration?: number;
-  stagger?: number;
-  threshold?: number;
-  className?: string;
-  tag?: keyof JSX.IntrinsicElements;
-}
+1. The scroll-driven block lives inside `@supports (animation-timeline: view()) { ... }`.
+2. The hidden starting state lives in the keyframes' `from` frame (applied via `animation-fill-mode: both`), never as a static declaration outside the guard. Unsupported engines then render the content statically visible.
 
-const animationMap: Record<Animation, gsap.TweenVars> = {
-  "fade-up": { y: 20, opacity: 0 },
-  "fade-scale": { scale: 0.95, opacity: 0, filter: "blur(4px)" },
-  "clip-reveal": { clipPath: "inset(100% 0 0 0)", opacity: 0 },
-  "slide-left": { x: -40, opacity: 0 },
-  "slide-right": { x: 40, opacity: 0 },
-};
+## Reduced-motion guard (mandatory for every animation)
 
-export function ScrollReveal({
-  children,
-  animation = "fade-up",
-  delay = 0,
-  duration = 0.5,
-  stagger: staggerAmount = 0,
-  threshold = 0.2,
-  className,
-  tag: Tag = "div",
-}: ScrollRevealProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    const targets = staggerAmount > 0
-      ? ref.current.children
-      : ref.current;
-
-    gsap.set(targets, animationMap[animation]);
-
-    gsap.to(targets, {
-      y: 0,
-      x: 0,
-      scale: 1,
-      opacity: 1,
-      filter: "blur(0px)",
-      clipPath: "inset(0% 0 0 0)",
-      duration,
-      delay,
-      stagger: staggerAmount,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: `top ${100 - threshold * 100}%`,
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  return (
-    <Tag ref={ref as any} className={className}>
-      {children}
-    </Tag>
-  );
+```css
+@media (prefers-reduced-motion: reduce) {
+  .my-animated { animation: none; transition: none; }
 }
 ```
 
-### TextReveal
+### Global nuke (safety net in the global stylesheet)
 
-Word-by-word or line-by-line text reveal with clip mask.
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION, STAGGER } from "@/lib/animations";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface TextRevealProps {
-  children: string;
-  as?: "h1" | "h2" | "h3" | "h4" | "p" | "span";
-  split?: "words" | "lines";
-  stagger?: number;
-  className?: string;
-}
-
-export function TextReveal({
-  children,
-  as: Tag = "h2",
-  split = "words",
-  stagger: staggerAmount = 0.06,
-  className,
-}: TextRevealProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  const words = children.split(" ");
-
-  useGSAP(() => {
-    if (!ref.current) return;
-    const spans = ref.current.querySelectorAll(".reveal-unit");
-
-    gsap.set(spans, { y: "110%", opacity: 0 });
-    gsap.to(spans, {
-      y: "0%",
-      opacity: 1,
-      duration: 0.45,
-      stagger: staggerAmount,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 85%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  return (
-    <Tag ref={ref as any} className={className}>
-      {words.map((word, i) => (
-        <span key={i} className="inline-block overflow-hidden">
-          <span className="reveal-unit inline-block">
-            {word}
-            {i < words.length - 1 && "\u00A0"}
-          </span>
-        </span>
-      ))}
-    </Tag>
-  );
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 ```
 
-### StaggerGroup
+Use this as a safety net, not as a replacement for per-block guards.
 
-Container that staggers children's entrance animations.
+---
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION, STAGGER } from "@/lib/animations";
+## ScrollReveal (entrance on viewport enter)
 
-gsap.registerPlugin(ScrollTrigger);
+Purely CSS. No JS. Add the `reveal` class to any element that should enter on scroll.
 
-interface StaggerGroupProps {
-  children: React.ReactNode;
-  stagger?: number;
-  className?: string;
+```css
+@keyframes reveal-in {
+  from { opacity: 0; translate: 0 var(--distance, 24px); }
+  to   { opacity: 1; translate: 0 0; }
 }
 
-export function StaggerGroup({
-  children,
-  stagger: staggerAmount = 0.07,
-  className,
-}: StaggerGroupProps) {
-  const ref = useRef<HTMLDivElement>(null);
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+}
 
-  useGSAP(() => {
-    if (!ref.current) return;
-    const items = ref.current.children;
+@media (prefers-reduced-motion: reduce) {
+  .reveal { animation: none; }
+}
+```
 
-    gsap.set(items, { y: 24, opacity: 0 });
-    gsap.to(items, {
-      y: 0,
-      opacity: 1,
-      duration: DURATION.moderate,
-      stagger: staggerAmount,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
+### Staggering sibling reveals
 
-  return (
-    <div ref={ref} className={className}>
-      {children}
-    </div>
-  );
+Time delays are ignored on scroll-driven timelines, so stagger by shifting each item's range start:
+
+```css
+@supports (animation-timeline: view()) {
+  .reveal:nth-child(2) { animation-range: entry 8% cover 38%; }
+  .reveal:nth-child(3) { animation-range: entry 16% cover 46%; }
+  .reveal:nth-child(4) { animation-range: entry 24% cover 54%; }
+}
+```
+
+For arbitrary counts, set the offset from a per-item custom property (`--i`) emitted at build time:
+
+```css
+@supports (animation-timeline: view()) {
+  .reveal-item {
+    animation: reveal-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry calc(var(--i, 0) * 8%) cover calc(30% + var(--i, 0) * 8%);
+  }
 }
 ```
 
 ---
 
-## Named Interaction Patterns
+## TextReveal (word-by-word or char-by-char stagger)
 
-### 1. Scroll-Linked Color Shift
+Split the string at build time; wrap each word (or char) in a span carrying `--i`. Whitespace stays outside the spans. Same range-offset stagger as above:
 
-Background color transitions as user scrolls through sections.
+```css
+.text-reveal { display: inline-block; }
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface ColorSection {
-  id: string;
-  bgColor: string;
-  textColor: string;
+@keyframes tr-in {
+  from { opacity: 0; translate: 0 0.35em; }
+  to   { opacity: 1; translate: 0 0; }
 }
 
-export function ScrollColorShift({
-  sections,
-  children,
-}: {
-  sections: ColorSection[];
-  children: React.ReactNode;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
+@supports (animation-timeline: view()) {
+  .tr-part {
+    display: inline-block;
+    animation: tr-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry calc(var(--i, 0) * 3%) cover calc(25% + var(--i, 0) * 3%);
+  }
+}
 
-  useGSAP(() => {
-    if (!containerRef.current) return;
-
-    sections.forEach((section) => {
-      const el = document.getElementById(section.id);
-      if (!el) return;
-
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top 60%",
-        end: "bottom 40%",
-        onEnter: () => {
-          gsap.to(containerRef.current, {
-            backgroundColor: section.bgColor,
-            color: section.textColor,
-            duration: 0.6,
-            ease: "power2.inOut",
-          });
-        },
-        onEnterBack: () => {
-          gsap.to(containerRef.current, {
-            backgroundColor: section.bgColor,
-            color: section.textColor,
-            duration: 0.6,
-            ease: "power2.inOut",
-          });
-        },
-      });
-    });
-  }, { scope: containerRef });
-
-  return (
-    <div ref={containerRef} className="transition-colors">
-      {children}
-    </div>
-  );
+@media (prefers-reduced-motion: reduce) {
+  .tr-part { animation: none; }
 }
 ```
 
-### 2. Sticky Card Stack
+Default stagger density: ~3% range offset per word (~60-80ms perceived at normal scroll speed). Word-level splitting is the default; char-level only for short display headlines.
 
-Full-screen cards that pin and stack on scroll. Underlying cards scale down and blur.
+---
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+## CounterTicker (0 → target on viewport enter)
 
-gsap.registerPlugin(ScrollTrigger);
+CSS `@property` makes a custom property interpolatable as an integer; `counter()` renders it. Markup: a span with `--to: <target>`, an empty presentation span (`aria-hidden`), a visually-hidden span containing the real final number for accessibility and as the no-support fallback.
 
-interface StackCard {
-  title: string;
-  description: string;
-  content: React.ReactNode;
+```css
+@property --n {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
 }
 
-export function StickyCardStack({ cards }: { cards: StackCard[] }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+.counter { display: inline-flex; align-items: baseline; gap: 0.05em; }
+.counter-n::after { content: counter(n); }
 
-  useGSAP(() => {
-    if (!containerRef.current) return;
-    const cardEls = containerRef.current.querySelectorAll<HTMLElement>(".stack-card");
+@supports (animation-timeline: view()) {
+  .counter-n {
+    counter-reset: n var(--n);
+    animation: count-up 1200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 40%;
+  }
+  @keyframes count-up {
+    from { --n: 0; }
+    to   { --n: var(--to); }
+  }
+  /* hide the static fallback only when the animated counter is active */
+  .counter-fallback { position: absolute; clip-path: inset(50%); }
+}
 
-    cardEls.forEach((card, i) => {
-      if (i === cardEls.length - 1) return; // last card doesn't scale
-
-      ScrollTrigger.create({
-        trigger: cardEls[i + 1],
-        start: "top bottom",
-        end: "top top",
-        scrub: true,
-        onUpdate: (self) => {
-          const progress = self.progress;
-          gsap.set(card, {
-            scale: 1 - progress * 0.05,
-            filter: `blur(${progress * 8}px)`,
-            opacity: 1 - progress * 0.3,
-          });
-        },
-      });
-    });
-  }, { scope: containerRef });
-
-  return (
-    <div ref={containerRef}>
-      {cards.map((card, i) => (
-        <section
-          key={i}
-          className="stack-card sticky top-0 min-h-screen flex items-center justify-center p-8"
-          style={{ zIndex: i + 1 }}
-        >
-          <div className="w-full max-w-4xl rounded-2xl bg-surface-secondary p-12 shadow-xl">
-            <h3 className="text-h2 font-display font-bold">{card.title}</h3>
-            <p className="mt-4 text-body-lg text-secondary">{card.description}</p>
-            <div className="mt-8">{card.content}</div>
-          </div>
-        </section>
-      ))}
-    </div>
-  );
+@media (prefers-reduced-motion: reduce) {
+  .counter-n { animation: none; counter-reset: n var(--to); }
 }
 ```
 
-### 3. Counter Ticker
+**Fallback behavior:** without `@supports` a scripted version can drive the number via `IntersectionObserver` + `requestAnimationFrame` (ease-out cubic, ~1200ms, threshold 0.4); otherwise the static number simply shows. Use CounterTicker ONLY on real numeric stats. Step numbers (01, 02, 03) are static text.
 
-Numbers count from 0 to target when scrolled into view.
+---
 
-```
-// ─── COUNTER TICKER — USAGE RULES ────────────────────────────────────────────
-// USE ONLY FOR: animated stat numbers (e.g., 150+ clients, 12 years, $4M saved)
-// DO NOT USE FOR: process step labels (01, 02, 03), section numbering, decorative numbers
-//
-// CRITICAL — INITIAL HTML MUST SHOW THE REAL TARGET VALUE:
-//   The span rendered in initial HTML MUST contain the real final number (e.g. "150+").
-//   GSAP overwrites this value when ScrollTrigger fires. If GSAP fails or is blocked,
-//   the real number still displays. NEVER initialise with "0" or an empty string.
-//
-// SELF-CONTAINED: CounterTicker manages its own ScrollTrigger. Do NOT wrap it in
-//   a ScrollReveal component — that causes double-trigger conflicts and broken state.
-//   The component fires when it scrolls into view independently.
-// ─────────────────────────────────────────────────────────────────────────────
-```
+## ParallaxLayer (scroll-linked translate)
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface CounterProps {
-  target: number;
-  suffix?: string;
-  prefix?: string;
-  duration?: number;
-  className?: string;
+```css
+.parallax {
+  animation: parallax-y linear both;
+  animation-timeline: scroll(root);
 }
-
-export function CounterTicker({
-  target,
-  suffix = "",
-  prefix = "",
-  duration = 1.2,  // Counters are intentionally dramatic — they're the payoff moment
-  className,
-}: CounterProps) {
-  const containerRef = useRef<HTMLSpanElement>(null);
-  const numberRef = useRef<HTMLSpanElement>(null);
-
-  useGSAP(() => {
-    if (!numberRef.current) return;
-    const counter = { val: 0 };
-    gsap.to(counter, {
-      val: target,
-      duration,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: numberRef.current,
-        start: "top 85%",
-        once: true,
-      },
-      onUpdate: () => {
-        if (numberRef.current) {
-          numberRef.current.textContent = prefix + Math.round(counter.val).toLocaleString() + suffix;
-        }
-      },
-    });
-  }, { scope: containerRef });
-
-  return (
-    <span ref={containerRef} className={className}>
-      {/* Initial HTML renders the real target value — if GSAP fails, real number still shows */}
-      <span ref={numberRef}>{prefix}{target.toLocaleString()}{suffix}</span>
-    </span>
-  );
+@keyframes parallax-y {
+  from { translate: 0 calc(var(--speed, 0.3) * -100px); }
+  to   { translate: 0 calc(var(--speed, 0.3) *  100px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .parallax { animation: none; translate: 0 0; }
 }
 ```
 
-### 4. Image Clip Reveal
+`--speed`: 0 = static, 1 = page speed, negative = reverse. No guard needed: the unanimated state is fully visible.
 
-Images reveal via expanding clip-path on scroll.
+---
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
+## Navbar scroll morph
 
-gsap.registerPlugin(ScrollTrigger);
+No JS. The fixed header goes from transparent to backdrop-blurred over the first 160px of scroll:
 
-interface ClipRevealProps {
-  children: React.ReactNode;
-  direction?: "up" | "left" | "center";
-  className?: string;
+```css
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  background: transparent;
+  backdrop-filter: blur(0);
+  border-bottom: 1px solid transparent;
+  animation: nav-morph linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0 160px;
 }
-
-const clipStart = {
-  up: "inset(100% 0 0 0)",
-  left: "inset(0 100% 0 0)",
-  center: "inset(50% 50% 50% 50%)",
-};
-
-export function ImageClipReveal({
-  children,
-  direction = "up",
-  className,
-}: ClipRevealProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    gsap.set(ref.current, { clipPath: clipStart[direction] });
-    gsap.to(ref.current, {
-      clipPath: "inset(0% 0% 0% 0%)",
-      duration: 0.65,
-      ease: "power4.inOut",
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  return (
-    <div ref={ref} className={className}>
-      {children}
-    </div>
-  );
+@keyframes nav-morph {
+  to {
+    background: color-mix(in oklab, var(--color-surface-primary) 70%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom-color: color-mix(in oklab, currentColor 10%, transparent);
+  }
 }
-```
-
-### 5. Parallax Depth Layer
-
-Background element that moves at a different speed on scroll.
-
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface ParallaxProps {
-  children: React.ReactNode;
-  speed?: number; // 0.5 = half scroll speed, -0.5 = opposite direction
-  className?: string;
+@supports not (animation-timeline: scroll()) {
+  .nav {
+    background: color-mix(in oklab, var(--color-surface-primary) 70%, transparent);
+    backdrop-filter: blur(12px);
+  }
 }
-
-export function ParallaxLayer({
-  children,
-  speed = 0.5,
-  className,
-}: ParallaxProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    gsap.to(ref.current, {
-      y: () => speed * ScrollTrigger.maxScroll(window) * 0.1,
-      ease: "none",
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: true,
-        invalidateOnRefresh: true,
-      },
-    });
-  }, { scope: ref });
-
-  return (
-    <div ref={ref} className={className}>
-      {children}
-    </div>
-  );
+@media (prefers-reduced-motion: reduce) {
+  .nav { animation: none; background: var(--color-surface-primary); backdrop-filter: blur(8px); }
 }
 ```
 
 ---
 
-## Performance Rules
+## Page-to-page transitions (View Transitions API)
 
-1. **Max 3 simultaneous animations** visible in viewport at once
-2. **GPU-only properties:** Only animate `transform`, `opacity`, `clipPath`, `filter`
-3. **Never animate:** `width`, `height`, `margin`, `padding`, `top`, `left`, `font-size`
-4. **will-change:** Apply only to elements about to animate, remove after completion
-5. **Stagger groups:** Max 6-8 children per stagger group
-6. **Parallax budget:** Max 2 parallax elements per viewport
-7. **ScrollTrigger refresh:** Call `ScrollTrigger.refresh()` after dynamic content loads
-8. **Cleanup:** Every `useGSAP` automatically cleans up. Never use raw `useEffect` for GSAP.
+Tag the matching element on both pages with the same `view-transition-name` (e.g. a case-study image on the listing page and on the detail page), and enable cross-document view transitions (`@view-transition { navigation: auto; }`, or the framework's own integration where one exists). Keep names unique per page. Default crossfade is usually right; reserve custom `::view-transition-*` keyframes for the one signature moment.
 
 ---
 
-## Integration Notes
+## Stateful: accordion (script + WAAPI)
 
-These are foundational animation primitives. They are style-agnostic — adapt timing, easing, and motion scale to the selected `style-*.md` motion personality.
+State drives timing, so this is scripted. `height: auto` cannot be transitioned universally yet, so animate measured `scrollHeight`:
 
-- **core-animation.md** = primitives (ScrollReveal, TextReveal, GSAP setup)
-- **component-*.md** = higher-level components that USE these primitives
-- **Functional artifacts** (CardShuffler, TelemetryFeed, etc.) are in `component-interactive.md`
+- Markup: a list of rows; each row is a full-width `<button>` (question, plus a `+` glyph that rotates 45deg when open via a CSS transition) and a panel `<div>` at `height: 0; overflow: hidden`.
+- Behavior: clicking a row toggles it (and closes any other open row). On toggle, cancel the in-flight animation, then `panel.animate([{height: from}, {height: to}], { duration: 320, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "forwards" })` where from/to are `0` and `panel.scrollHeight`. After an open finishes, set `height: auto` so the panel reflows with content.
+- Reduced motion: set the height directly, no animation.
+- Accessibility: the button carries `aria-expanded`; the panel `role="region"` and is labelled by the button.
 
-Do NOT import from this file in server components. All exports here are `"use client"`.
+---
+
+## Motion One (opt-in, last resort)
+
+Only if CSS+WAAPI genuinely can't express the sequence, and only with explicit install (`pnpm add motion`). Typical use: `animate(items, { opacity: [0,1], transform: ["translateY(24px)", "translateY(0)"] }, { duration: 0.6, easing: [0.2, 0.8, 0.2, 1], delay: stagger(0.08) })` over `[data-step]` children, skipped entirely under reduced motion, stopped on teardown.
+
+---
+
+## Duration + easing tokens
+
+Author once in the global stylesheet (Tailwind v4 `@theme`, or `:root`) so both CSS and WAAPI can reference them:
+
+```css
+@theme {
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --motion-duration-fast: 200ms;
+  --motion-duration-base: 400ms;
+  --motion-duration-slow: 700ms;
+
+  --motion-distance: 24px;
+  --motion-stagger: 80ms;
+}
+```
+
+Use from CSS:
+
+```css
+.card { transition: translate var(--motion-duration-fast) var(--ease-out-soft); }
+```
+
+Use from WAAPI: read via `getComputedStyle(document.documentElement).getPropertyValue(...)`.
+
+---
+
+## Things CSS cannot do today (escape-hatch justification)
+
+- **`height: auto` ↔ `0` smooth animation.** `interpolate-size: allow-keywords` is Chromium-only as of the 2026 baseline. Use WAAPI with measured `scrollHeight` (accordion pattern above).
+- **Branching sequences that depend on async results.** `anim.finished.then(...)` or Motion One.
+- **Pointer-driven drag / gesture curves.** Pointer events + WAAPI.
+- **FLIP transitions on list reorder.** Measure, mutate, animate deltas via WAAPI.
+
+Everything else — entrances, scroll links, hover, focus, navbar morph, counter tickers, parallax, page transitions — belongs in CSS.

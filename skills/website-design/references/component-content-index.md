@@ -1,31 +1,44 @@
-# Component Content — Index
+# Component content index
 
-Selection logic:
-1. Many features at once, mixed importance? → BentoGrid
-2. Each feature deserves its own full-width moment? → AlternatingRows
-3. Distinct product areas where you want the user to explore? → FeatureTabs
-4. Content-first, image-minimal, editorial brand? → MagazineGrid
-5. Credibility through raw numbers? → StackedValueProps
-6. Simple, scannable feature list? → IconGrid
-7. Common objections or questions (5+)? → FAQAccordion
+Content components present what the business does: services, features, value props. Most are static markup with a scroll-driven entrance. FAQAccordion and FeatureTabs need JS behavior because state drives timing.
 
-## Comparison Table
+## Components
 
-| Component | Use When | Visual Weight | Motion Profile | Dimension Fit |
-|---|---|---|---|---|
-| BentoGrid | 4-8 features with mixed importance; visual hierarchy via card size | heavy | moderate | contrast-dark: high, contrast-light: high, energy-energetic: high, energy-moderate: high |
-| AlternatingRows | 2-4 features each with their own image; full-width rhythm | medium | moderate | contrast-dark: high, contrast-light: high, energy-restrained: high, energy-moderate: high |
-| FeatureTabs | 3-5 distinct product areas; interactive explore | medium | moderate | contrast-light: high, energy-moderate: high, contrast-dark: medium |
-| MagazineGrid | Editorial content with natural hierarchy; text-heavy | medium | minimal | contrast-dark: high, contrast-light: high, energy-energetic: high, energy-restrained + editorial: high |
-| StackedValueProps | 3-4 powerful one-line propositions; type-as-design | light | minimal | contrast-dark: high, contrast-light: high, energy-restrained: high |
-| IconGrid | 4-6 equal-importance features; quick-scan | light | minimal | contrast-light: high, energy-moderate: high, energy-restrained: high |
-| FAQAccordion | 5+ genuine FAQs; objection handling; pre-conversion hesitation | light | minimal | all dimensions: high (universal) |
+| Component | Kind | Best for |
+|---|---|---|
+| BentoGrid | static | Multi-product / platform; 4–9 tiles of varied content |
+| AlternatingRows | static | 3–5 features each with text + visual; narrative flow |
+| FeatureTabs | needs JS behavior | Comparing variants of one thing; technical directions |
+| MagazineGrid | static | Editorial register; asymmetric article/work grids |
+| StackedValueProps | static | 3 core value props at section scale; restrained |
+| IconGrid | static | Short feature list with icons; any register |
+| FAQAccordion | needs JS behavior | FAQ content; animates panel height via the Web Animations API |
 
-## Component Files
-- [BentoGrid](component-content-bentogrid.md) — Mixed-size card grid. Asymmetric layout communicates feature hierarchy.
-- [AlternatingRows](component-content-alternatingrows.md) — Full-width rows with image and text alternating sides.
-- [FeatureTabs](component-content-featuretabs.md) — Tabbed section with GSAP cross-fade between product areas.
-- [MagazineGrid](component-content-magazinegrid.md) — Editorial asymmetric grid with featured + secondary cards.
-- [StackedValueProps](component-content-stackedvalueprops.md) — Vertical numbered stack. Typography carries the section.
-- [IconGrid](component-content-icongrid.md) — Uniform grid of icon + title + description cards.
-- [FAQAccordion](component-content-faqaccordion.md) — Animated accordion with grid-template-rows transition and weight-change indicators.
+## Selection by dimensional position
+
+| Position | First pick |
+|---|---|
+| Dark + restrained | StackedValueProps or AlternatingRows |
+| Dark + expressive | BentoGrid |
+| Light + restrained + editorial | MagazineGrid |
+| Light + restrained | AlternatingRows |
+| Light + moderate + technical | FeatureTabs or BentoGrid |
+| Light + expressive | BentoGrid |
+| Any | FAQAccordion (pairs with CTA below) |
+
+## Rules
+
+- At most two "grid"-style components per page. If you need BentoGrid AND IconGrid, you don't: merge.
+- FeatureTabs must have 2–4 tabs. Five tabs is a list masquerading as a selector.
+- FAQAccordion: 5–8 items ideal. Under 5, use `AlternatingRows`. Over 8, split into categories.
+- Every below-fold content section gets a scroll-driven entrance (see `core-animation.md`).
+
+## Component files
+
+- [BentoGrid](component-content-bentogrid.md)
+- [AlternatingRows](component-content-alternatingrows.md)
+- [FeatureTabs](component-content-featuretabs.md)
+- [MagazineGrid](component-content-magazinegrid.md)
+- [StackedValueProps](component-content-stackedvalueprops.md)
+- [IconGrid](component-content-icongrid.md)
+- [FAQAccordion](component-content-faqaccordion.md)

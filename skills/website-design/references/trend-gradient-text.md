@@ -1,7 +1,7 @@
 # Trend: Gradient Text
 
 ## What It Is
-A single accent word within a headline rendered with a gradient fill via `background: linear-gradient(135deg, color1, color2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;`. The critical constraint: the gradient lands on ONE word — the word that carries the emotional or strategic weight of the headline — never the entire heading and never body text. Gradient colours are drawn from the brand palette at a 90–135 degree angle; generic purple-to-blue or rainbow spectrums signal stock templates, not considered design. `display: inline-block` is non-negotiable — without it, the background-clip fails to contain the gradient to the text bounds. Animated variant: `background-size: 200% 200%` with a slow `background-position` shift via CSS animation or GSAP, producing a colour that appears to breathe within the word. Scroll-driven variant: `background-position` animated via GSAP `ScrollTrigger` with `scrub: 1`, so the headline "fills with colour" as the user scrolls to it — the gradient begins desaturated or single-colour and resolves into full gradient at the scroll midpoint. The anti-pattern (gradient applied to the full headline) is documented in `core-anti-patterns.md`; this technique is the precise, restrained alternative.
+A single accent word within a headline rendered with a gradient fill via `background: linear-gradient(135deg, color1, color2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;`. The critical constraint: the gradient lands on ONE word — the word that carries the emotional or strategic weight of the headline — never the entire heading and never body text. Gradient colours are drawn from the brand palette at a 90–135 degree angle; generic purple-to-blue or rainbow spectrums signal stock templates, not considered design. `display: inline-block` is non-negotiable — without it, the background-clip fails to contain the gradient to the text bounds. Animated variant: `background-size: 200% 200%` with a slow CSS `@keyframes` on `background-position`, producing a colour that appears to breathe within the word. Scroll-driven variant: `animation-timeline: view()` drives `background-position` so the headline "fills with colour" as the user scrolls to it — gradient begins desaturated or single-colour and resolves into full gradient at the scroll midpoint. The anti-pattern (gradient applied to the full headline) is documented in `core-anti-patterns.md`; this technique is the precise, restrained alternative.
 
 ## Implementation
 ```css
@@ -25,19 +25,15 @@ A single accent word within a headline rendered with a gradient fill via `backgr
 }
 ```
 
-```js
-// Scroll-driven gradient fill
-gsap.fromTo('.gradient-word', {
-  backgroundPosition: '100% 50%',
-}, {
-  backgroundPosition: '0% 50%',
-  scrollTrigger: {
-    trigger: '.headline-section',
-    start: 'top 60%',
-    end: 'top 20%',
-    scrub: 1,
-  }
-});
+```css
+/* Scroll-driven gradient fill — pure CSS */
+.gradient-word {
+  background-position: 100% 50%;
+  animation: grad-fill linear both;
+  animation-timeline: view();
+  animation-range: entry 40% entry 80%;
+}
+@keyframes grad-fill { to { background-position: 0% 50%; } }
 ```
 
 ## Premium Signals

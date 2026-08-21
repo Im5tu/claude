@@ -1,154 +1,104 @@
 # ContactGateway
 
-CTA section for service businesses where the conversion goal is a consultation or discovery call. Shows contact details and booking CTA — no embedded form. Links out to Calendly, a contact page, or a mailto. Generous whitespace, centered, calm authority.
+Contact section with at least one non-form channel alongside the form. Split layout: left = form, right = supporting info (address, hours, direct email, response time SLA). The form submits in place and renders sending/success/error states without a page reload.
 
-```markdown
----
-component: ContactGateway
-category: cta
-subtype: service-consultation-cta
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: medium
-  energy-energetic: medium
-visual-weight: light
-content-density: sparse
-trend-alignment: evergreen
-motion-profile: none
+- surface-depth: any
+- motion-register: any
+- texture-appetite: any
+- type-personality: any
 
-use-when:
-  - Service business where the conversation is the conversion (consulting, legal, design, finance)
-  - Booking link (Calendly, TidyCal, or similar) exists
-  - Page is service- or team-focused and ends with "let's talk"
+## Structure
 
-avoid-when:
-  - Product/SaaS (use CTABanner instead — self-serve signup is the CTA, not a call)
-  - E-commerce (no consultation model)
-  - Already have CTABanner on the same page (one primary CTA per page)
+- `<section class="cg">` centered container, max-width 80rem
+  - `.cg__head` intro block, max-width 52rem: optional `.cg__kicker` `<p>`, `.cg__title` `<h2>`, optional `.cg__sub` `<p>`
+  - `.cg__grid` two-column grid at >=1024px (7fr form / 5fr aside), single column below
+    - `.cg__form` — `<form class="cf" aria-live="polite">`
+      - `.cf__row` two-up field row (name + email): each field is a `<label class="cf__field">` wrapping a `<span>` caption and the input
+      - name: `<input type="text" name="name" required autocomplete="name">`
+      - email: `<input type="email" name="email" required autocomplete="email">`
+      - company (optional field): `<input type="text" name="company" autocomplete="organization">`
+      - message: `<textarea name="message" required rows="5">` captioned "How can we help?"
+      - `.cf__submit` `<button type="submit">`
+      - error message `<p class="cf__error" role="alert">`, rendered only in the error state
+    - `<aside class="cg__side">`
+      - `<dl class="cg__channels">` — one `<dt>` label + `<dd>` value pair per channel (email, phone, address, hours); values with a target render as `<a>`
+      - optional `.cg__sla` `<p>` response-time promise
 
-pairs-well-with: [EnhancedFooter, Manifesto]
-pairs-poorly-with: [CTABanner, NewsletterCapture]
----
-```
+## CSS
 
-```tsx
-import { cn } from "@/lib/utils";
+```css
+.cg { max-width: 80rem; margin: 0 auto; padding: 5rem 1.5rem; }
+.cg__head { max-width: 52rem; margin-bottom: 3rem; }
+.cg__kicker { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent); }
+.cg__title { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.02em; margin-top: 0.75rem; max-width: 22ch; }
+.cg__sub { margin-top: 1rem; color: var(--color-text-secondary); max-width: 54ch; }
 
-interface ContactGatewayProps {
-  headline: string;
-  subline?: string;
-  email?: string;
-  phone?: string;
-  /** Primary CTA — typically a Calendly link or /contact */
-  cta: { label: string; href: string };
-  /** Optional secondary CTA — e.g., "Send a message" → mailto: or contact form */
-  secondaryCta?: { label: string; href: string };
-  /** Optional availability note — e.g., "Currently accepting Q3 clients" */
-  availability?: string;
+.cg__grid {
+  display: grid; grid-template-columns: 1fr; gap: 3rem;
+}
+@media (min-width: 1024px) { .cg__grid { grid-template-columns: 7fr 5fr; gap: 5rem; } }
+
+.cg__channels { display: grid; gap: 1.5rem; }
+.cg__channels dt { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-secondary); }
+.cg__channels dd { font-size: 1.125rem; margin-top: 0.25rem; }
+.cg__channels a { text-decoration: underline; text-decoration-color: var(--color-border); text-underline-offset: 3px; }
+.cg__channels a:hover { text-decoration-color: var(--color-accent); }
+
+.cg__sla {
+  margin-top: 2.5rem; padding: 1rem 1.25rem;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
 }
 
-export function ContactGateway({
-  headline,
-  subline,
-  email,
-  phone,
-  cta,
-  secondaryCta,
-  availability,
-}: ContactGatewayProps) {
-  return (
-    <section className="py-24 lg:py-32">
-      <div className="mx-auto max-w-3xl px-6 text-center">
-        {/* Availability badge */}
-        {availability && (
-          <p className="mb-6 inline-block rounded-full border border-accent/30 px-4 py-1.5 text-xs font-medium text-accent tracking-wider">
-            {availability}
-          </p>
-        )}
-
-        {/* Headline */}
-        <h2 className="font-display font-bold text-[clamp(2rem,4vw,3.5rem)] leading-[1.1] tracking-tight text-primary">
-          {headline}
-        </h2>
-
-        {/* Subline */}
-        {subline && (
-          <p className="mx-auto mt-6 max-w-[45ch] text-body-lg text-secondary leading-relaxed">
-            {subline}
-          </p>
-        )}
-
-        {/* Contact details row */}
-        {(email || phone) && (
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-secondary">
-            {email && (
-              <a
-                href={`mailto:${email}`}
-                className="flex items-center gap-2 transition-colors hover:text-primary"
-              >
-                <span className="text-accent" aria-hidden="true">—</span>
-                {email}
-              </a>
-            )}
-            {email && phone && (
-              <span className="text-border" aria-hidden="true">|</span>
-            )}
-            {phone && (
-              <a
-                href={`tel:${phone.replace(/\s/g, "")}`}
-                className="flex items-center gap-2 transition-colors hover:text-primary"
-              >
-                <span className="text-accent" aria-hidden="true">—</span>
-                {phone}
-              </a>
-            )}
-          </div>
-        )}
-
-        {/* CTAs */}
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <a
-            href={cta.href}
-            className={cn(
-              "inline-flex items-center rounded-lg bg-accent px-8 py-4 text-base font-medium text-white",
-              "transition-all duration-200 hover:bg-accent-light hover:scale-[1.02] active:scale-[0.98]",
-              "shadow-sm hover:shadow-md",
-            )}
-            target={cta.href.startsWith("http") ? "_blank" : undefined}
-            rel={cta.href.startsWith("http") ? "noopener noreferrer" : undefined}
-          >
-            {cta.label}
-          </a>
-          {secondaryCta && (
-            <a
-              href={secondaryCta.href}
-              className={cn(
-                "inline-flex items-center rounded-lg border border-border px-8 py-4 text-base font-medium text-primary",
-                "transition-all duration-200 hover:bg-surface-secondary hover:border-border-strong",
-              )}
-            >
-              {secondaryCta.label}
-            </a>
-          )}
-        </div>
-      </div>
-    </section>
-  );
+/* form */
+.cf { display: grid; gap: 1rem; max-width: 36rem; }
+.cf__row { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .cf__row { grid-template-columns: 1fr 1fr; } }
+.cf__field { display: grid; gap: 0.35rem; }
+.cf__field > span {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--color-text-secondary);
 }
+.cf__field input, .cf__field textarea {
+  width: 100%;
+  padding: 0.75rem 0.875rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  transition: border-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cf__field input:focus, .cf__field textarea:focus {
+  outline: none; border-color: var(--color-accent);
+}
+.cf__submit {
+  justify-self: start;
+  padding: 0.75rem 1.5rem; border-radius: 999px;
+  background: var(--color-accent); color: var(--color-surface-primary);
+  transition: background 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cf__submit:disabled { opacity: 0.7; cursor: wait; }
+.cf__submit:hover { background: var(--color-accent-dark); }
+.cf__error { color: var(--color-error); font-size: 0.875rem; }
 ```
 
-**Usage:**
-```tsx
-<ContactGateway
-  headline="Let's build something that matters"
-  subline="We work with founders and leadership teams on strategy, systems, and the decisions that shape what comes next."
-  email="hello@studiomake.co"
-  phone="+44 20 7946 0234"
-  availability="Accepting new clients from September 2026"
-  cta={{ label: "Schedule a conversation", href: "https://calendly.com/studiomake/discovery" }}
-  secondaryCta={{ label: "Send a message", href: "mailto:hello@studiomake.co" }}
-/>
-```
+## Behavior
+
+- The form intercepts submit (default navigation prevented). Native HTML validation gates submission: `required` on name, email, and message; `type="email"` on the email field.
+- On submit, all fields are serialized to a JSON object and POSTed to the configured endpoint with `Content-Type: application/json`.
+- The form tracks four states: idle, sending, sent, error. The submit button is disabled while sending and its label swaps: "Send message" (idle) → "Sending…" (sending) → "Thanks — we'll be in touch" (sent).
+- A non-OK HTTP status or network failure enters the error state and renders "Something went wrong:" plus the error detail in a `role="alert"` paragraph. The form element carries `aria-live="polite"` so state changes are announced.
+- On success, the form fields reset.
+- The endpoint is configurable per site (e.g. a Resend, Netlify Forms, or custom POST URL).
+
+## Notes
+
+- Must show at least one non-form channel (email, phone, address) — never a form in isolation.
+- Example content: kicker "Say hello", title "We reply within one working day.", sub "We take on two new engagements each quarter. Tell us a little about what you're working on.", channels Email `studio@halcyon.co` (mailto link), Studio "22 Constitution Street, Edinburgh EH6 7BS", Hours "Monday–Friday, 09:00–17:30 BST", SLA "We reply to every message personally, usually within 4 hours during UK working days.", endpoint `/api/contact`.

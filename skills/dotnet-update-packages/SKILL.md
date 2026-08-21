@@ -6,7 +6,7 @@ metadata:
   author: Im5tu
   version: "1.0"
   repositoryUrl: https://github.com/im5tu/dotnet-skills
-allowed-tools: Bash(dotnet:*) Read Glob AskUserQuestion
+allowed-tools: Bash(dotnet:*), Read, Edit, Write, Glob, AskUserQuestion
 ---
 
 # .NET Package Updates

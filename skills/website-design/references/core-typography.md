@@ -16,7 +16,7 @@ Simplified to a `rem + vw` expression for each step.
 
 ## Standard Type Scale
 
-Use these as CSS custom properties in every project. Define in `globals.css` inside `@theme` or `:root`.
+Use these as CSS custom properties in every project. Define in `global.css` inside `@theme` or `:root`.
 
 ```css
 :root {
@@ -115,52 +115,56 @@ Always constrain text width for readability:
 
 ---
 
-## Google Fonts Loading (Next.js)
+## Font loading
 
-Always use `next/font/google` for optimal loading. Never use CDN `<link>` tags.
+Pick one of the two approaches below per project. Do NOT use an unconnected CDN `<link>` tag — both options below either self-host or preconnect properly.
 
-```tsx
-// app/layout.tsx
-import { Space_Grotesk, Figtree, JetBrains_Mono } from "next/font/google";
+### Option A — Self-hosted via `@fontsource-variable` (preferred)
 
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-  weight: ["500", "600", "700"],
-});
+Better performance (no third-party round-trip, no FOIT), fully offline, CSP-friendly. Each variable font is ~50–100KB gzipped.
 
-const body = Figtree({
-  subsets: ["latin"],
-  variable: "--font-body",
-  display: "swap",
-  weight: ["400", "500", "600"],
-});
+Self-host via `@fontsource-variable/*` packages (one per family), imported once in the
+site's root layout before the global stylesheet:
 
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: "swap",
-  weight: ["400", "500"],
-});
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <body className="font-body antialiased">{children}</body>
-    </html>
-  );
-}
+```
+@fontsource-variable/space-grotesk
+@fontsource-variable/figtree
+@fontsource-variable/jetbrains-mono
 ```
 
-Then in Tailwind v4 `@theme`:
+(Any stack: install the packages and import them from the file every page shares — the root
+layout, `_app`, or the global entry module. See the stack adapter for exact wiring.)
+
+### Option B — Google Fonts with `<link>` + preconnect
+
+Only use when the project has a specific reason to stay on Google's CDN (e.g., client requirement). Always preconnect.
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+  rel="stylesheet"
+/>
+```
+
+Place in the shared `<head>` of the site's root layout.
+
+### Wire fonts into Tailwind v4 `@theme`
+
+In the global stylesheet (imported once from the root layout):
+
 ```css
+@import "tailwindcss";
+
 @theme {
-  --font-display: var(--font-display), sans-serif;
-  --font-body: var(--font-body), sans-serif;
-  --font-mono: var(--font-mono), monospace;
+  --font-display: "Space Grotesk Variable", "Space Grotesk", sans-serif;
+  --font-body: "Figtree Variable", "Figtree", sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
 }
 ```
+
+Tailwind v4 derives `font-display`, `font-body`, `font-mono` utilities from `--font-*` theme tokens automatically.
 
 ---
 
@@ -176,7 +180,7 @@ If the font you selected appears on this list, choose an alternative immediately
 
 ## Font Selection Strategy
 
-When a preset's default fonts don't fit, or when a user requests a custom font, follow this decision framework.
+When the direction card's default fonts don't fit, or when a user requests a custom font, follow this decision framework.
 
 ### The Three Roles
 
@@ -190,7 +194,7 @@ Every site needs exactly three font roles. No more, no fewer.
 
 ### How to Choose Fonts
 
-**You are free to choose any Google Font that matches the brand's personality**, as long as it meets the criteria below and avoids the banned list in `anti-patterns.md`. The preset files suggest specific fonts as defaults, but these are starting points — not constraints. Pick fonts that feel right for the specific brand.
+**You are free to choose any Google Font that matches the brand's personality**, as long as it meets the criteria below and avoids the banned list in `anti-patterns.md`. The direction card suggests specific fonts as defaults, but these are starting points, not constraints. Pick fonts that feel right for the specific brand.
 
 #### Selection Criteria
 
@@ -222,7 +226,7 @@ Every site needs exactly three font roles. No more, no fewer.
 | Technical, precise, modern | Geometric sans with distinct character — not a generic system font | Clean neutral sans |
 | Editorial, literary, content | Editorial serif with optical sizing intelligence, expressive at display sizes | Neutral sans that disappears into the text |
 
-> The preset files suggest specific font pairings that implement these directions — treat them as starting points, not constraints. Any Google Font that satisfies the directional criteria above is a valid choice. The mood column correlates with brief language; it does not route to a fixed font list.
+> The direction card suggests specific font pairings that implement these directions; treat them as starting points, not constraints. Any Google Font that satisfies the directional criteria above is a valid choice. The mood column correlates with brief language; it does not route to a fixed font list.
 
 #### Pairing Principles
 
@@ -236,7 +240,7 @@ Every site needs exactly three font roles. No more, no fewer.
 #### When Users Provide Custom Fonts
 
 If the user specifies their own fonts:
-1. Verify the font is on Google Fonts (required for `next/font/google` loading)
+1. Verify the font is on Google Fonts or available as `@fontsource-variable/<slug>`
 2. Check it's not on the banned list in `anti-patterns.md`
 3. Load only the weights actually needed
 4. If it's a body font, verify readability at 16px

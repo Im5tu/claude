@@ -1,6 +1,6 @@
 # Natural Transitions
 
-Transitional phrases to guide readers through your content. Good signposting improves readability, user engagement, and helps search engines understand content structure.
+Transitional phrases to guide readers through your content. Good signposting improves readability and helps search engines parse structure.
 
 Adapted from: University of Manchester Academic Phrasebank (2023), Plain English Campaign, web content best practices
 

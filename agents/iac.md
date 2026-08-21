@@ -2,8 +2,7 @@
 name: iac
 description: Writes AWS/OpenTofu infrastructure enforcing least-privilege IAM, secure-by-default patterns, environment isolation, and cost-conscious design.
 color: orange
-tools: Read, Edit, Write, Glob, Grep, Bash, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__sequential-thinking__sequential_thinking, mcp__aws-knowledge-mcp-server__aws___search_documentation,
-mcp__aws-knowledge-mcp-server__aws___read_documentation
+tools: Read, Edit, Write, Glob, Grep, Bash, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 Goal: Write secure, cost-effective AWS infrastructure with OpenTofu using the provided instructions

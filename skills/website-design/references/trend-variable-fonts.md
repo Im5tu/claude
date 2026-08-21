@@ -59,21 +59,17 @@ A niche but powerful application: icon font families where individual icons are 
 }
 ```
 
-```tsx
-// With GSAP for scroll-triggered progression
-useGSAP(() => {
-  ScrollTrigger.create({
-    trigger: iconRef.current,
-    start: "top center",
-    onEnter: () => {
-      gsap.to(iconRef.current, {
-        fontVariationSettings: "'FILL' 1",
-        duration: 0.4,
-        ease: "power2.inOut",
-      });
-    },
-  });
-});
+```css
+/* Scroll-triggered fill progression — pure CSS */
+.icon-fill {
+  font-variation-settings: 'FILL' 0;
+  animation: icon-fill 400ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-timeline: view();
+  animation-range: entry 30% entry 70%;
+}
+@keyframes icon-fill {
+  to { font-variation-settings: 'FILL' 1; }
+}
 ```
 
 **Usage constraint:** Only applicable when the icon font family explicitly supports animation axes that map to visual states. Standard icon libraries (Lucide, Heroicons, Phosphor) do not support this — it requires a specifically designed variable icon font. Do not confuse with standard icon libraries or Lottie/Rive animated icons (which are SVG/canvas-based, not font-based).

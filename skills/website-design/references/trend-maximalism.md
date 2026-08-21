@@ -1,7 +1,7 @@
 # Trend: Maximalism vs Refined Minimalism
 
 ## What It Is
-Two valid poles, both premium. **Maximalism** layers typography, colour, and content density into compositions that reward close attention — multiple type sizes within a single headline, overlapping colour fields, grids with no breathing room. The premium signal is that the chaos follows a system: a limited colour palette applied at different saturations, type sizes that follow a clear scale even when mixed dramatically, spatial relationships that are tight but consistent. **Refined minimalism** (the editorial-minimal response) uses extreme white space, single-weight typography hierarchies, and one or two colours. The premium signal here is restraint in the face of temptation — every element earns its presence.
+Two valid poles, both premium. **Maximalism** layers typography, colour, and content density into compositions that reward close attention — multiple type sizes within a single headline, overlapping colour fields, grids with no breathing room. The premium signal is that the chaos follows a system: a limited colour palette applied at different saturations, type sizes that follow a clear scale even when mixed dramatically, spatial relationships that are tight but consistent. **Refined minimalism** (the light + restrained + editorial-display response) uses extreme white space, single-weight typography hierarchies, and one or two colours. The premium signal here is restraint in the face of temptation — every element earns its presence.
 
 ## Implementation
 **Maximalism** must have a demonstrably limited palette (3–4 colours), a clear type scale, and consistent spatial relationships — the system must be visible beneath the density.

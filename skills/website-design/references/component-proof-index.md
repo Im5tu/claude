@@ -1,39 +1,42 @@
 # Component Proof — Index
 
-Proof sections validate claims. They are the evidence layer — stats, logos, testimonials, and case studies. Every proof section must provide real, specific evidence.
+Proof components present the evidence: client logos, stats, testimonials, case studies. Include only when the evidence is real and specific. A thin proof section is worse than none.
 
-**CounterTicker rule (applies to StatsStrip only):**
-- CounterTicker applies ONLY to numeric stats (revenue, clients, years, percentages)
-- Process step numbers (01, 02, 03) are ALWAYS static text — never CounterTicker
-- CounterTicker manages its own ScrollTrigger — do NOT wrap it in ScrollReveal
+| Component | Kind | Best for |
+|---|---|---|
+| LogoStrip | static | 6–12 real client logos (image files, never text) |
+| StatsStrip | static | 3–4 genuinely impressive numbers with the CSS counter ticker |
+| FeaturedTestimonial | static | One extended testimonial with portrait, long-form |
+| TestimonialGrid | static | 4–6 shorter testimonials in a grid |
+| TestimonialSplit | static | One testimonial + supporting case-study summary |
+| TestimonialMarquee | static | Scrolling ticker of short quotes (CSS marquee) |
+| CaseStudyTeaser | static | Single case study preview linking to the full page |
 
-Selection logic:
-1. Need to show scale quickly? → StatsStrip
-2. Need to show who trusts you? → LogoStrip or MarqueeLogoStrip
-3. Have 4+ short client quotes (1-2 sentences each)? → TestimonialMarquee
-4. Have 1 strong + 2-3 supporting quotes? → TestimonialSplit
-5. Have 2-4 equally strong client quotes? → TestimonialGrid
-6. Have one extraordinary testimonial? → FeaturedTestimonial
-7. Have measurable client outcomes? → CaseStudyTeaser
+None of these components needs JS behavior; all motion is CSS (scroll-driven entrances, the counter ticker, the marquee loop).
 
-## Comparison Table
+## Selection
 
-| Component | Use When | Visual Weight | Motion Profile | Dimension Fit |
-|---|---|---|---|---|
-| StatsStrip | 3-4 real impressive metrics; visual color break | heavy | moderate | all dimensions: high (universal) |
-| LogoStrip | Client logos available (min 5); fastest credibility signal | light | none | all dimensions: high (universal) |
-| MarqueeLogoStrip | Same as LogoStrip with infinite scroll motion | light | minimal | energy-moderate: high, energy-energetic: high |
-| TestimonialMarquee | 4+ short client quotes (1-2 sentences); lightweight scrolling strip | light | minimal (CSS-only) | all dimensions: high (universal) |
-| TestimonialSplit | 1 strong featured quote + 2-3 supporting quotes; asymmetric 7/5 split | medium | minimal | contrast-dark: high, contrast-light: high, energy-restrained: high, energy-moderate: high |
-| TestimonialGrid | 2-4 equally strong client quotes; supports grid-3, grid-2-offset, masonry layouts | medium | minimal | contrast-light: high, energy-restrained: high, energy-moderate: high |
-| FeaturedTestimonial | One extraordinary quote; singular authority | medium | minimal | contrast-dark: high, contrast-light: high, energy-restrained: high |
-| CaseStudyTeaser | 2-3 projects with visual outcomes + measurable results | heavy | moderate | contrast-dark: high, energy-energetic: high, energy-moderate: high |
+| Dimensional position | First pick |
+|---|---|
+| Dark + restrained | FeaturedTestimonial |
+| Dark + expressive | TestimonialMarquee |
+| Light + restrained + editorial | FeaturedTestimonial or TestimonialSplit |
+| Light + moderate + technical | LogoStrip + StatsStrip |
+| Light + expressive | TestimonialGrid or TestimonialMarquee |
 
-## Component Files
-- [StatsStrip](component-proof-statsstrip.md) — Animated counter metrics on contrasting background
-- [LogoStrip + MarqueeLogoStrip](component-proof-logostrip.md) — Grayscale client logos (static and marquee variants)
-- [TestimonialMarquee](component-proof-testimonialmarquee.md) — Horizontal CSS marquee strip of short quotes (light weight, CSS-only animation)
-- [TestimonialSplit](component-proof-testimonialsplit.md) — Asymmetric 7/5 split: 1 featured quote + 2-3 supporting quotes
-- [TestimonialGrid](component-proof-testimonialgrid.md) — Card grid of 2-4 client testimonials (grid-3, grid-2-offset, masonry layouts)
-- [FeaturedTestimonial](component-proof-featuredtestimonial.md) — Single large featured quote with word-by-word reveal
-- [CaseStudyTeaser](component-proof-casestudyteaser.md) — Case study preview cards with hover overlay
+## Rules
+
+- **LogoStrip logos must be image files.** A row of plain-text company names is a list, not proof.
+- **StatsStrip numbers must animate via the CSS counter ticker** (specced in StatsStrip). Static "0+" on load means the scroll timeline isn't firing — debug before ship. On engines without scroll timelines the static fallback number must show.
+- Only include a proof section when you have specific, attributable, verifiable evidence. Invented testimonials are worse than none.
+- Two proof components per page max.
+
+## Component files
+
+- [LogoStrip](component-proof-logostrip.md)
+- [StatsStrip](component-proof-statsstrip.md)
+- [FeaturedTestimonial](component-proof-featuredtestimonial.md)
+- [TestimonialGrid](component-proof-testimonialgrid.md)
+- [TestimonialSplit](component-proof-testimonialsplit.md)
+- [TestimonialMarquee](component-proof-testimonialmarquee.md)
+- [CaseStudyTeaser](component-proof-casestudyteaser.md)

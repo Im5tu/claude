@@ -1,194 +1,78 @@
 # HorizontalTimeline
 
-Steps connected by a horizontal timeline line. Pinned on desktop — as the user scrolls, timeline items reveal from left to right. Each step: dot on line + date or label + title + description. For orderly, time-anchored sequences.
+Horizontal scroll-snap timeline. 4 to 6 equal-weight phases presented edge-to-edge. CSS scroll-snap; no JS. Cards reveal on scroll with a per-card stagger.
 
-```
----
-component: HorizontalTimeline
-category: process
-subtype: horizontal-timeline-scroll
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: medium
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: medium
-  energy-energetic: medium
-visual-weight: medium
-content-density: moderate
-trend-alignment: trending
-motion-profile: moderate
+- surface-depth: any
+- motion-register: moderate, expressive
+- texture-appetite: low, medium
+- type-personality: geometric-sans, editorial-display
 
-use-when:
-  - Phase-based project delivery or roadmap (Phase 1, 2, 3...)
-  - Editorial brand with a clear chronological narrative
-  - Refined Professional onboarding or engagement timeline
-  - When the scroll interaction adds genuine meaning (time passing as you scroll)
+## Structure
 
-avoid-when:
-  - Warm Artisan — the pinning/scroll mechanism feels too tech-forward
-  - More than 6 steps — horizontal scroll becomes hard to navigate
-  - Mobile-heavy audiences (horizontal scroll pinning degrades gracefully but loses impact)
+- `<section class="ht">`
+  - optional `<header class="ht__header">`
+    - kicker `<p class="ht__kicker">` (e.g. "Timeline")
+    - `<h2 class="ht__title">`
+  - `<div class="ht__rail" role="list" aria-label="Timeline phases">`, one `<article class="ht__card" role="listitem">` per phase
+    - `<p class="ht__tag">` phase tag ("Phase 1" or "Week 1-2")
+    - `<h3 class="ht__card-title">`
+    - `<p class="ht__body">`
+    - optional `<ul class="ht__bullets">`
 
-pairs-well-with: [FeaturedTestimonial, StatsStrip, AlternatingRows]
-pairs-poorly-with: [AccordionProcess — both are interactive sequential reveals]
----
-```
+## CSS
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
+```css
+.ht { max-width: 100vw; padding: 5rem 0; }
+.ht__header { max-width: 52rem; padding: 0 1.5rem; margin-bottom: 2rem; }
+.ht__kicker { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent); }
+.ht__title { font-family: var(--font-display); font-size: clamp(1.75rem, 3.5vw, 2.5rem); letter-spacing: -0.02em; margin-top: 0.75rem; }
 
-gsap.registerPlugin(ScrollTrigger);
-
-interface TimelineStep {
-  /** Date, phase, or label — e.g. "Week 1" or "2019" */
-  period: string;
-  title: string;
-  description: string;
+.ht__rail {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0 1.5rem 2rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1.5rem;
 }
-
-interface HorizontalTimelineProps {
-  eyebrow?: string;
-  headline: string;
-  steps: TimelineStep[];
+.ht__card {
+  flex: 0 0 min(22rem, 80vw);
+  scroll-snap-align: start;
+  padding: 2rem;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
 }
+.ht__tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; color: var(--color-accent); }
+.ht__card-title { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: -0.01em; margin-top: 0.75rem; }
+.ht__body { margin-top: 0.5rem; color: var(--color-text-secondary); max-width: 40ch; }
+.ht__bullets { margin-top: 0.75rem; padding-left: 1rem; display: grid; gap: 0.25rem; color: var(--color-text-secondary); }
 
-export function HorizontalTimeline({ eyebrow, headline, steps }: HorizontalTimelineProps) {
-  const ref = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current || !trackRef.current) return;
-
-    const header = ref.current.querySelectorAll("[data-header]");
-    gsap.set(header, { y: 20, opacity: 0 });
-    gsap.to(header, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.08,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    // On desktop: pin the section and scroll the track horizontally
-    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
-    if (isDesktop) {
-      const totalScrollWidth = trackRef.current.scrollWidth - trackRef.current.clientWidth;
-
-      ScrollTrigger.create({
-        trigger: ref.current,
-        start: "top top",
-        end: () => `+=${totalScrollWidth + 200}`,
-        pin: true,
-        scrub: 1,
-        animation: gsap.to(trackRef.current, {
-          x: -totalScrollWidth,
-          ease: "none",
-        }),
-      });
-    }
-
-    // Individual step reveals
-    const stepEls = ref.current.querySelectorAll(".timeline-step");
-    gsap.set(stepEls, { y: 24, opacity: 0 });
-    gsap.to(stepEls, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.1,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 75%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    // Timeline line draws
-    const line = ref.current.querySelector<HTMLDivElement>(".timeline-line-fill");
-    if (line) {
-      gsap.set(line, { scaleX: 0, transformOrigin: "left center" });
-      gsap.to(line, {
-        scaleX: 1,
-        duration: 1.0,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top 75%",
-          toggleActions: "play none none none",
-        },
-      });
-    }
-  }, { scope: ref });
-
-  return (
-    <section ref={ref} className="py-16 lg:py-24 bg-surface-primary overflow-hidden">
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Header */}
-        <div className="mb-16">
-          {eyebrow && (
-            <p data-header className="text-caption font-semibold text-accent tracking-widest uppercase mb-4">
-              {eyebrow}
-            </p>
-          )}
-          <h2 data-header className="font-display font-bold text-h1 leading-tight tracking-tight text-primary max-w-[36ch]">
-            {headline}
-          </h2>
-        </div>
-      </div>
-
-      {/* Scrollable track */}
-      <div ref={trackRef} className="px-6 lg:px-0 lg:pl-[calc((100vw-80rem)/2+1.5rem)]">
-        {/* Horizontal line */}
-        <div className="relative mb-10 hidden lg:block">
-          <div className="h-px bg-border w-full" />
-          <div className="timeline-line-fill absolute inset-0 h-px bg-accent" />
-        </div>
-
-        <div className="flex flex-col gap-12 lg:flex-row lg:gap-0 lg:items-start">
-          {steps.map((step, i) => (
-            <div
-              key={i}
-              className="timeline-step relative lg:min-w-[280px] lg:max-w-[320px] lg:mr-12 lg:pr-12 lg:border-r lg:border-border last:border-0"
-            >
-              {/* Dot on line — desktop only */}
-              <div
-                className="hidden lg:block absolute -top-[calc(2.5rem+2px)] left-0 h-4 w-4 rounded-full bg-accent ring-4 ring-surface-primary"
-                aria-hidden="true"
-              />
-
-              {/* Mobile connector */}
-              {i < steps.length - 1 && (
-                <div className="lg:hidden absolute left-1.5 top-8 bottom-0 w-px bg-border" aria-hidden="true" />
-              )}
-
-              {/* Mobile dot */}
-              <div className="lg:hidden absolute left-0 top-1 h-3 w-3 rounded-full bg-accent ring-2 ring-surface-primary" aria-hidden="true" />
-
-              <div className="lg:pl-0 pl-7">
-                <p className="text-caption font-mono font-semibold text-accent tracking-wider uppercase mb-3">
-                  {step.period}
-                </p>
-                <h3 className="font-display font-semibold text-h3 leading-tight text-primary mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-body text-secondary leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+@keyframes ht-in {
+  from { opacity: 0; translate: 0 14px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@supports (animation-timeline: view()) {
+  .ht__card {
+    animation: ht-in 650ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+  .ht__card:nth-child(2) { animation-range: entry 8% cover 38%; }
+  .ht__card:nth-child(3) { animation-range: entry 16% cover 46%; }
+  .ht__card:nth-child(4) { animation-range: entry 24% cover 54%; }
+  .ht__card:nth-child(5) { animation-range: entry 32% cover 62%; }
+  .ht__card:nth-child(6) { animation-range: entry 40% cover 70%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ht__card { animation: none; }
 }
 ```
+
+## Notes
+
+- 4 to 6 phases. Cards are fixed at `min(22rem, 80vw)` so at least a sliver of the next card stays visible, signaling horizontal scrollability.
+- The reveal runs against the vertical page scroll (the cards share one row, so they enter the viewport together); the stagger comes from per-card `animation-range` offsets, not `animation-delay` (time delays are ignored on scroll-driven timelines). Base styles carry no `opacity: 0`, so engines without `animation-timeline` support show the cards statically.
+- The rail itself scrolls horizontally with mandatory snap points and `scroll-padding-inline` matching the 1.5rem page gutter.

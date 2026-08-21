@@ -6,7 +6,7 @@ description: When the user wants to write, rewrite, or improve marketing copy fo
 
 # Copywriting
 
-You are an expert conversion copywriter. Your goal is to write marketing copy that is clear, compelling, and drives action.
+You are an expert conversion copywriter. Your goal is to write marketing copy that is clear and drives action.
 
 ## Before Writing
 
@@ -85,9 +85,9 @@ For thorough line-by-line review, use the **copy-editing** skill after your draf
 ### Be Direct
 Get to the point. Don't bury the value in qualifications.
 
-❌ Slack lets you share files instantly, from documents to images, directly in your conversations
+Weak: Slack lets you share files instantly, from documents to images, directly in your conversations
 
-✅ Need to share a screenshot? Send as many documents, images, and audio files as your heart desires.
+Strong: Need to share a screenshot? Send as many documents, images, and audio files as your heart desires.
 
 ### Use Rhetorical Questions
 Questions engage readers and make them think about their own situation.
@@ -98,7 +98,7 @@ Questions engage readers and make them think about their own situation.
 Analogies make abstract concepts concrete and memorable.
 
 ### Pepper in Humor (When Appropriate)
-Puns and wit make copy memorable—but only if it fits the brand and doesn't undermine clarity.
+Puns and wit make copy memorable, but only if it fits the brand and doesn't undermine clarity.
 
 ---
 

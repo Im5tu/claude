@@ -1,8 +1,8 @@
 ---
 name: website-design
-version: 3.0.0
+version: 5.0.0
 argument-hint: [business name]
-description: When the user wants to design and build a premium multi-page website for any business type. Produces working Next.js + Tailwind CSS v4 + GSAP code — not specification documents. Also use when the user says "website design," "design a website," "build a website," "site design," "landing page," "multi-page site," or "website pages." For brand identity without website, see brand-design.
+description: When the user wants to design and build a premium multi-page website for any business type. Framework-agnostic design system (composition rules, component specs, CSS-first animation) implemented in the project's own stack; the default adapter for greenfield builds is Astro + SolidJS + Tailwind CSS v4. Also use when the user says "website design," "design a website," "build a website," "site design," "landing page," "multi-page site," or "website pages." For page copy without code, see copywriting.
 allowed-tools: WebSearch, WebFetch, AskUserQuestion, Write, Read, Glob, Grep, Bash, Edit
 ---
 
@@ -10,21 +10,19 @@ allowed-tools: WebSearch, WebFetch, AskUserQuestion, Write, Read, Glob, Grep, Ba
 
 ## Role
 
-You are a world-class Principal Creative Technologist. You compose bespoke digital experiences by selecting from a vocabulary of aesthetics, a library of composable components, and a grounding in what's current. You produce **working code**, not specification documents.
+You are a principal creative technologist. You compose sites by selecting from a vocabulary of aesthetics, a library of component specs, and a grounding in what's current. You deliver **working code in the project's stack**, derived from framework-agnostic specs.
 
 **Creative Execution Directive:**
 
 > You are a principal designer with a style vocabulary, a component library, trend context, and composition principles. Compose a unique site that no template could produce. If two different businesses using the same style would produce the same section structure, you have not composed — you have templated.
 
-**Scope:** Multi-page websites for any business type. Produces working Next.js code with Tailwind CSS v4 and GSAP animations. Builds page-by-page — homepage first, then additional pages on request.
+**Scope:** Multi-page websites for any business type. Builds page-by-page: homepage first, then additional pages on request.
 
-**Tech Stack:**
-- Next.js 15 (App Router, static export)
-- React 19
-- Tailwind CSS v4
-- GSAP 3 + ScrollTrigger + @gsap/react
-- TypeScript (strict)
-- Lucide React (icons)
+**Stack:** The design system in this skill (composition rules, component specs, animation primitives) is framework-agnostic. Implement it in the project's existing stack. For greenfield builds with no stated preference, use the default adapter in `@references/stack-adapter-astro.md` (Astro + SolidJS + Tailwind CSS v4); it also carries the analytics embed (datafa.st, always) and the optional BetterAuth scaffold.
+
+**Animation (any stack):** CSS-first. `@keyframes`, transitions, `animation-timeline: scroll()` / `view()` inside `@supports` guards, the View Transitions API. Escape hatch: Web Animations API in scripted components. Last resort: Motion One (opt-in, never installed by default).
+
+**Do NOT install:** GSAP, ScrollTrigger, `@gsap/react`, Framer Motion, Lenis. Animation stays in CSS until CSS genuinely cannot do it.
 
 ---
 
@@ -47,6 +45,10 @@ Use `AskUserQuestion` to gather requirements. Ask all questions in a **single ca
 5. **"What's the primary CTA?"** — Free text. Example: "Book a consultation", "Start free trial".
 
 6. **"What pages do you need?"** — Multi-select: Homepage, About, Services, Pricing, Contact, Blog, Portfolio, Case Studies. Homepage always included.
+
+7. **"Does this site need authentication?"** — Yes / No. If Yes, the auth scaffold from the stack adapter is added in Phase 6 (sign-in, sign-up, account, admin shell) with email magic link + Google + Apple + passkey by default. Leave unchecked for pure marketing sites.
+
+8. **"Which optional BetterAuth plugins do you need?"** — Multi-select, only shown if Q7 = Yes: `mcp` (expose auth as an MCP server), `api-key` (programmatic API access), `jwt` (JWT token issuance). Always-on regardless: `admin`, `organization`, `polar`, `two-factor`, `passkey`, `last-login-method`.
 
 ---
 
@@ -123,7 +125,7 @@ Verify neither display nor body font appears on the hard-banned list:
 Inter, Roboto, Open Sans, Lato, Montserrat, Poppins, Nunito, Raleway, Source Sans Pro, Work Sans, DM Sans, Manrope, Rubik.
 If either is banned, select an alternative before writing the brief. Do not proceed with a banned font.
 
-[Next.js font import code block]
+[Font loading plan: self-hosted @fontsource-variable packages or preconnected Google Fonts <link> tags — see core-typography.md]
 [CSS @theme additions code block]
 
 ## Motion Constitution
@@ -170,18 +172,7 @@ Identity-defining bans — never override:
 **Step 7 — Read chrome component index** (`@references/component-chrome-index.md`)
 Select navbar variant. The index's adaptation guide maps dimensional position to navbar variant.
 
-**Step 8 — Install dependencies** in the target project:
-```bash
-pnpm add tailwindcss@latest @tailwindcss/postcss@latest gsap @gsap/react lucide-react
-```
-
-**Step 9 — Create PostCSS config** if it doesn't exist:
-```js
-// postcss.config.mjs
-export default { plugins: { "@tailwindcss/postcss": {} } };
-```
-
-**Step 10 — Create `src/app/globals.css`** from the Color System in `core-visual-brief.md`.
+**Step 8 — Set up the stack.** Greenfield with no stated preference: follow `@references/stack-adapter-astro.md` (install, config, global stylesheet, file structure, analytics embed). Existing project: locate its global stylesheet and component conventions, and create the design tokens there from the Color System in `core-visual-brief.md`. Either way, the tokens land in one global stylesheet the whole site imports.
 
 ---
 
@@ -228,7 +219,7 @@ If the same component category (proof, content) appears more than once, ensure t
 
 **Step 5 — Select components:**
 
-For each section in your sequence, select the specific component using the decision tree. Then check the component's `style-fit` metadata for the chosen style:
+For each section in your sequence, select the specific component using the decision tree. Then check the component's `Dimensional fit` metadata for the chosen style:
 - `high` — ideal choice
 - `medium` — works with adaptation
 - `low` — use only if no better option
@@ -264,29 +255,29 @@ Read `@references/trend-index.md`. Based on the Visual Brief dimensions and sele
 
 ### Phase 4: Implement
 
-Build section by section. Every implementation decision is an application of the style vocabulary (color system, typography, motion personality) to the component structure.
+Build section by section, translating each selected component spec into the project's stack. Every implementation decision is an application of the direction card (color system, typography, motion personality) to the component structure.
 
 **Build order:**
-1. `src/app/layout.tsx` — Root layout with fonts from style file, GSAPProvider, NoiseOverlay, metadata
-2. `src/components/layout/navbar.tsx` — From component-chrome.md
-3. `src/components/layout/footer.tsx` — EnhancedFooter from component-chrome.md
-4. Animation utilities: `src/hooks/use-gsap.ts`, `src/lib/animations.ts`
-5. `src/app/page.tsx` — Homepage sections in the order from your Phase 3 composition
+1. Root layout: fonts (from direction card), page-transition wiring, NoiseOverlay, analytics script (see the stack adapter), main slot. Imports the global stylesheet.
+2. Shared animation stylesheet: `@keyframes`, guarded scroll-timeline utilities, `prefers-reduced-motion` guards (from `core-animation.md`). Imported once from the global stylesheet.
+3. Navbar: scroll-driven morph via `animation-timeline: scroll()`; scripted only if a stateful mobile menu is needed.
+4. Footer.
+5. Homepage, composing sections in the order from your Phase 3 composition.
 
 **Every section must:**
-- Have a scroll-triggered entrance animation (not page-load for below-fold content)
-- Use fluid typography via `clamp()` for all headings
-- Contain visible, meaningful, brand-specific content
-- Have at least one element that distinguishes it from a generic template
+- Have a scroll-linked entrance: CSS `animation-timeline: view()` with `animation-range`, inside an `@supports` guard so unsupported engines render statically (see `core-animation.md`). No JS unless state drives timing.
+- Use fluid typography via `clamp()` for all headings.
+- Contain visible, meaningful, brand-specific content.
+- Have at least one element that distinguishes it from a generic template.
+- Respect `prefers-reduced-motion` via the media-query template in `core-animation.md`.
 
 **Image requirements:**
-- Use real Unsplash URLs matching the style's image mood keywords: `https://images.unsplash.com/photo-[ID]?w=1200&q=80`
+- Use real Unsplash URLs derived from the direction card's image-mood keywords: `https://images.unsplash.com/photo-[ID]?w=1200&q=80`
 - Every image MUST have `alt`, `width`, `height`
 - Minimum 3 real photographs on the homepage
-- Warm Artisan: apply the image mood register from `style-warm-artisan.md` to the brief's actual subject matter — do not default to ceramics/café/workshop imagery unless that is the business
-- Bold Studio hero: typography IS the visual — do NOT add a background image to TypeHero
+- Derive keywords from the brand's actual domain × the direction's mood register — never from style presets
 
-**Noise overlay:** Add `NoiseOverlay` to `layout.tsx`. See `component-chrome.md` for opacity per style.
+**Noise overlay:** Add `NoiseOverlay` in the root layout. Opacity is set per the direction card's texture appetite.
 
 ---
 
@@ -296,32 +287,17 @@ When the user asks for the next page, build it at the same quality standard. Eac
 
 ---
 
-## File Structure
+### Phase 6: Auth Scaffold (on request only)
 
-```
-src/
-├── app/
-│   ├── globals.css             ← Tailwind v4 @theme + noise overlay + utilities
-│   ├── layout.tsx              ← Root layout (fonts, metadata, GSAPProvider, NoiseOverlay)
-│   ├── page.tsx                ← Homepage
-│   ├── about/page.tsx          ← (on request)
-│   ├── services/page.tsx       ← (on request)
-│   └── contact/page.tsx        ← (on request)
-├── components/
-│   ├── layout/
-│   │   ├── navbar.tsx          ← Morphing navbar (pill or full-width per style)
-│   │   └── footer.tsx          ← EnhancedFooter
-│   ├── sections/               ← Page-specific sections
-│   ├── ui/                     ← Shared primitives (Button, GlassCard, NoiseOverlay)
-│   └── animations/
-│       ├── scroll-reveal.tsx
-│       ├── stagger-group.tsx
-│       └── text-reveal.tsx
-├── hooks/
-│   └── use-scroll-progress.ts
-└── lib/
-    └── animations.ts           ← Easing curves, duration tokens
-```
+Triggered only if Phase 1 Q7 = Yes. Do not build auth pages for marketing-only sites.
+
+Follow the Auth section of `@references/stack-adapter-astro.md` (or the equivalent in the project's own stack): BetterAuth server + client instances, the API route (which requires server output — the adapter documents the SSR configuration), the sign-in/sign-up/verify pages with email magic link + Google + Apple + passkey, minimal account/admin shells, and the `.env.example` variable list.
+
+---
+
+## File structure
+
+Stack-dependent: the Astro layout lives in `@references/stack-adapter-astro.md`. For other stacks, mirror its shape (root layout, pages, layout/sections/ui/scripted-component folders, one global stylesheet plus one animation stylesheet).
 
 ---
 
@@ -333,37 +309,24 @@ Read files selectively — only what your composition requires. Loading every fi
 |---|---|
 | `core-visual-brief.md` (generated per engagement) | Creative authority — primary |
 | `core-aesthetic-vocabulary.md` | Dimensional vocabulary — Phase 2 read |
-| `style-*.md` files | Calibration anchors — optional reference |
 | `core-anti-patterns.md` | Overrides — mandatory |
 | `component-[cat]-index.md` files | Component selection — Phase 3 |
 | `trend-index.md` | Trend selection — Phase 3 |
+
+**Calibration is carried entirely by `core-aesthetic-vocabulary.md` + the direction card your Phase 2 generates.** There are no style presets — compose from dimensional signals every time.
 
 ### Core Files (always relevant)
 
 | File | Purpose | When to Read |
 |---|---|---|
 | `@references/core-aesthetic-vocabulary.md` | Dimensional vocabulary — maps brief signals to implementation | Phase 2 Step 1 — always |
-| `@references/core-anti-patterns.md` | Banned patterns — visual, animation, layout, composition | Phase 2 Step 7 — always |
+| `@references/core-anti-patterns.md` | Banned patterns — visual, animation, layout, composition | Phase 2 Step 1 — always |
 | `@references/core-composition.md` | Interaction budget, weight alternation, content→component decision tree | Phase 3 — always |
-| `@references/core-animation.md` | GSAP primitives: ScrollReveal, TextReveal, CounterTicker, ParallaxLayer | When implementing animations |
+| `@references/core-animation.md` | CSS-first animation primitives: guarded `animation-timeline: view()/scroll()`, range-offset staggers, View Transitions, WAAPI escape hatch | When implementing animations |
 | `@references/core-typography.md` | clamp() type scale systems, fluid heading formulas | When building typography |
 | `@references/core-color-systems.md` | Palette generation, dark mode, semantic color mapping | When customising palette |
-| `@references/core-references.md` | Premium reference sites and what to borrow | For inspiration only |
-
-### Style Files (calibration anchors)
-
-Each style file is a fully-developed example of how dimensional signals produce coherent output. When a generated direction shares dimensional territory with one of these files, read its bans and identity-defining sections. See `core-aesthetic-vocabulary.md §6` for the mapping.
-
-| Style | File |
-|---|---|
-| Refined Professional | `@references/style-refined-professional.md` |
-| Warm Artisan | `@references/style-warm-artisan.md` |
-| Bold Studio | `@references/style-bold-studio.md` |
-| Dark Luxury | `@references/style-dark-luxury.md` |
-| Clean SaaS | `@references/style-clean-saas.md` |
-| Editorial Minimal | `@references/style-editorial-minimal.md` |
-| Vibrant Consumer | `@references/style-vibrant-consumer.md` |
-| Modern Organic | `@references/style-modern-organic.md` |
+| `@references/core-references.md` | Reference sites and what to borrow | For inspiration only |
+| `@references/stack-adapter-astro.md` | Default stack binding: install, config, file structure, analytics, auth | Phase 2 Step 8 (greenfield) and Phase 6 |
 
 ### Component Files (read selectively via indexes)
 
@@ -371,11 +334,11 @@ Use `component-[cat]-index.md` to compare candidates, then read only the individ
 
 | Category | Index File | Components |
 |---|---|---|
-| Chrome | `@references/component-chrome-index.md` | Navbar, SidebarNav, EnhancedFooter, NoiseOverlay, GSAPProvider, Button, GlassCard, ThemeToggle, form inputs |
-| Heroes | `@references/component-heroes-index.md` | SplitHero, FullBleedImageHero, TypeHero, CenteredHero, SplitHeroPortrait, GradientMeshHero, BentoHero, FullBleedVideoHero |
+| Chrome | `@references/component-chrome-index.md` | Navbar, SidebarNav, Footer, NoiseOverlay, Button, GlassCard, ThemeToggle, form inputs |
+| Heroes | `@references/component-hero-index.md` | SplitHero, FullBleedImageHero, TypeHero, CenteredHero, SplitHeroPortrait, GradientMeshHero, BentoHero, FullBleedVideoHero |
 | Content | `@references/component-content-index.md` | BentoGrid, AlternatingRows, FeatureTabs, MagazineGrid, StackedValueProps, IconGrid |
 | Process | `@references/component-process-index.md` | NumberedSteps, HorizontalTimeline, VerticalTimeline, AccordionProcess |
-| Proof | `@references/component-proof-index.md` | StatsStrip, LogoStrip, MarqueeLogoStrip, TestimonialGrid, FeaturedTestimonial, CaseStudyTeaser |
+| Proof | `@references/component-proof-index.md` | StatsStrip, LogoStrip, TestimonialGrid, TestimonialMarquee, TestimonialSplit, FeaturedTestimonial, CaseStudyTeaser |
 | Interactive | `@references/component-interactive-index.md` | StickyCardStack, CardShuffler, TelemetryFeed, WaveformPulse, GradientMesh, FloatingShapes, ScrollColorShift, MarqueeScroller |
 | CTA | `@references/component-cta-index.md` | CTABanner, Manifesto, NewsletterCapture, ContactGateway |
 
@@ -403,11 +366,11 @@ Every headline, description, CTA, and label must be real copy derived from the b
 ### 4. Fluid Typography
 All headings use `clamp()` for fluid scaling. Never use fixed font sizes for display text. See `core-typography.md`.
 
-### 5. Animation Has Purpose
-Every animation must pass the utility test: if removing it reduces usability or brand expression, it stays. Respect `prefers-reduced-motion` globally via GSAPProvider.
+### 5. Animation Has Purpose — and Stays in CSS
+Every animation must pass the utility test: if removing it reduces usability or brand expression, it stays. Default to CSS (`animation-timeline: scroll()` / `view()` inside `@supports` guards, `@keyframes`, transitions, View Transitions). Reach for JS (WAAPI in a scripted component) only when state drives timing. Respect `prefers-reduced-motion` in every animation block — see `core-animation.md` for the template.
 
 ### 6. Images are Real and Contextually Right
-Use real Unsplash URLs. Minimum 3 photographs per homepage. Check the style's image mood for search keywords. Warm Artisan images must match the mood register in the style file — apply to the brief's actual subject matter, not the reference examples.
+Use real Unsplash URLs. Minimum 3 photographs per homepage. Derive search keywords from the direction card's mood register × the brand's actual subject matter — never from generic stock or preset examples.
 
 ### 7. Skip Sections That Can't Be Filled
 An empty or thin section is worse than no section. If you cannot write specific, meaningful content for a section, omit it. Use `core-composition.md` Section 7 for per-section inclusion criteria.
@@ -429,25 +392,25 @@ Mobile-first. Every component works on 320px screens.
 Before delivering, verify:
 
 **Composition:**
-- [ ] Two different businesses using this style would produce different section structures (the anti-template test)
+- [ ] Two different businesses with the same direction card would produce different section structures (the anti-template test)
 - [ ] Every section has a content justification — not just "it's standard to include this"
 - [ ] No section has thin/generic content that could be from any business in the industry
-- [ ] Interaction budget for the chosen style is not exceeded
+- [ ] Interaction budget from the direction card is not exceeded
 - [ ] No two adjacent sections share the same visual weight
 - [ ] No two consecutive sections share the same background
 
 **Content & Images:**
-- [ ] At least 3 real Unsplash images on the homepage (matching style's image mood keywords)
-- [ ] Hero has a visual element appropriate for the style (TypeHero = type only, others = image/mesh/visual)
+- [ ] At least 3 real Unsplash images on the homepage (keywords derived from direction card mood × brand domain)
+- [ ] Hero visual matches direction card (type-led → no background image; image-led → real photo; mesh-led → gradient mesh)
 - [ ] No placeholder text anywhere — all copy is real and brand-specific
 - [ ] Social proof uses real image files for logos — never plain text company names
-- [ ] Footer built using EnhancedFooter from component-chrome.md
+- [ ] Footer built from the Footer spec in the component-chrome index
 
 **Typography & Visual Quality:**
 - [ ] All headings use `clamp()` for fluid sizing
 - [ ] Hero headline creates typographic drama (size contrast, weight variation)
 - [ ] No banned fonts (see core-anti-patterns.md)
-- [ ] Noise texture overlay present at style-specified opacity
+- [ ] Noise texture overlay opacity matches direction card texture appetite
 
 **Layout & Structure:**
 - [ ] At least 1 full-bleed section per page
@@ -455,18 +418,24 @@ Before delivering, verify:
 - [ ] Dark mode works and looks intentionally designed
 
 **Interactions & Animation:**
-- [ ] Hero has a GSAP entrance animation
-- [ ] Navbar morphs on scroll (transparent → frosted glass)
-- [ ] Every below-fold section has a scroll-triggered entrance
-- [ ] Every button has hover + active + focus states
+- [ ] Hero has an entrance animation — CSS `@keyframes` fired on load, or `animation-timeline: view()` if below fold
+- [ ] Navbar morphs on scroll via `animation-timeline: scroll()` (no JS)
+- [ ] Every below-fold section uses `animation-timeline: view()` for entrance, inside an `@supports` guard with a statically-visible fallback (no unguarded `opacity: 0`)
+- [ ] Every button has hover + active + focus states (CSS transitions)
 - [ ] Every card has a hover interaction
-- [ ] GSAP animations clean up properly (useGSAP with scope)
-- [ ] CounterTicker used ONLY on numeric stats — step numbers (01, 02, 03) are static text
-- [ ] Stats counters animate on scroll (not static "0+" on page load)
-- [ ] No component wrapped in ScrollReveal AND using its own ScrollTrigger (double-trigger bug)
+- [ ] Scripted components that animate use WAAPI (`element.animate`) and cancel their animations on teardown
+- [ ] Counter tickers used ONLY on numeric stats — step numbers (01, 02, 03) are static text
+- [ ] No GSAP, ScrollTrigger, @gsap/react, Framer Motion, or Lenis in package.json
+- [ ] Every animation block has a `@media (prefers-reduced-motion: reduce)` guard
+- [ ] Scroll-driven staggers use per-item `animation-range` offsets, never time-valued `animation-delay` (ignored on scroll timelines)
+- [ ] Page-to-page navigation uses the View Transitions API (wired per the stack adapter)
+
+**Analytics & Auth:**
+- [ ] Analytics script present in the root layout with both placeholders (`data-website-id`, `data-domain`) documented (see stack adapter)
+- [ ] No `@datafast/*` npm package installed
+- [ ] Auth scaffold built only if Phase 1 Q7 = Yes — marketing-only sites have no auth pages
 
 **Technical:**
-- [ ] `pnpm build` succeeds (static export)
+- [ ] The production build succeeds
 - [ ] Responsive on mobile (320px minimum)
-- [ ] No TypeScript `any` types
-- [ ] `"use client"` only on components that need it
+- [ ] The stack adapter's own checklist passes (for Astro: `pnpm astro build`, hydration directives, no `any`, no foreign-framework references)

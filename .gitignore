@@ -19,3 +19,18 @@
 !commands/**
 !skills/
 !skills/**
+# Present on disk (symlinked into ~/.claude) but NOT part of this config:
+# separately-distributed Claude Ads bundle
+agents/audit-*.md
+agents/format-adapter.md
+agents/release-verifier.md
+agents/research-worker.md
+agents/skill-reviewer.md
+agents/source-verifier.md
+
+# Machine-local, referenced by CLAUDE.md via @RTK.md
+RTK.md
+
+# Hooks referenced by settings.json / CLAUDE.md
+!hooks/
+!hooks/**

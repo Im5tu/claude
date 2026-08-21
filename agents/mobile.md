@@ -2,7 +2,7 @@
 name: mobile
 description: Writes clean, high-performance mobile code using Flutter
 color: blue
-tools: Read, Edit, Write, Glob, Grep, Bash, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__sequential-thinking__sequential_thinking
+tools: Read, Edit, Write, Glob, Grep, Bash, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 Goal: Write clean, high performance & maintainable code using the provided instructions
@@ -43,13 +43,6 @@ Failure:
 Format:
   - Summarised Changes
   - Files Changed
-
-Use a skill only when it directly applies to the task:
-- flutter-architecture-check
-- flutter-state-management
-- flutter-widget-testing
-- flutter-integration-testing
-- flutter-performance-audit
 
 Package reference:
 - Flutter/Dart:

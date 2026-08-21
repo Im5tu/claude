@@ -1,72 +1,90 @@
-# Card Hover Tiers
+# Card hover tiers
 
-Three hover interaction tiers for cards. Choose based on card content type.
+Three hover-interaction tiers for cards. All are pure CSS, no JS. Pick the tier that matches the card's purpose and the direction's motion register.
 
-**Tier selection guide — choose based on card content type:**
-- `LiftCard` — best for primarily text/information cards where a physical lift implies interactivity. Well-suited to contrast-light + energy-restrained contexts and texture-high contexts.
-- `GlowCard` — best for cards on dark surfaces or when a digital/technical character is appropriate. Well-suited to contrast-light + energy-moderate + technical and contrast-dark + energy-restrained contexts.
-- `ZoomCard` — best for image-primary cards where the photograph IS the content and zooming into it rewards hover. Appropriate wherever the card's primary content is visual.
+## Tiers
 
-Content type takes precedence over dimensional signal: a texture-high portfolio card with a strong photograph may use ZoomCard; a technical testimonial card may use LiftCard. Let the card's content type determine the choice first — the dimensional correlations above are guidance, not rules.
+| Tier | Transforms | Use when |
+|---|---|---|
+| Lift card | shadow escalation + 2–4px rise | Standard content card (value prop, feature, article teaser) |
+| Glow card | outline glow via `box-shadow` in accent colour | Dark-surface sites; accent-forward directions |
+| Zoom card | inner image scales 1.0 → 1.04 with `overflow: hidden` | Media-forward cards (portfolio, case study teaser, article with hero image) |
 
-```tsx
-import { cn } from "@/lib/utils";
+## Dimensional fit
 
-// Tier 1: Subtle lift — energy-restrained, texture-high
-function LiftCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div
-      className={cn(
-        "rounded-xl border border-border bg-surface-secondary p-6",
-        "shadow-sm transition-all duration-300 ease-out",
-        "hover:-translate-y-1 hover:shadow-lg hover:border-border-strong",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
+- LiftCard: any register; strongest on light + restrained/moderate.
+- GlowCard: dark + moderate/expressive; incongruent on restrained.
+- ZoomCard: any register with imagery.
+
+## Structure
+
+- Lift card: `<a href>` (whole-card link) or `<div>` with class `lift-card`; content as children
+- Glow card: same shape with class `glow-card`
+- Zoom card: `<a href>` or `<div>` with class `zoom-card`
+  - `<div class="zoom-card__media">` wrapping the `<img>`
+  - `<div class="zoom-card__body">` wrapping the text content
+
+## CSS
+
+```css
+.lift-card {
+  display: block;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  transition:
+    translate var(--motion-duration-fast) var(--ease-out-soft),
+    box-shadow var(--motion-duration-fast) var(--ease-out-soft),
+    border-color var(--motion-duration-fast) var(--ease-out-soft);
+}
+.lift-card:hover {
+  translate: 0 -3px;
+  border-color: var(--color-border-strong);
+  box-shadow: 0 18px 40px -20px rgb(0 0 0 / 0.18);
 }
 
-// Tier 2: Border glow — energy-moderate + technical, contrast-dark + restrained
-function GlowCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div
-      className={cn(
-        "rounded-xl border border-border bg-surface-secondary p-6",
-        "transition-all duration-300 ease-out",
-        "hover:border-accent/50 hover:shadow-[0_0_20px_rgba(var(--color-accent-rgb),0.1)]",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
+.glow-card {
+  display: block;
+  background: var(--color-surface-secondary);
+  border: 1px solid color-mix(in oklab, var(--color-accent) 30%, transparent);
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  transition:
+    box-shadow var(--motion-duration-base) var(--ease-out-soft),
+    border-color var(--motion-duration-base) var(--ease-out-soft);
+}
+.glow-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent), 0 20px 60px -30px color-mix(in oklab, var(--color-accent) 60%, transparent);
 }
 
-// Tier 3: Image zoom — editorial, energy-energetic
-function ZoomCard({
-  image,
-  imageAlt = "",
-  children,
-  className,
-}: {
-  image: string;
-  imageAlt?: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn("group overflow-hidden rounded-xl", className)}>
-      <div className="overflow-hidden">
-        <img
-          src={image}
-          alt={imageAlt}
-          className="aspect-[4/3] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-        />
-      </div>
-      <div className="p-6">{children}</div>
-    </div>
-  );
+.zoom-card {
+  display: block;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+}
+.zoom-card__media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.zoom-card__media img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: scale var(--motion-duration-slow) var(--ease-out-soft);
+}
+.zoom-card:hover .zoom-card__media img { scale: 1.04; }
+.zoom-card__body { padding: 1.5rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lift-card, .lift-card:hover { transition: none; translate: 0 0; box-shadow: none; }
+  .glow-card, .glow-card:hover { transition: none; box-shadow: none; }
+  .zoom-card__media img, .zoom-card:hover .zoom-card__media img { transition: none; scale: 1; }
 }
 ```
+
+## Notes
+
+- Use an `<a>` root for whole-card links; a `<div>` otherwise.
+- All three should also inherit the global reduced-motion nuke from the site stylesheet, but the per-component guard above is required as a belt-and-braces.

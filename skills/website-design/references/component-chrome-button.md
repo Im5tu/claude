@@ -1,120 +1,94 @@
-# Button + HeroButton
+# Button
 
-Multi-variant button with scale-on-interaction physics. Use `Button` for all standard CTAs. Use `HeroButton` only for the primary hero CTA where extra visual weight is justified.
+A pure-CSS button with hover, focus, and active states. No JS. Two variants: `primary` (filled with accent) and `ghost` (outline/text only). A hero variant (`hero-btn`) uses the same mechanics with larger padding and the display font for above-the-fold CTAs.
 
-```
-// Variants:
-//   primary   — filled accent background (most CTAs)
-//   secondary — surface background with border
-//   ghost     — transparent, text only
-//   outline   — transparent with accent border, fills on hover
-//
-// Sizes: sm | md | lg | xl
-// Use xl for hero CTAs, md for body CTAs, sm for inline actions
-```
+## Dimensional fit
 
-```tsx
-"use client";
-import { type ButtonHTMLAttributes, forwardRef } from "react";
-import { cn } from "@/lib/utils";
+- surface-depth: any
+- motion-register: any
+- texture-appetite: any
+- type-personality: any
+- notes: Primary uses `--color-accent`. Ghost uses `--color-primary` and `--color-border`. Active-state press-in is subtle; escalate via the `--scale-pressed` variable on expressive registers only.
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "outline";
-type ButtonSize = "sm" | "md" | "lg" | "xl";
+## Structure
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  loading?: boolean;
+- `<button type="button|submit">` or `<a href>` with class `btn btn-primary` or `btn btn-ghost`; label (plus optional inline icon) as children
+  - Render as `<a>` when the action navigates; render as `<button>` with an explicit `type` for form submits or in-page actions
+- Hero CTA: `<a href class="hero-btn">` (primary-only)
+
+## CSS
+
+```css
+.btn {
+  --scale-pressed: 0.98;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--ease-out-soft),
+    color var(--motion-duration-fast) var(--ease-out-soft),
+    border-color var(--motion-duration-fast) var(--ease-out-soft),
+    scale var(--motion-duration-fast) var(--ease-out-soft);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+.btn:active { scale: var(--scale-pressed); }
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-surface-primary); /* page-background color as text on the accent fill */
+}
+.btn-primary:hover { background: var(--color-accent-dark); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-border);
+}
+.btn-ghost:hover {
+  border-color: var(--color-border-strong);
+  background: color-mix(in oklab, var(--color-primary) 4%, transparent);
 }
 
-const variantStyles: Record<ButtonVariant, string> = {
-  primary:
-    "bg-accent text-white hover:bg-accent-light active:bg-accent-dark shadow-sm hover:shadow-md",
-  secondary:
-    "bg-surface-secondary text-primary border border-border hover:bg-surface-sunken hover:border-border-strong",
-  ghost:
-    "bg-transparent text-primary hover:bg-surface-secondary",
-  outline:
-    "bg-transparent text-accent border border-accent hover:bg-accent hover:text-white",
-};
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 2rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-surface-primary);
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.2vw, 1.125rem);
+  letter-spacing: -0.01em;
+  transition: translate var(--motion-duration-fast) var(--ease-out-soft),
+              background-color var(--motion-duration-fast) var(--ease-out-soft);
+}
+.hero-btn:hover { background: var(--color-accent-dark); translate: 0 -2px; }
+.hero-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
 
-const sizeStyles: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-sm gap-1.5",
-  md: "h-10 px-5 text-sm gap-2",
-  lg: "h-12 px-6 text-base gap-2",
-  xl: "h-14 px-8 text-base gap-2.5",
-};
-
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "primary", size = "md", loading, className, children, disabled, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        disabled={disabled || loading}
-        className={cn(
-          "relative inline-flex items-center justify-center font-medium",
-          "rounded-lg transition-all duration-200",
-          "hover:scale-[1.02] active:scale-[0.98]",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-          "focus:not(:focus-visible):outline-none",
-          "disabled:opacity-50 disabled:pointer-events-none",
-          variantStyles[variant],
-          sizeStyles[size],
-          className,
-        )}
-        {...props}
-      >
-        {loading ? (
-          <span
-            className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-            aria-label="Loading"
-          />
-        ) : (
-          children
-        )}
-      </button>
-    );
-  },
-);
-Button.displayName = "Button";
-```
-
-## HeroButton — Sliding Background Layer
-
-For the primary hero CTA only. Adds a white shimmer sweep on hover for extra visual presence.
-
-```tsx
-import { type ButtonHTMLAttributes } from "react";
-import { cn } from "@/lib/utils";
-
-export function HeroButton({
-  children,
-  className,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      className={cn(
-        "group relative overflow-hidden rounded-lg px-8 py-4",
-        "bg-accent text-white font-medium text-base",
-        "transition-transform duration-200",
-        "hover:scale-[1.02] active:scale-[0.98]",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-        className,
-      )}
-      {...props}
-    >
-      {/* Shimmer sweep */}
-      <span
-        className={cn(
-          "absolute inset-0 -translate-x-full bg-white/20",
-          "transition-transform duration-500 ease-out",
-          "group-hover:translate-x-0",
-        )}
-        aria-hidden="true"
-      />
-      <span className="relative z-10">{children}</span>
-    </button>
-  );
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+  .btn:active { scale: 1; }
+  .hero-btn, .hero-btn:hover { transition: none; translate: 0 0; }
 }
 ```
+
+## Notes
+
+- The hero variant is primary-only; use `.btn-ghost` for secondary hero actions.
+- When rendering as `<a>`, an `href` is required; when rendering as `<button>`, set `type` explicitly (`button` or `submit`).
+
+## Dimensional adaptation
+
+- Restrained register: remove `translate: 0 -2px` on hero hover; keep color-only changes.
+- Texture-high: add a subtle noise or grain `background-image` on primary, or pair with `backdrop-filter: blur(8px)` on the ghost variant over imagery.
+- Dark surface-depth: swap `color: var(--color-surface-primary)` for `color: var(--color-surface-secondary)` if primary text reads too bright.

@@ -6,7 +6,7 @@ metadata:
   author: Im5tu
   version: "1.0"
   repositoryUrl: https://github.com/im5tu/dotnet-skills
-allowed-tools: Bash(dotnet:*) Read Glob Grep AskUserQuestion
+allowed-tools: Bash(dotnet:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
 ---
 
 Configure System.Text.Json source generation for AOT-compatible, reflection-free JSON serialization with compile-time type metadata.

@@ -1,159 +1,72 @@
 # FloatingShapes
 
-Abstract geometric shapes that drift slowly and respond to scroll parallax. Use sparingly as background decoration — 3 to 5 shapes maximum. Shapes should not compete with content.
+Abstract blurred shapes that drift on scroll. Decorative only. Maximum 3 to 5 per page; more and they become visual noise. Pure CSS: each shape is a positioned circle with `filter: blur(...)` and a scroll-driven translate via `animation-timeline: scroll(root)`.
 
-```markdown
----
-component: FloatingShapes
-category: interactive
-subtype: geometric-parallax
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: medium
-  energy-restrained: medium
-  energy-moderate: medium
-  energy-energetic: high
-visual-weight: light
-content-density: sparse
-trend-alignment: evergreen
-motion-profile: minimal
+- surface-depth: any
+- motion-register: moderate, expressive (skip on strict restrained)
+- texture-appetite: low / medium
+- type-personality: any
+- notes: Do NOT compete with hero typography. Keep opacity under 30%.
 
-use-when:
-  - Hero section needs visual texture without photography
-  - Bold or clean-saas section needs subtle kinetic depth
-  - Maximum 5 shapes — any more creates visual noise
+## Structure
 
-avoid-when:
-  - refined-professional (BANNED — too abstract for measured authority)
-  - warm-artisan (BANNED — geometric shapes conflict with organic feel)
-  - editorial-minimal (BANNED — competes with typography-as-design)
-  - Section already has GradientMesh (redundant layers)
+- `.fs` wrapper, `aria-hidden="true"`, absolutely filling its section (the section needs `position: relative; overflow: hidden`)
+  - one `.fs__dot` `<span>` per shape, each carrying per-shape custom properties: `--size` (px), `--x` / `--y` (% position), `--c` (color), `--speed` (parallax multiplier, default 0.3)
+- Section content sits in a sibling wrapper with `position: relative; z-index: 10` so it stays above the shapes.
 
-pairs-well-with: [GradientMesh, WaveformPulse]
-pairs-poorly-with: [CardShuffler, TelemetryFeed]
----
-```
+Default shape set (used when no explicit shapes are given):
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+| size | x | y | color | speed |
+|---|---|---|---|---|
+| 320px | 10% | 20% | var(--color-accent) | 0.4 |
+| 260px | 80% | 40% | var(--color-accent-light) | 0.2 |
+| 200px | 55% | 75% | var(--color-accent-dark) | 0.5 |
 
-gsap.registerPlugin(ScrollTrigger);
+## CSS
 
-interface Shape {
-  type: "circle" | "square" | "triangle";
-  size: number;
-  x: string; // CSS left (e.g., "20%")
-  y: string; // CSS top (e.g., "30%")
-  color: string;
-  opacity?: number;
-  /** Parallax speed multiplier — positive moves with scroll, negative against */
-  parallaxSpeed?: number;
+```css
+.fs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
-
-export function FloatingShapes({
-  shapes,
-  className,
-}: {
-  shapes: Shape[];
-  className?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-    const els = ref.current.querySelectorAll<HTMLDivElement>(".floating-shape");
-
-    els.forEach((el, i) => {
-      const shape = shapes[i];
-
-      // Ambient drift — plays while in viewport, pauses when scrolled out
-      gsap.to(el, {
-        y: gsap.utils.random(-30, 30),
-        x: gsap.utils.random(-20, 20),
-        rotation: gsap.utils.random(-15, 15),
-        duration: gsap.utils.random(6, 10),
-        ease: "sine.inOut",
-        repeat: 3,
-        yoyo: true,
-        delay: i * 0.8,
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top bottom",
-          end: "bottom top",
-          toggleActions: "play pause resume pause",
-        },
-      });
-
-      // Scroll parallax
-      const speed = shape.parallaxSpeed ?? (i % 2 === 0 ? 0.3 : -0.3);
-      gsap.to(el, {
-        y: () => speed * 200,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1.5,
-        },
-      });
-    });
-  }, { scope: ref });
-
-  const shapeClass = (type: Shape["type"]) => {
-    switch (type) {
-      case "circle": return "rounded-full";
-      case "square": return "rounded-lg rotate-12";
-      case "triangle": return "";
-    }
-  };
-
-  return (
-    <div
-      ref={ref}
-      className={`absolute inset-0 overflow-hidden pointer-events-none ${className ?? ""}`}
-      aria-hidden="true"
-    >
-      {shapes.map((shape, i) => (
-        <div
-          key={i}
-          className={`floating-shape absolute border-2 ${shapeClass(shape.type)}`}
-          style={{
-            left: shape.x,
-            top: shape.y,
-            width: shape.size,
-            height: shape.size,
-            borderColor: shape.color,
-            opacity: shape.opacity ?? 0.15,
-            clipPath:
-              shape.type === "triangle"
-                ? "polygon(50% 0%, 0% 100%, 100% 100%)"
-                : undefined,
-          }}
-        />
-      ))}
-    </div>
-  );
+.fs__dot {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--c) 40%, transparent);
+  filter: blur(60px);
+  translate: -50% -50%;
+}
+@supports (animation-timeline: scroll()) {
+  .fs__dot {
+    animation: fs-drift linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100vh;
+  }
+}
+@keyframes fs-drift {
+  from { translate: calc(-50% + (var(--speed) * -30px)) calc(-50% + (var(--speed) * -40px)); }
+  to   { translate: calc(-50% + (var(--speed) *  30px)) calc(-50% + (var(--speed) *  40px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fs__dot { animation: none; }
 }
 ```
 
-**Usage:**
-```tsx
-<section className="relative min-h-screen">
-  <FloatingShapes
-    shapes={[
-      { type: "circle", size: 120, x: "10%", y: "20%", color: "var(--color-accent)", opacity: 0.12 },
-      { type: "square", size: 80, x: "75%", y: "15%", color: "var(--color-accent)", opacity: 0.08 },
-      { type: "triangle", size: 100, x: "60%", y: "60%", color: "var(--color-primary)", opacity: 0.06 },
-      { type: "circle", size: 60, x: "85%", y: "70%", color: "var(--color-accent)", opacity: 0.10 },
-    ]}
-  />
-  <div className="relative z-10">
-    {/* Section content */}
-  </div>
-</section>
-```
+## Notes
+
+- The host section supplies the page background (`var(--color-surface-primary)`), padding (typically 6rem vertical), and the stacking context.
+- Shapes are purely decorative; without scroll-timeline support they render static, which is fine because the base `translate: -50% -50%` centers each dot on its anchor point.
+
+## Dimensional adaptation
+
+- Restrained: 2 shapes, opacity 15%, blur 80px. Motion range tighter (0 to 40vh).
+- Expressive: 5 shapes, opacity 30%, varied sizes.
+- Texture-high: shapes become less defined; skip in favour of a background photograph.

@@ -1,194 +1,110 @@
-# Navbar — Morphing Pill
+# Navbar
 
-Fixed pill navbar that starts transparent and morphs to frosted glass on scroll. Detects the hero section exiting the viewport using IntersectionObserver — no scroll event listeners.
+Fixed navbar that starts transparent and morphs to frosted glass as the page scrolls past a threshold. The morph is pure CSS via `animation-timeline: scroll(root)`; no IntersectionObserver, no scroll listener. Only the mobile menu open/close state needs a small amount of JS.
 
-```
-// Usage note — no metadata block required for chrome components.
-// Chrome components are always included regardless of style preset.
-// This navbar adapts to each preset via CSS variables.
-```
+## Dimensional fit
 
-**Variant defaults by dimensional signal:**
+- surface-depth: any (two variants: pill for light/expressive, full-width for dark/restrained)
+- motion-register: any
+- texture-appetite: any
+- type-personality: any
+- notes: The threshold (default 160px) can be raised for tall heroes. See `core-animation.md` §Navbar scroll morph.
 
-| Dimensional Signal | Variant | Notes |
-|--------|---------|-------|
-| contrast-dark + energy-energetic | Pill, centered | Transparent → glass morph |
-| contrast-light + energy-moderate + technical | Pill, centered | Transparent → glass morph |
-| contrast-dark + energy-restrained | Full-width, flush top | No pill rounding, dark background |
-| contrast-light + energy-restrained | Full-width, flush top | Border-bottom on scroll |
-| contrast-light + energy-restrained + texture-high | Pill, centered | Softer radius (`rounded-2xl`) |
-| contrast-light + energy-restrained + editorial | SidebarNav | Left-rail on desktop, hamburger mobile |
+## Structure
 
-> These are defaults optimized for dimensional personality. Override when the brand's brief signals a specific navigation character that differs — document the override rationale.
+- `<header class="nav nav-pill">` or `<header class="nav nav-full-width">`, fixed to the top
+  - `<div class="nav__inner">` flex row, space-between
+    - `<a href="/" class="nav__brand">` wordmark
+    - `<nav class="nav__links" aria-label="Primary">` of nav links (see the links spec), hidden below 768px
+    - `<div class="nav__actions">`: optional theme toggle, optional `<a class="nav__cta">`, and the mobile menu toggle `<button aria-expanded aria-label="Toggle menu">` with menu/close icons (inline SVG), shown below 768px only
+- Mobile menu panel: fixed full-screen sheet below the bar (`inset: 56px 0 0 0`), background `var(--color-surface-primary)`, `z-index: 40`, containing a `<ul>` of the same links at 1.25rem size plus the CTA as a pill button
 
-```tsx
-"use client";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+## CSS
 
-interface NavbarProps {
-  brand: string;
-  links: { label: string; href: string }[];
-  cta: { label: string; href: string };
-  /** "pill" is default (energy-energetic, energy-moderate, texture-high)
-   *  "full-width" for contrast-dark + restrained, contrast-light + restrained */
-  variant?: "pill" | "full-width";
+```css
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  /* Static fallback: engines without scroll-driven animations get the frosted
+     state permanently rather than an unreadable transparent bar. */
+  background: color-mix(in oklab, var(--color-surface-primary) 85%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+}
+@supports (animation-timeline: scroll(root)) {
+  .nav {
+    background: transparent;
+    backdrop-filter: blur(0);
+    animation: nav-morph linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 160px;
+  }
+}
+@keyframes nav-morph {
+  to {
+    background: color-mix(in oklab, var(--color-surface-primary) 75%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom-color: color-mix(in oklab, currentColor 10%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav { animation: none; background: color-mix(in oklab, var(--color-surface-primary) 85%, transparent); backdrop-filter: blur(10px); }
 }
 
-export function Navbar({ brand, links, cta, variant = "pill" }: NavbarProps) {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  // IntersectionObserver on #hero — no scroll listener
-  useEffect(() => {
-    const heroEl = document.getElementById("hero");
-    if (!heroEl) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsScrolled(!entry.isIntersecting),
-      { threshold: 0.1 },
-    );
-    observer.observe(heroEl);
-    return () => observer.disconnect();
-  }, []);
-
-  // Close mobile menu on escape
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsMobileOpen(false);
-    };
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, []);
-
-  const isPill = variant === "pill";
-
-  return (
-    <>
-      <nav
-        className={cn(
-          "fixed z-50 transition-all duration-300",
-          isPill
-            ? [
-                "top-4 left-1/2 -translate-x-1/2",
-                "w-[calc(100%-2rem)] max-w-6xl rounded-full px-6 py-3",
-                isScrolled
-                  ? "bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm"
-                  : "bg-transparent",
-              ]
-            : [
-                "top-0 left-0 right-0",
-                "px-6 py-4 lg:px-10",
-                isScrolled
-                  ? "bg-white/95 dark:bg-neutral-950/95 backdrop-blur-xl border-b border-border shadow-sm"
-                  : "bg-transparent",
-              ],
-        )}
-        aria-label="Primary navigation"
-      >
-        <div className={cn("flex items-center justify-between", !isPill && "mx-auto max-w-7xl")}>
-          {/* Brand */}
-          <a
-            href="/"
-            className={cn(
-              "text-lg font-display font-bold transition-colors duration-300",
-              isScrolled ? "text-primary" : "text-white dark:text-white",
-            )}
-          >
-            {brand}
-          </a>
-
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-8">
-            {links.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "relative text-sm font-medium transition-colors duration-300",
-                  // Underline animation
-                  "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full",
-                  "after:origin-left after:scale-x-0 after:bg-accent",
-                  "after:transition-transform after:duration-300 after:ease-out",
-                  "hover:after:scale-x-100",
-                  isScrolled
-                    ? "text-secondary hover:text-primary"
-                    : "text-white/80 hover:text-white dark:text-white/80 dark:hover:text-white",
-                )}
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-
-          {/* CTA + mobile toggle */}
-          <div className="flex items-center gap-3">
-            <a
-              href={cta.href}
-              className={cn(
-                "hidden md:inline-flex items-center text-sm font-medium",
-                "transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]",
-                isPill
-                  ? "rounded-full px-5 py-2 bg-accent text-white hover:bg-accent-light"
-                  : "rounded-lg px-5 py-2 bg-accent text-white hover:bg-accent-light",
-              )}
-            >
-              {cta.label}
-            </a>
-            <button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="md:hidden p-2 rounded-lg transition-colors hover:bg-surface-secondary"
-              aria-expanded={isMobileOpen}
-              aria-controls="mobile-menu"
-              aria-label="Toggle navigation"
-            >
-              {isMobileOpen ? (
-                <X className={cn("h-5 w-5 transition-colors", isScrolled ? "text-primary" : "text-white")} />
-              ) : (
-                <Menu className={cn("h-5 w-5 transition-colors", isScrolled ? "text-primary" : "text-white")} />
-              )}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile fullscreen menu */}
-      {isMobileOpen && (
-        <div
-          id="mobile-menu"
-          className="fixed inset-0 z-40 bg-surface-primary flex flex-col items-center justify-center gap-8"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Navigation menu"
-        >
-          <button
-            onClick={() => setIsMobileOpen(false)}
-            className="absolute top-6 right-6 p-2"
-            aria-label="Close menu"
-          >
-            <X className="h-6 w-6 text-primary" />
-          </button>
-          {links.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-2xl font-display font-medium text-primary transition-colors hover:text-accent"
-              onClick={() => setIsMobileOpen(false)}
-            >
-              {link.label}
-            </a>
-          ))}
-          <a
-            href={cta.href}
-            className="mt-4 rounded-full bg-accent px-8 py-3.5 text-base font-medium text-white"
-            onClick={() => setIsMobileOpen(false)}
-          >
-            {cta.label}
-          </a>
-        </div>
-      )}
-    </>
-  );
+.nav__inner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
 }
+
+.nav-pill .nav__inner {
+  max-width: 64rem;
+  margin: 0.75rem auto 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, currentColor 8%, transparent);
+}
+
+.nav__brand { font-family: var(--font-display); font-size: 1.125rem; letter-spacing: -0.02em; }
+
+.nav__links { display: none; gap: 1.5rem; }
+@media (min-width: 768px) { .nav__links { display: flex; } }
+
+.nav__actions { display: flex; align-items: center; gap: 1rem; }
+
+.nav__cta {
+  display: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-surface-primary);
+  font-size: 0.875rem;
+  transition: background var(--motion-duration-fast) var(--ease-out-soft);
+}
+.nav__cta:hover { background: var(--color-accent-dark); }
+@media (min-width: 768px) { .nav__cta { display: inline-flex; } }
 ```
+
+## Behavior
+
+- Clicking the mobile toggle flips the panel open/closed and mirrors the state on the button's `aria-expanded`; the icon swaps between menu and close glyphs.
+- Pressing Escape closes the panel (a document-level keydown listener, removed when the component is torn down).
+- Clicking any link or the CTA inside the panel closes it before navigation.
+- The panel and toggle exist only below the 768px breakpoint; desktop links are plain CSS.
+- The scroll morph itself needs no JS at any width.
+
+## Notes
+
+- The theme toggle, when the site supports both themes, sits in `.nav__actions` before the CTA (see the theme toggle spec).
+- Mobile menu link list: grid, `gap: 1rem`, font-size 1.25rem; CTA styled as an accent pill (`padding: 0.5rem 1.25rem; border-radius: 999px; background: var(--color-accent); color: var(--color-surface-primary);`) with `margin-top: 1rem`.
+
+## Dimensional adaptation
+
+- Pill variant: centered rounded bar at top, 0.75rem gutter from viewport top.
+- Full-width variant: flush top, no pill inner border.
+- Dark + restrained: `nav-morph` target becomes a near-opaque surface instead of translucent.
+- Editorial: replace with the sidebar nav instead of this component.

@@ -1,141 +1,75 @@
 # CardShuffler
 
-Cycling overlapping card stack with spring physics. Cards auto-rotate on a 4-second timer and can be manually clicked to advance. Creates delight without demanding active user engagement.
+Cycling overlapping card stack. The front card is visible; the stack auto-rotates on a timer and advances on click. Reordering animates with a FLIP pattern (measure positions, reorder DOM, invert, play). Needs JS behavior.
 
-```markdown
----
-component: CardShuffler
-category: interactive
-subtype: cycling-stack
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: medium
-  energy-restrained: low
-  energy-moderate: medium
-  energy-energetic: high
-visual-weight: heavy
-content-density: moderate
-trend-alignment: trending
-motion-profile: high
+- surface-depth: any
+- motion-register: moderate, expressive
+- texture-appetite: low / medium
+- type-personality: any
+- notes: Best when each card is a testimonial or a rotating value prop. Not for ordered content — order is not preserved visually beyond the front card.
 
-use-when:
-  - Feature showcases or testimonials that benefit from progressive reveal
-  - Interaction budget allows a high-motion element
-  - Content items are brief enough to be understood in isolation
+## Structure
 
-avoid-when:
-  - Serious or authority-positioning brand (BANNED for refined-professional, warm-artisan)
-  - Content requires careful, full reading before moving on
-  - More than 6 cards (diminishing returns, becomes a carousel)
+- `.shuffler` container (relative, fixed height, click target for advancing)
+  - one `.shuffler__card` per card (3 to 5 recommended), absolutely positioned and stacked; each carries a stable `data-id` and a per-card index custom property `--i` (0 = front)
+    - `.shuffler__eyebrow` (`<p>`, source label such as "Apex, CTO")
+    - `.shuffler__heading` (`<h3>`, the pull quote)
+    - `.shuffler__body` (`<p>`, supporting sentence)
 
-pairs-well-with: [GradientMesh, MarqueeScroller]
-pairs-poorly-with: [StickyCardStack]
----
-```
+## CSS
 
-```tsx
-"use client";
-import { useRef, useState, useCallback } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-
-interface ShuffleCard {
-  title: string;
-  description: string;
-  accent?: string;
-  icon?: React.ReactNode;
+```css
+.shuffler {
+  position: relative;
+  height: 24rem;
+  max-width: 34rem;
+  margin: 0 auto; /* centered */
+  cursor: pointer;
 }
-
-export function CardShuffler({ cards }: { cards: ShuffleCard[] }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const isAnimating = useRef(false);
-
-  const shuffle = useCallback(() => {
-    if (isAnimating.current || !containerRef.current) return;
-    isAnimating.current = true;
-
-    const cardEls = containerRef.current.querySelectorAll<HTMLElement>(".shuffle-card");
-    const frontCard = cardEls[activeIndex];
-
-    // Animate front card out with spring physics
-    gsap.to(frontCard, {
-      y: -20,
-      scale: 0.9,
-      opacity: 0,
-      rotateZ: gsap.utils.random(-8, 8),
-      duration: 0.4,
-      ease: "back.in(1.4)",
-      onComplete: () => {
-        gsap.set(frontCard, { y: 0, scale: 1, opacity: 1, rotateZ: 0, zIndex: 0 });
-
-        const next = (activeIndex + 1) % cards.length;
-        cardEls.forEach((card, i) => {
-          const offset = (i - next + cards.length) % cards.length;
-          gsap.to(card, {
-            zIndex: cards.length - offset,
-            y: offset * 8,
-            scale: 1 - offset * 0.04,
-            opacity: 1 - offset * 0.15,
-            duration: 0.5,
-            ease: "back.out(1.2)",
-          });
-        });
-
-        setActiveIndex(next);
-        isAnimating.current = false;
-      },
-    });
-  }, [activeIndex, cards.length]);
-
-  // Auto-shuffle on interval
-  useGSAP(() => {
-    const interval = setInterval(shuffle, 4000);
-    return () => clearInterval(interval);
-  }, { dependencies: [shuffle] });
-
-  // Initial stack layout
-  useGSAP(() => {
-    if (!containerRef.current) return;
-    const cardEls = containerRef.current.querySelectorAll<HTMLElement>(".shuffle-card");
-    cardEls.forEach((card, i) => {
-      gsap.set(card, {
-        zIndex: cards.length - i,
-        y: i * 8,
-        scale: 1 - i * 0.04,
-        opacity: 1 - i * 0.15,
-      });
-    });
-  }, { scope: containerRef });
-
-  return (
-    <div
-      ref={containerRef}
-      className="relative h-[320px] w-full max-w-md mx-auto cursor-pointer select-none"
-      onClick={shuffle}
-      onKeyDown={(e) => e.key === "Enter" || e.key === " " ? shuffle() : undefined}
-      role="button"
-      tabIndex={0}
-      aria-label={`Card stack — showing card ${activeIndex + 1} of ${cards.length}. Press to advance.`}
-    >
-      {cards.map((card, i) => (
-        <div
-          key={i}
-          className="shuffle-card absolute inset-0 rounded-2xl border border-border bg-surface-secondary p-8 shadow-lg"
-          aria-hidden={i !== activeIndex}
-        >
-          {card.icon && (
-            <div className="mb-4 text-accent">{card.icon}</div>
-          )}
-          <h4 className="font-display font-bold text-h3 text-primary">{card.title}</h4>
-          <p className="mt-3 text-body text-secondary leading-relaxed">{card.description}</p>
-        </div>
-      ))}
-      <p className="absolute -bottom-8 left-0 right-0 text-center text-xs text-disabled" aria-hidden="true">
-        Click to advance
-      </p>
-    </div>
-  );
+.shuffler__card {
+  position: absolute;
+  inset: 0;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  translate: calc(var(--i) * 1.25rem) calc(var(--i) * 0.5rem);
+  scale: calc(1 - var(--i) * 0.04);
+  opacity: calc(1 - var(--i) * 0.18);
+  z-index: calc(10 - var(--i));
+  transition: translate 500ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              scale 500ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              opacity 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.shuffler__eyebrow {
+  font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--color-accent); margin-bottom: 0.75rem;
+}
+.shuffler__heading {
+  font-family: var(--font-display); font-size: 1.5rem;
+  letter-spacing: -0.01em;
+}
+.shuffler__body {
+  margin-top: 0.75rem; color: var(--color-text-secondary);
+}
+@media (prefers-reduced-motion: reduce) {
+  .shuffler__card { transition: none; }
 }
 ```
+
+## Behavior
+
+- State is the card order (array of card ids). Advancing moves the first card to the end; per-card `--i` values are reassigned to match the new order, which restyles depth, offset, scale, and opacity via the CSS above.
+- Advance runs on click anywhere in `.shuffler`, and automatically every 4000ms (configurable interval). Clear the timer when the component is removed.
+- Defer starting the auto-advance timer until the component is on screen; offscreen it stays idle.
+- Reorder animates with FLIP via the Web Animations API: before reordering, record each card's bounding rect keyed by `data-id`; after the DOM reorder (next microtask), for each card compute dx and dy as old position minus new position and ds as old width divided by new width, then animate from `translate(dx, dy) scale(ds)` to `translate(0, 0) scale(1)` over 500ms with easing `cubic-bezier(0.2, 0.8, 0.2, 1)`.
+- If `(prefers-reduced-motion: reduce)` matches: never start the auto-advance timer and skip the FLIP animation on manual advance (the reorder still applies instantly).
+
+## Notes
+
+- Clicking anywhere on the stack advances it.
+- Keyboard access: wrap the stack in a `<button>` or add focus and keydown handling if advancing is a primary interaction.
+- 3 to 5 cards; each card needs an id, eyebrow, heading, and body.
+- For ordered content (process steps, chaptered work), use `StickyCardStack` instead; it needs no JS.

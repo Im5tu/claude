@@ -1,183 +1,106 @@
 # BentoHero
 
-Hero where the visual is a bento grid of product screenshots or feature previews. Text is left-aligned. The bento IS the product demo — shows what the product does before the user reads what it says.
+Hero as a grid of tiles: one large headline tile plus several supporting tiles (stat, feature, quote, media). Pure CSS Grid; tiles stagger in with a per-tile `--i` index driving `animation-delay`.
 
-```
----
-component: BentoHero
-category: heroes
-subtype: bento-product
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: low
-  contrast-light: high
-  energy-restrained: low
-  energy-moderate: high
-  energy-energetic: high
-  motion-minimal: low
-  motion-moderate: high
-  motion-expressive: low
-  # escape (contrast-dark + energy-restrained): luxury brand with genuinely distinct product lines or offerings that must coexist in the hero; each cell must use rich photography only — no icons, stats, or text-heavy elements
-  # escape (energy-restrained + texture-high): maker with multiple distinct product categories where each deserves visual presence; all cells filled with craft photography, not icons or stats
-  # note (energy-restrained + editorial): a brief requiring BentoHero is not an editorial-minimal brief — if both point in opposite directions, reconsider the aesthetic choice rather than overriding the component
+- surface-depth: any
+- motion-register: moderate, expressive
+- texture-appetite: low, medium
+- type-personality: geometric-sans, editorial-display
+- notes: Great for multi-product, platform, or technical sites where the hero needs to show breadth. Not for single-proposition brands — use CenteredHero or SplitHero instead.
 
-visual-weight: heavy
-content-density: rich
-trend-alignment: trending
-motion-profile: moderate
+## Structure
 
-use-when:
-  - SaaS or digital product with a visual interface worth showing
-  - Bold Studio when product screenshots have strong visual personality
-  - Multiple feature areas that benefit from simultaneous preview
-  - The product has strong visual identity (charts, maps, dashboards, creative tools)
+- `<section class="bento">` centered container, max-width 80rem
+  - `.bento__grid` 6-column grid, auto rows minmax(12rem, auto), gap 1rem
+    - `.bento__cell.bento__cell--hero` headline tile (`--i: 0`): optional eyebrow, `<h1>` headline, optional sub paragraph, one CTA
+    - 3 to 6 supporting `.bento__cell` tiles, each with `--i` set to its 1-based position and a kind modifier:
+      - `--stat`: `.bento__cell-value` large figure + `.bento__cell-label`
+      - `--feature`: `.bento__cell-title` + `.bento__cell-body`
+      - `--quote`: `<figure><blockquote>` + optional `<figcaption>` attribution
+      - `--media`: `<img>` (800x600 intrinsic size)
+    - optional `span-2` / `span-3` classes widen a tile to 4 or 6 columns
 
-avoid-when:
-  - Dark Luxury — bento grid reads as busy, not restrained
-  - Warm Artisan — product-grid energy conflicts with handcrafted warmth
-  - Service businesses with no product screenshots
-  - When screenshots are unpolished or low-fidelity
+The CTA uses the HeroButton variant of the Button spec from component-chrome-button.md.
 
-pairs-well-with: [FeatureTabs, LogoStrip, StatsStrip]
-pairs-poorly-with: [AlternatingRows — too product-heavy in sequence]
----
-```
+## CSS
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION, STAGGER } from "@/lib/animations";
+```css
+.bento {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 6rem 1.5rem 3rem;
+}
+.bento__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: minmax(12rem, auto);
+}
+.bento__cell {
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  grid-column: span 2;
+  opacity: 0;
+  translate: 0 16px;
+  animation: bento-in 650ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+.bento__cell--hero {
+  grid-column: span 6;
+  grid-row: span 2;
+  background: var(--color-surface-elevated);
+  padding: 2.5rem;
+}
+@media (min-width: 1024px) {
+  .bento__cell--hero { grid-column: span 4; }
+}
+.bento__cell.span-2 { grid-column: span 4; }
+.bento__cell.span-3 { grid-column: span 6; }
 
-gsap.registerPlugin(ScrollTrigger);
+.bento__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-accent);
+}
+.bento__headline {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  letter-spacing: -0.03em; line-height: 1;
+  margin-top: 1rem; max-width: 18ch; text-wrap: balance;
+}
+.bento__sub { margin-top: 1rem; color: var(--color-text-secondary); max-width: 48ch; }
+.bento__cta { margin-top: 1.5rem; }
 
-interface BentoItem {
-  image: string;
-  alt: string;
-  label?: string;
-  /** "wide" spans 2 cols, "tall" spans 2 rows, "default" = 1x1 */
-  span?: "wide" | "tall" | "default";
+.bento__cell-value {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  letter-spacing: -0.02em; line-height: 1;
+  color: var(--color-accent);
+}
+.bento__cell-label { margin-top: 0.5rem; opacity: 0.7; font-size: 0.875rem; }
+.bento__cell-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem; letter-spacing: -0.01em;
+}
+.bento__cell-body { margin-top: 0.5rem; color: var(--color-text-secondary); }
+.bento__cell--media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 0.75rem;
 }
 
-interface BentoHeroProps {
-  badge?: string;
-  headline: string;
-  subline: string;
-  primaryCta: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
-  /** 4-6 bento items recommended */
-  bentoItems: BentoItem[];
-}
-
-export function BentoHero({
-  badge,
-  headline,
-  subline,
-  primaryCta,
-  secondaryCta,
-  bentoItems,
-}: BentoHeroProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    // Text stagger
-    const textItems = ref.current.querySelectorAll("[data-animate]");
-    gsap.set(textItems, { y: 24, opacity: 0 });
-    gsap.to(textItems, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: STAGGER.normal,
-      ease: EASE.enter,
-      delay: 0.15,
-    });
-
-    // Bento cards cascade in with scale
-    const bentoCards = ref.current.querySelectorAll(".bento-card");
-    gsap.set(bentoCards, { scale: 0.93, opacity: 0, y: 20 });
-    gsap.to(bentoCards, {
-      scale: 1, opacity: 1, y: 0,
-      duration: DURATION.moderate,
-      stagger: 0.07,
-      ease: EASE.enter,
-      delay: 0.4,
-    });
-  }, { scope: ref });
-
-  return (
-    <section
-      ref={ref}
-      id="hero"
-      className="relative min-h-screen flex items-center bg-surface-primary overflow-hidden"
-    >
-      <div className="mx-auto max-w-7xl w-full px-6 grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 items-center pt-32 pb-16 lg:pt-40 lg:pb-24">
-        {/* Left: Text */}
-        <div>
-          {badge && (
-            <span
-              data-animate
-              className="inline-block rounded-full bg-accent/10 px-4 py-1.5 text-caption font-semibold text-accent tracking-widest uppercase"
-            >
-              {badge}
-            </span>
-          )}
-          <h1
-            data-animate
-            className="mt-6 font-display font-bold text-display-xl leading-[1.05] tracking-tight text-primary max-w-[20ch]"
-          >
-            {headline}
-          </h1>
-          <p
-            data-animate
-            className="mt-6 text-body-lg text-secondary max-w-[44ch] leading-relaxed"
-          >
-            {subline}
-          </p>
-          <div data-animate className="mt-10 flex flex-wrap gap-4">
-            <a
-              href={primaryCta.href}
-              className="inline-flex items-center rounded-lg bg-accent px-7 py-3.5 text-body-sm font-semibold text-white transition-all duration-200 hover:bg-accent-light hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {primaryCta.label}
-            </a>
-            {secondaryCta && (
-              <a
-                href={secondaryCta.href}
-                className="inline-flex items-center rounded-lg border border-border px-7 py-3.5 text-body-sm font-medium text-primary transition-colors hover:bg-surface-secondary"
-              >
-                {secondaryCta.label}
-              </a>
-            )}
-          </div>
-        </div>
-
-        {/* Right: Bento grid */}
-        <div className="grid grid-cols-2 gap-3 auto-rows-[160px]">
-          {bentoItems.map((item, i) => (
-            <div
-              key={i}
-              className={`bento-card group relative overflow-hidden rounded-xl border border-border bg-surface-secondary transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-md ${
-                item.span === "wide" ? "col-span-2" : ""
-              } ${item.span === "tall" ? "row-span-2" : ""}`}
-            >
-              <img
-                src={item.image}
-                alt={item.alt}
-                className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
-              />
-              {item.label && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-3 pb-2 pt-6">
-                  <span className="text-caption font-medium text-white/80">{item.label}</span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+@keyframes bento-in { to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .bento__cell { animation: none; opacity: 1; translate: 0 0; }
 }
 ```
+
+## Notes
+
+- Keep supporting tiles to 3–6. Fewer feels sparse; more overwhelms.
+- Tile content slots: stat (value + label), feature (title + body), quote (body + attribution), media (src + alt). Each tile takes an optional span of 1, 2, or 3 columns for rhythm.
+- All tiles use the global `--color-border`/`--color-surface-secondary` tokens so palette changes propagate instantly; the headline tile sits on `--color-surface-elevated` to lift it above the supporting tiles.

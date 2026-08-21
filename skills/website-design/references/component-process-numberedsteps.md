@@ -1,195 +1,83 @@
 # NumberedSteps
 
-Vertical stack (mobile) / horizontal row (desktop) of 3-5 steps. Large decorative static number + title + description per step. Connector lines between steps on desktop. The default process section for almost every brand.
+3 to 5 steps in a clean numbered grid. Static markup, no JS. Each step reveals on scroll with a per-item stagger.
 
-```
----
-component: NumberedSteps
-category: process
-subtype: numbered-steps-horizontal
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: high
-  energy-energetic: high
-visual-weight: medium
-content-density: moderate
-trend-alignment: evergreen
-motion-profile: minimal
+- surface-depth: any
+- motion-register: any
+- texture-appetite: any
+- type-personality: any
 
-use-when:
-  - 3-5 sequential steps with clear ordering
-  - Standard homepage process section
-  - Any preset — this is the universal process component
-  - When the process is simple enough to show all at once
+## Structure
 
-avoid-when:
-  - More than 5 steps on desktop (step connectors become cramped — use VerticalTimeline)
-  - When steps have complex sub-detail (use AccordionProcess instead)
-  - NEVER animate step numbers (01, 02, 03) with CounterTicker
+- `<section class="ns">`
+  - optional `<header class="ns__header">`
+    - kicker `<p class="ns__kicker">` (e.g. "Engagement")
+    - `<h2 class="ns__title">`
+  - `<ol class="ns__grid">`, one `<li class="ns__step">` per step
+    - `<p class="ns__num">` static number text ("01", "02", ...)
+    - `<h3 class="ns__step-title">`
+    - `<p class="ns__body">`
 
-pairs-well-with: [AlternatingRows, FeatureTabs, StatsStrip]
-pairs-poorly-with: [AccordionProcess in same section — redundant interaction patterns]
----
-```
+## CSS
 
-> **CRITICAL — STEP NUMBER RULES:**
-> - Step numbers (01, 02, 03...) are ALWAYS static decorative text
-> - NEVER wrap step numbers in `<CounterTicker>` — that is only for real metrics
-> - Step numbers have no animation of their own — the cards/rows animate as a group
-> - Numbers use `font-display font-bold text-primary/15` — large but recessive
+```css
+.ns { max-width: 80rem; margin: 0 auto; padding: 5rem 1.5rem; }
+.ns__header { max-width: 52rem; margin-bottom: 3rem; }
+.ns__kicker { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent); }
+.ns__title { font-family: var(--font-display); font-size: clamp(1.75rem, 3.5vw, 2.5rem); letter-spacing: -0.02em; margin-top: 0.75rem; max-width: 24ch; }
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface Step {
-  title: string;
-  description: string;
+.ns__grid {
+  list-style: none; padding: 0;
+  display: grid; gap: 2rem;
+  grid-template-columns: 1fr;
 }
+@media (min-width: 640px) { .ns__grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .ns__grid { grid-template-columns: repeat(4, 1fr); } }
 
-interface NumberedStepsProps {
-  eyebrow?: string;
-  headline: string;
-  subline?: string;
-  steps: Step[];
-  /** "horizontal" = side by side on desktop (default). "vertical" = always stacked */
-  layout?: "horizontal" | "vertical";
+.ns__step {
+  padding: 1.75rem;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
 }
+.ns__num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: var(--color-accent);
+}
+.ns__step-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  letter-spacing: -0.01em;
+  margin-top: 0.75rem;
+}
+.ns__body { margin-top: 0.5rem; color: var(--color-text-secondary); }
 
-export function NumberedSteps({
-  eyebrow,
-  headline,
-  subline,
-  steps,
-  layout = "horizontal",
-}: NumberedStepsProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    const header = ref.current.querySelectorAll("[data-header]");
-    gsap.set(header, { y: 20, opacity: 0 });
-    gsap.to(header, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.08,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    // Steps cascade left to right (horizontal) or top to bottom (vertical)
-    const stepEls = ref.current.querySelectorAll(".process-step");
-    gsap.set(stepEls, { y: 28, opacity: 0 });
-    gsap.to(stepEls, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.1,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 70%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    // Connector lines draw across
-    const connectors = ref.current.querySelectorAll(".step-connector");
-    gsap.set(connectors, { scaleX: 0, transformOrigin: "left center" });
-    gsap.to(connectors, {
-      scaleX: 1,
-      duration: 0.6,
-      stagger: 0.15,
-      ease: "power3.out",
-      delay: 0.3,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 70%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  const isHorizontal = layout === "horizontal";
-
-  return (
-    <section ref={ref} className="py-16 lg:py-24 bg-surface-secondary">
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Header */}
-        <div className="mb-12 max-w-[52ch]">
-          {eyebrow && (
-            <p data-header className="text-caption font-semibold text-accent tracking-widest uppercase mb-4">
-              {eyebrow}
-            </p>
-          )}
-          <h2 data-header className="font-display font-bold text-h1 leading-tight tracking-tight text-primary">
-            {headline}
-          </h2>
-          {subline && (
-            <p data-header className="mt-4 text-body-lg text-secondary leading-relaxed">
-              {subline}
-            </p>
-          )}
-        </div>
-
-        {/* Steps */}
-        <div
-          className={
-            isHorizontal
-              ? "grid grid-cols-1 gap-8 lg:grid-cols-[1fr_auto_1fr_auto_1fr] lg:gap-0 lg:items-start"
-              : "flex flex-col gap-10"
-          }
-        >
-          {steps.map((step, i) => (
-            <>
-              {/* Step */}
-              <div key={`step-${i}`} className="process-step relative">
-                {/* Decorative number — STATIC, never CounterTicker */}
-                <span
-                  className="block font-display font-bold text-primary/12 leading-none mb-4 select-none"
-                  style={{ fontSize: "clamp(3rem, 5vw, 4.5rem)" }}
-                  aria-hidden="true"
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-
-                {/* Step dot */}
-                <div className="mb-5 inline-flex h-2 w-2 rounded-full bg-accent" />
-
-                <h3 className="font-display font-semibold text-h3 leading-tight text-primary mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-body text-secondary leading-relaxed max-w-[32ch]">
-                  {step.description}
-                </p>
-              </div>
-
-              {/* Connector line between steps — horizontal layout only, not after last step */}
-              {isHorizontal && i < steps.length - 1 && (
-                <div
-                  key={`connector-${i}`}
-                  className="step-connector hidden lg:block self-start mt-[4.5rem] h-px w-12 bg-border"
-                  aria-hidden="true"
-                />
-              )}
-            </>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+@keyframes ns-in {
+  from { opacity: 0; translate: 0 14px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@supports (animation-timeline: view()) {
+  .ns__step {
+    animation: ns-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+  .ns__step:nth-child(2) { animation-range: entry 8% cover 38%; }
+  .ns__step:nth-child(3) { animation-range: entry 16% cover 46%; }
+  .ns__step:nth-child(4) { animation-range: entry 24% cover 54%; }
+  .ns__step:nth-child(5) { animation-range: entry 32% cover 62%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ns__step { animation: none; }
 }
 ```
+
+## Notes
+
+- 3 to 5 steps. The grid runs 1 column, then 2 at 640px, then 4 at 1024px; with 3 or 5 steps use `repeat(3, 1fr)` or `repeat(5, 1fr)` at the widest breakpoint instead.
+- Step numbers are static text, never animated counters.
+- Stagger comes from per-item `animation-range` offsets, not `animation-delay` (time delays are ignored on scroll-driven timelines). Base styles carry no `opacity: 0`, so engines without `animation-timeline` support show the steps statically.

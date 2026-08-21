@@ -4,26 +4,8 @@
 Highly saturated, bold background colors used as the primary surface — not gradients, not accents, but flat saturated blocks as the page atmosphere. Multi-hue palettes (blues, yellows, greens, teals coexisting) applied section by section. Scroll-triggered background color shifts so each section feels uniquely branded. Video-on-hover carousels within hyper-color contexts. Approachability signal: makes "scary" industries (healthcare, finance, legal) feel friendlier and more accessible. Each section color switch is abrupt and intentional — a deliberate chapter break.
 
 ## Implementation
-```js
-// GSAP ScrollTrigger section-level color swap
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-const sections = document.querySelectorAll("[data-bg-color]");
-
-sections.forEach((section) => {
-  const color = section.getAttribute("data-bg-color");
-  ScrollTrigger.create({
-    trigger: section,
-    start: "top 50%",
-    onEnter: () => gsap.to("body", { backgroundColor: color, duration: 0.4, ease: "power2.out" }),
-    onLeaveBack: () => {
-      const prev = section.previousElementSibling?.getAttribute("data-bg-color") ?? "#ffffff";
-      gsap.to("body", { backgroundColor: prev, duration: 0.4, ease: "power2.out" });
-    },
-  });
-});
-```
+Section-level colour swap is driven by pure CSS via `ScrollColorShift` — see `core-animation.md` and `component-interactive-scrollcolorshift.md`. `@property` registers the colour token as interpolatable; `animation-timeline: scroll(root)` walks through the stops as the user scrolls. No JS, no GSAP.
 ```css
 /* Tailwind CSS custom property approach */
 @layer utilities {

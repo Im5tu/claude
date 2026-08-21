@@ -1,118 +1,86 @@
-# SidebarNav — Editorial Left Rail
+# Sidebar nav
 
-Left-rail fixed navigation for editorial and content-heavy sites. Shows as a fixed left column on desktop. Collapses to a hamburger on mobile.
+Fixed left-rail navigation for editorial and content-heavy sites. Desktop shows a persistent left column; mobile collapses to a sheet behind a hamburger. Needs JS for the mobile open/close state and the optional scroll-spy highlighting.
 
-```
-// Use when: editorial dimensional signal (contrast-light + energy-restrained + editorial),
-// or any content site where the nav should feel like a book's chapter markers, not a marketing header.
-// On mobile: collapses to a top bar with hamburger.
-```
+## Dimensional fit
 
-```tsx
-"use client";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+- surface-depth: light (default), dark (secondary)
+- motion-register: restrained, moderate
+- texture-appetite: any
+- type-personality: humanist-serif, editorial-display (editorial contexts)
+- notes: Replaces `Navbar` entirely. Do not render both. Best for long-form magazines, documentation, portfolios with chaptered work.
 
-interface SidebarNavProps {
-  brand: string;
-  links: { label: string; href: string }[];
-  cta?: { label: string; href: string };
+## Structure
+
+- Mobile toggle: `<button aria-label="Toggle navigation" aria-expanded>`, fixed top-right (`top: 1rem; right: 1rem; z-index: 50`), circular, background `var(--color-surface-elevated)` with a `var(--color-border)` border, menu/close icons as inline SVG; hidden at and above 768px
+- `<aside class="sidebar">` (add `sidebar--open` when the mobile sheet is open)
+  - `<a href="/" class="sidebar__brand">` wordmark
+  - `<nav>`: `<p class="sidebar__label">Pages</p>` and `<ul class="sidebar__list">` of primary links
+  - optional second `<nav>` (`margin-top: 2rem`) for in-page anchors: `<p class="sidebar__label">On this page</p>` and a `<ul class="sidebar__list">` of `#id` links; the current section's link carries `is-active`
+- Page content wrapper gets `margin-left: 16rem` at and above 768px so it clears the rail
+
+## CSS
+
+```css
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 16rem;
+  padding: 2rem 1.5rem;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-surface-primary);
+  overflow-y: auto;
+  z-index: 40;
+  transform: translateX(-100%);
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-
-export function SidebarNav({ brand, links, cta }: SidebarNavProps) {
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  return (
-    <>
-      {/* Desktop: fixed left rail */}
-      <nav
-        className="hidden lg:flex fixed top-0 left-0 bottom-0 w-56 z-50 flex-col border-r border-border bg-surface-primary px-6 py-8"
-        aria-label="Primary navigation"
-      >
-        <a href="/" className="font-display font-bold text-base text-primary mb-10">
-          {brand}
-        </a>
-        <ul className="flex flex-col gap-1 flex-1">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className={cn(
-                  "block rounded-md px-3 py-2 text-sm font-medium text-secondary",
-                  "transition-colors hover:text-primary hover:bg-surface-secondary",
-                )}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-        {cta && (
-          <a
-            href={cta.href}
-            className="mt-auto text-sm font-medium text-accent transition-colors hover:text-accent-light"
-          >
-            {cta.label}
-          </a>
-        )}
-      </nav>
-
-      {/* Mobile: top bar */}
-      <nav
-        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-surface-primary border-b border-border"
-        aria-label="Primary navigation"
-      >
-        <a href="/" className="font-display font-bold text-base text-primary">{brand}</a>
-        <button
-          onClick={() => setIsMobileOpen(true)}
-          className="p-2"
-          aria-label="Open navigation"
-          aria-expanded={isMobileOpen}
-        >
-          <Menu className="h-5 w-5 text-primary" />
-        </button>
-      </nav>
-
-      {/* Mobile drawer */}
-      {isMobileOpen && (
-        <div
-          className="lg:hidden fixed inset-0 z-50 bg-surface-primary flex flex-col px-6 py-8"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Navigation menu"
-        >
-          <div className="flex items-center justify-between mb-10">
-            <a href="/" className="font-display font-bold text-base text-primary">{brand}</a>
-            <button onClick={() => setIsMobileOpen(false)} aria-label="Close navigation">
-              <X className="h-5 w-5 text-primary" />
-            </button>
-          </div>
-          <ul className="flex flex-col gap-2">
-            {links.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="block py-3 text-xl font-medium text-primary border-b border-border"
-                  onClick={() => setIsMobileOpen(false)}
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </>
-  );
+.sidebar--open { transform: translateX(0); }
+@media (min-width: 768px) {
+  .sidebar { transform: translateX(0); }
+}
+.sidebar__brand {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 2.5rem;
+}
+.sidebar__label {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 0.75rem;
+}
+.sidebar__list { display: grid; gap: 0.5rem; }
+.sidebar__list a {
+  opacity: 0.8;
+  transition: opacity 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sidebar__list a:hover { opacity: 1; }
+.sidebar__list a.is-active {
+  opacity: 1;
+  color: var(--color-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition-timing-function: linear; }
 }
 ```
 
-**Layout wrapper required when SidebarNav is used:**
-```tsx
-// In your page layout wrapper:
-<div className="lg:pl-56">
-  {/* All page content shifted right to accommodate the sidebar */}
-  {children}
-</div>
-```
+## Behavior
+
+- Clicking the mobile toggle flips `sidebar--open` and mirrors the state on the button's `aria-expanded`; the icon swaps between menu and close glyphs.
+- Clicking any link inside the sheet closes it before navigation.
+- Scroll-spy (only when in-page anchors are configured): an IntersectionObserver with `rootMargin: "-40% 0px -50% 0px"` and thresholds `[0, 0.25, 0.5, 0.75, 1]` observes each section element by id; on each callback the intersecting entry with the highest intersection ratio becomes the active section, and its link gets `is-active`. The observer is disconnected on teardown.
+- Initialize on page load: the rail is above the fold and immediately usable on mobile, so the behavior must attach as early as possible.
+
+## Notes
+
+- The desktop rail is pure CSS; JS drives only the mobile sheet and scroll-spy.
+- Section elements to observe must carry the ids the anchor list points at.
+
+## Dimensional adaptation
+
+- Restrained: drop the scroll-spy; static list only.
+- Editorial display: add a small decorative rule above each section group.
+- Dark surface-depth: invert to a dark sidebar on a light content surface for editorial contrast.

@@ -1,7 +1,7 @@
 # Trend Index
 
 ## How to Use
-Read this index during Phase 3 Step 9. Based on the Visual Brief dimensions and selected components, identify 1–3 relevant trend techniques. Read only those individual trend files — do not load all trend files.
+Read this index during Phase 3 Step 8. Based on the Visual Brief dimensions and selected components, identify 1–3 relevant trend techniques. Read only those individual trend files — do not load all trend files.
 
 ## Context Notes
 Aesthetic decisions in 2025–2026 are increasingly polarised — sites choose a distinct visual language and commit fully. Motion is the clearest differentiator between template and premium. Typography has moved from supporting element to primary design medium. Component choices are one of the fastest signals an experienced designer reads. Layout is a design tool in its own right. Scroll storytelling controls attention through pacing. Micro-delight earns the right to exist by being rare — budget 2–3 moments per homepage, 1–2 per product page, exactly 1 on conversion flows.
@@ -18,7 +18,7 @@ Aesthetic decisions in 2025–2026 are increasingly polarised — sites choose a
 | Noise and Grain | trend-noise-grain.md | SVG feTurbulence or CSS noise at 2–5% opacity for tactile quality | Tactile + analogue + physical-world qualities |
 | Scroll-Linked Animations | trend-scroll-linked.md | Animations continuously mapped to scroll position via scrub | Narrative storytelling + journey progression + rich backgrounds |
 | Cursor Interactions | trend-cursor-interactions.md | Custom cursors, cursor followers, magnetic elements — 4-tier implementation from branded dot to content-following element | Bespoke + crafted + creative audience + exploration-driven |
-| Page Transitions | trend-page-transitions.md | GSAP-powered route transitions: wipes, fades, curtain reveals | Multi-page narrative + cinematic + immersive experience |
+| Page Transitions | trend-page-transitions.md | View Transitions route animations: wipes, fades, curtain reveals | Multi-page narrative + cinematic + immersive experience |
 | Entrance Choreography | trend-entrance-choreography.md | Sequenced element arrivals revealing information hierarchy | Hierarchical communication + content-rich sections |
 | Micro-Animation | trend-micro-animation.md | Hover/focus/active states providing physical feedback | Tactile brand + craft values + product-like precision |
 | Ambient Animation | trend-ambient-animation.md | Continuous non-interactive background motion: gradient meshes, SVG drift | Atmospheric + alive + breathing + immersive environment |

@@ -8,7 +8,7 @@ Read this BEFORE selecting components. Components are the vocabulary. Compositio
 
 ## 1. The Interaction Budget
 
-Every style preset has a cap on how many high-motion sections can appear on a single page. Exceeding these caps produces sensory overload — the animations compete for attention instead of directing it.
+The direction card's motion restraint caps how many high-motion sections can appear on a single page. Exceeding these caps produces sensory overload — the animations compete for attention instead of directing it.
 
 ### Per-Motion-Restraint Caps
 
@@ -37,7 +37,7 @@ Standard scroll-triggered entrances: fade-up on cards, text reveals, counter tic
 
 ### Why This Matters
 
-A dark-luxury homepage with three StickyCardStack sections reads as a portfolio of animation demos, not a business. The constraint forces hierarchy: if only one section gets high motion, it becomes the signature moment the user remembers.
+A dark + restrained homepage with three StickyCardStack sections reads as a portfolio of animation demos, not a business. The constraint forces hierarchy: if only one section gets high motion, it becomes the signature moment the user remembers.
 
 ---
 
@@ -83,7 +83,7 @@ The Footer always counts as heavy. The section immediately before Footer should 
 
 Classify the business content FIRST. Then select the component that presents it best. Then apply style vocabulary.
 
-Never start from "what component looks good for this preset." Start from "what content needs to be communicated."
+Never start from "what component looks good for this direction." Start from "what content needs to be communicated."
 
 ```
 Business Content Type → Component Category → Specific Component
@@ -237,7 +237,7 @@ neutral-950 (darkest — near-black)
 ### Rules
 
 - Never two consecutive sections at the same background step
-- Full-bleed dark sections (Stats in dark-luxury, Manifesto) should appear maximum 2 times per page
+- Full-bleed dark sections (e.g. Stats on a dark + restrained direction, Manifesto) should appear maximum 2 times per page
 - Hero and Footer anchor the extremes — do not let mid-page sections compete with their drama
 - The transition between a dark section and a light section is intentional punctuation — use it deliberately, not randomly
 
@@ -325,7 +325,7 @@ Standard vertical scroll is the default. Deviate only when the content format ge
 
 **Use when:** You have 3 or more parallel features, benefits, or concepts that need sequential focused attention. StickyCardStack is the primary pattern. The stickiness communicates "these items deserve equal attention in sequence."
 
-**Do not use when:** You have only 2 items (use SplitHero or AlternatingRows instead), items are not parallel (use a process timeline instead), or the preset's interaction budget is already at capacity.
+**Do not use when:** You have only 2 items (use SplitHero or AlternatingRows instead), items are not parallel (use a process timeline instead), or the interaction budget is already at capacity.
 
 **One sticky section per page.** Two sticky sections in sequence is not double impact — it is fatigue.
 

@@ -1,245 +1,73 @@
 # CaseStudyTeaser
 
-2-3 case study preview cards. Large image + client name + service category + one-line result. Hover reveals an overlay with more detail and a link. For brands with measurable, visual outcomes.
+A single case-study preview card. Big image, eyebrow, title, outcome stats, CTA to the full page. Static markup and CSS only.
 
-```
----
-component: CaseStudyTeaser
-category: proof
-subtype: case-study-preview
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: medium
-  energy-energetic: high
-visual-weight: heavy
-content-density: moderate
-trend-alignment: evergreen
-motion-profile: moderate
+- surface-depth: any
+- motion-register: restrained, moderate
+- texture-appetite: any
+- type-personality: any
 
-use-when:
-  - Brand has 2-3 projects/clients with strong visual outcomes and measurable results
-  - Refined Professional — work quality is the primary sales signal
-  - Bold Studio — portfolio as proof, kinetic hover interaction
-  - When client imagery is high quality
+## Structure
 
-avoid-when:
-  - Editorial Minimal — hover overlays conflict with the still, content-first aesthetic
-  - When client results aren't measurable or outcomes are vague
-  - When only 1 case study exists (use FeaturedTestimonial instead)
+- `<section class="cst">` centered container
+  - `<article class="cst__inner">` card: single column, 7fr/5fr grid at >=1024px
+    - `<figure class="cst__figure">` with `<img>` (1600x1000 intrinsic, `loading="lazy"`, 5/4 aspect, object-fit cover)
+    - `<div class="cst__body">`
+      - eyebrow `<p class="cst__eyebrow">` (e.g. "Case study — Meridian")
+      - `<h3 class="cst__title">`
+      - summary `<p class="cst__summary">`
+      - optional `<ul class="cst__outcomes">`; each `<li>` holds a value `<p class="cst__outcome-value">` (the number; animate with the counter ticker mechanism specced in StatsStrip) and a label `<p class="cst__outcome-label">`
+      - CTA wrapper `<div class="cst__cta">` with a ghost-variant button link (default text "Read the case study")
 
-pairs-well-with: [StatsStrip, TestimonialGrid, AlternatingRows]
-pairs-poorly-with: [LogoStrip immediately after — both reference clients, choose one or add a content section between them]
----
-```
+## CSS
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface CaseStudy {
-  image: string;
-  imageAlt: string;
-  client: string;
-  category: string;
-  /** One-line result — be specific: "42% revenue increase in 6 months" */
-  result: string;
-  /** Expanded overlay description — 1-2 sentences */
-  description: string;
-  href: string;
+```css
+.cst { max-width: 80rem; margin: 0 auto; padding: 5rem 1.5rem; }
+.cst__inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 1.5rem;
+  overflow: hidden;
 }
-
-interface CaseStudyTeaserProps {
-  eyebrow?: string;
-  headline: string;
-  cases: CaseStudy[];
-  /** Link to full case studies index */
-  allCasesHref?: string;
-  allCasesLabel?: string;
+@media (min-width: 1024px) {
+  .cst__inner { grid-template-columns: 7fr 5fr; gap: 0; }
 }
+.cst__figure { margin: 0; }
+.cst__figure img { width: 100%; height: 100%; object-fit: cover; min-height: 20rem; aspect-ratio: 5 / 4; }
+.cst__body { padding: 2.5rem; }
+.cst__eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); }
+.cst__title { font-family: var(--font-display); font-size: clamp(1.5rem, 2.75vw, 2.25rem); letter-spacing: -0.02em; margin-top: 0.75rem; max-width: 20ch; text-wrap: balance; }
+.cst__summary { margin-top: 1rem; color: var(--color-text-secondary); max-width: 54ch; }
+.cst__outcomes {
+  list-style: none; padding: 0;
+  display: grid; gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  margin-top: 1.75rem;
+}
+.cst__outcome-value { font-family: var(--font-display); font-size: clamp(1.5rem, 2.5vw, 2rem); color: var(--color-accent); letter-spacing: -0.02em; }
+.cst__outcome-label { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.7; margin-top: 0.25rem; }
+.cst__cta { margin-top: 2rem; }
 
-function CaseCard({ study }: { study: CaseStudy }) {
-  const cardRef = useRef<HTMLAnchorElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-
-  function handleMouseEnter() {
-    if (!overlayRef.current) return;
-    gsap.to(overlayRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.35,
-      ease: EASE.enter,
-    });
+/* entrance: scroll-driven, static fallback for unsupported engines */
+@keyframes cst-in { from { opacity: 0; translate: 0 16px; } to { opacity: 1; translate: 0 0; } }
+@supports (animation-timeline: view()) {
+  .cst__inner {
+    animation: cst-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
   }
-
-  function handleMouseLeave() {
-    if (!overlayRef.current) return;
-    gsap.to(overlayRef.current, {
-      opacity: 0,
-      y: 12,
-      duration: 0.25,
-      ease: "power2.in",
-    });
-  }
-
-  return (
-    <a
-      ref={cardRef}
-      href={study.href}
-      className="case-card group relative block overflow-hidden rounded-2xl bg-neutral-900"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* Image */}
-      <div className="overflow-hidden aspect-[3/4] md:aspect-[4/5]">
-        <img
-          src={study.image}
-          alt={study.imageAlt}
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-          width={600}
-          height={750}
-        />
-        {/* Base gradient — always visible */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-      </div>
-
-      {/* Always-visible base info */}
-      <div className="absolute bottom-0 left-0 right-0 p-7">
-        <p className="text-caption font-semibold text-white/50 tracking-widest uppercase mb-2">
-          {study.category}
-        </p>
-        <h3 className="font-display font-bold text-h3 text-white leading-tight">
-          {study.client}
-        </h3>
-        <p className="mt-2 text-body-sm font-medium text-accent">
-          {study.result}
-        </p>
-      </div>
-
-      {/* Hover overlay — fades in with description */}
-      <div
-        ref={overlayRef}
-        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20 opacity-0 translate-y-3"
-        style={{ translateY: "12px" }}
-      >
-        <div className="absolute bottom-0 left-0 right-0 p-7">
-          <p className="text-caption font-semibold text-white/50 tracking-widest uppercase mb-2">
-            {study.category}
-          </p>
-          <h3 className="font-display font-bold text-h3 text-white leading-tight mb-3">
-            {study.client}
-          </h3>
-          <p className="text-body-sm font-medium text-accent mb-4">
-            {study.result}
-          </p>
-          <p className="text-body-sm text-white/70 leading-relaxed max-w-[40ch] mb-5">
-            {study.description}
-          </p>
-          <span className="inline-flex items-center gap-2 text-body-sm font-semibold text-white border-b border-white/30 pb-0.5 transition-colors hover:border-white">
-            View case study
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-        </div>
-      </div>
-    </a>
-  );
 }
-
-export function CaseStudyTeaser({
-  eyebrow,
-  headline,
-  cases,
-  allCasesHref,
-  allCasesLabel = "View all case studies",
-}: CaseStudyTeaserProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    const header = ref.current.querySelectorAll("[data-header]");
-    gsap.set(header, { y: 20, opacity: 0 });
-    gsap.to(header, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.08,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    const cards = ref.current.querySelectorAll(".case-card");
-    gsap.set(cards, { y: 40, opacity: 0 });
-    gsap.to(cards, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.1,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 70%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    // Initial overlay state
-    const overlays = ref.current.querySelectorAll<HTMLDivElement>(".absolute.inset-0.bg-gradient-to-t.from-black\\/90");
-    overlays.forEach((overlay) => {
-      gsap.set(overlay, { opacity: 0, y: 12 });
-    });
-  }, { scope: ref });
-
-  return (
-    <section ref={ref} className="py-16 lg:py-24 bg-surface-secondary">
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Header */}
-        <div className="mb-12 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-[44ch]">
-            {eyebrow && (
-              <p data-header className="text-caption font-semibold text-accent tracking-widest uppercase mb-4">
-                {eyebrow}
-              </p>
-            )}
-            <h2 data-header className="font-display font-bold text-h1 leading-tight tracking-tight text-primary">
-              {headline}
-            </h2>
-          </div>
-          {allCasesHref && (
-            <a
-              data-header
-              href={allCasesHref}
-              className="shrink-0 text-body-sm font-medium text-accent underline underline-offset-4 decoration-accent/30 hover:decoration-accent transition-colors"
-            >
-              {allCasesLabel} &rarr;
-            </a>
-          )}
-        </div>
-
-        {/* Cards grid */}
-        <div
-          className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${
-            cases.length >= 3 ? "lg:grid-cols-3" : ""
-          }`}
-        >
-          {cases.map((study, i) => (
-            <CaseCard key={i} study={study} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+@media (prefers-reduced-motion: reduce) {
+  .cst__inner { animation: none; }
 }
 ```
+
+## Notes
+
+- Outcome values read best animated with the counter ticker mechanism from StatsStrip; a static printed number is the correct fallback.
+- Only ship with a real image and attributable outcomes. Keep the summary under ~54ch so the measure holds.

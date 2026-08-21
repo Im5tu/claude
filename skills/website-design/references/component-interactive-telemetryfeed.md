@@ -1,183 +1,77 @@
 # TelemetryFeed
 
-Character-by-character typewriter effect with pulsing cursor. Creates a live data stream aesthetic — ideal for SaaS, tech, or any product that processes or generates data.
+A live-looking typewriter data stream. Pulsing cursor, character-by-character reveal, committed lines fade in below the previous ones, and the loop restarts when the script runs out. Needs JS behavior (state drives the typing timing).
 
-```markdown
----
-component: TelemetryFeed
-category: interactive
-subtype: typewriter-terminal
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: medium
-  contrast-light: high
-  energy-restrained: medium
-  energy-moderate: high
-  energy-energetic: medium
-visual-weight: medium
-content-density: rich
-trend-alignment: trending
-motion-profile: moderate
+- surface-depth: dark (strongest), light possible on technical directions
+- motion-register: moderate, expressive
+- texture-appetite: low
+- type-personality: geometric-sans + mono accent
+- notes: Best for SaaS/data/tech products where a "live feed" metaphor supports the brand claim. Avoid on warm/editorial/consumer registers — feels incongruent.
 
-use-when:
-  - SaaS or tech product that processes/monitors data
-  - "Under the hood" feature section
-  - Stats or metrics section that benefits from a live-data feel
+## Structure
 
-avoid-when:
-  - Service businesses (feels incongruous — BANNED for refined-professional, warm-artisan)
-  - Content is narrative rather than data-structured
-  - More than 8 lines (becomes overwhelming)
+- `.feed` panel with `role="log"` and `aria-live="off"` (the loop is decorative; do not announce it)
+  - `.feed__rail` grid of lines
+    - one `.feed__line` per committed line, with `data-tone="ok|warn|err|info"` (default info)
+      - `.feed__prefix` `<span>` (glyph such as →, ✓, Δ, ⚠) then a `<span>` with the body text
+    - while typing, a trailing `.feed__line feed__line--typing` holding the partial text plus `.feed__cursor` (▍ glyph)
 
-pairs-well-with: [WaveformPulse, GradientMesh]
-pairs-poorly-with: [Manifesto, CardShuffler]
----
-```
+Line data: each line has a prefix, a body, and an optional tone. Example script:
 
-```tsx
-"use client";
-import { useRef, useState, useEffect } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+- `→ query optimised (+64% throughput)` (ok)
+- `✓ 13 auth tokens rotated` (ok)
+- `Δ latency budget: 42ms / 200ms` (info)
+- `⚠ retry queue drained in 0.8s` (warn)
+- `→ nightly build shipped to 214 edges` (ok)
 
-gsap.registerPlugin(ScrollTrigger);
+## CSS
 
-interface TelemetryLine {
-  label: string;
-  value: string;
-  prefix?: string;
+The panel is deliberately dark in both themes (a terminal metaphor), so it uses literal colors rather than surface tokens.
+
+```css
+.feed {
+  font-family: var(--font-mono);
+  background: #0A0A0A;
+  color: #E6E6E6;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
+  overflow: hidden;
+  min-height: 18rem;
 }
-
-interface TelemetryFeedProps {
-  lines: TelemetryLine[];
-  typingSpeed?: number; // ms per character, default 30
-  title?: string; // Terminal window title
+.feed__rail { display: grid; gap: 0.35rem; font-size: 0.875rem; }
+.feed__line {
+  display: flex; gap: 0.75rem; align-items: baseline;
+  opacity: 0;
+  animation: line-in 300ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
-
-export function TelemetryFeed({
-  lines,
-  typingSpeed = 30,
-  title = "system.monitor",
-}: TelemetryFeedProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [visibleLines, setVisibleLines] = useState<
-    { label: string; typed: string; prefix: string; complete: boolean }[]
-  >([]);
-  const [isActive, setIsActive] = useState(false);
-
-  // Fire on scroll entry
-  useGSAP(() => {
-    if (!containerRef.current) return;
-    ScrollTrigger.create({
-      trigger: containerRef.current,
-      start: "top 75%",
-      onEnter: () => setIsActive(true),
-      once: true,
-    });
-  }, { scope: containerRef });
-
-  // Typewriter sequencing
-  useEffect(() => {
-    if (!isActive) return;
-
-    let lineIndex = 0;
-    let charIndex = 0;
-    let current: typeof visibleLines = [];
-    let cancelled = false;
-
-    const tick = () => {
-      if (cancelled || lineIndex >= lines.length) return;
-
-      const line = lines[lineIndex];
-
-      if (charIndex === 0) {
-        current = [
-          ...current,
-          { label: line.label, typed: "", prefix: line.prefix ?? ">", complete: false },
-        ];
-      }
-
-      const typed = line.value.slice(0, charIndex + 1);
-      const isComplete = charIndex + 1 >= line.value.length;
-
-      current = current.map((l, idx) =>
-        idx === lineIndex ? { ...l, typed, complete: isComplete } : l,
-      );
-      setVisibleLines([...current]);
-
-      charIndex++;
-      if (isComplete) {
-        lineIndex++;
-        charIndex = 0;
-        setTimeout(tick, typingSpeed * 8);
-      } else {
-        setTimeout(tick, typingSpeed + Math.random() * 20);
-      }
-    };
-
-    tick();
-    return () => { cancelled = true; };
-  }, [isActive, lines, typingSpeed]);
-
-  return (
-    <div
-      ref={containerRef}
-      className="rounded-xl border border-neutral-800 bg-neutral-950 overflow-hidden font-mono text-sm"
-      role="region"
-      aria-label="Live system telemetry"
-    >
-      {/* Title bar */}
-      <div className="flex items-center gap-2 border-b border-neutral-800 px-4 py-3 bg-neutral-900">
-        <span className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
-        <span className="h-2.5 w-2.5 rounded-full bg-amber-500/60" />
-        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/60" />
-        <span className="ml-3 text-xs text-neutral-500 tracking-wider">{title}</span>
-        <div className="ml-auto flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-[10px] text-emerald-400 uppercase tracking-widest">Live</span>
-        </div>
-      </div>
-
-      {/* Feed lines */}
-      <div className="p-6 space-y-2 min-h-[200px]">
-        {visibleLines.map((line, i) => (
-          <div key={i} className="flex gap-3 items-baseline">
-            <span className="text-neutral-600 select-none shrink-0">{line.prefix}</span>
-            <span className="text-neutral-500 shrink-0">{line.label}</span>
-            <span className="text-emerald-400">{line.typed}</span>
-            {i === visibleLines.length - 1 && !line.complete && (
-              <span
-                className="inline-block w-[2px] h-4 bg-emerald-400 animate-pulse shrink-0"
-                aria-hidden="true"
-              />
-            )}
-          </div>
-        ))}
-        {visibleLines.length === 0 && (
-          <div className="flex gap-3 items-baseline opacity-40">
-            <span className="text-neutral-600">{">"}</span>
-            <span className="inline-block w-[2px] h-4 bg-emerald-400 animate-pulse" />
-          </div>
-        )}
-      </div>
-    </div>
-  );
+.feed__line[data-tone="ok"]   .feed__prefix { color: #4ade80; }
+.feed__line[data-tone="warn"] .feed__prefix { color: #fbbf24; }
+.feed__line[data-tone="err"]  .feed__prefix { color: #f87171; }
+.feed__line[data-tone="info"] .feed__prefix { color: #7dd3fc; }
+.feed__prefix { font-weight: 600; }
+.feed__line--typing { opacity: 1; }
+.feed__cursor { animation: cursor-blink 900ms steps(2) infinite; }
+@keyframes line-in { to { opacity: 1; } }
+@keyframes cursor-blink { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .feed__line, .feed__cursor { animation: none; opacity: 1; }
 }
 ```
 
-**Usage:**
-```tsx
-<TelemetryFeed
-  title="pipeline.status"
-  lines={[
-    { label: "ingestion:", value: "12,847 records/sec", prefix: "→" },
-    { label: "processing:", value: "99.98% success rate", prefix: "→" },
-    { label: "latency_p99:", value: "14ms", prefix: "→" },
-    { label: "uptime:", value: "99.97% (30d)", prefix: "→" },
-  ]}
-/>
-```
+## Behavior
+
+- State: the list of committed lines (capped at the most recent 6), the partial string currently being typed, a line index, and a character index into the current line.
+- Typing tick: append one character of `prefix + " " + body` to the partial string, then schedule the next tick after 22ms plus a random 0–28ms jitter.
+- When the current line is fully typed: commit it to the visible list (trimming to the last 6), clear the partial string, advance to the next line, and pause 420ms before typing resumes. Committed lines fade in via the 300ms `line-in` keyframes.
+- When the script is exhausted: clear the visible list, reset to the first line, and pause 1500ms (configurable cycle pause) before the loop restarts.
+- Start the loop only once the component is on screen; cancel any pending timer when the component is removed.
+- If `(prefers-reduced-motion: reduce)` matches: skip the loop entirely and render the first 5 lines statically (the CSS also forces lines and cursor fully visible with no animation).
+
+## Notes
+
+- Mono font must be wired through the `--font-mono` token.
+- Keep body strings short — long lines wrap and ruin the tape feel.
+- Never use for real-time PII. This is a static looping animation, not a data source.

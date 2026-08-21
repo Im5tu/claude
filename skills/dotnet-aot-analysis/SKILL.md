@@ -6,7 +6,7 @@ metadata:
   author: Im5tu
   version: "1.0"
   repositoryUrl: https://github.com/im5tu/dotnet-skills
-allowed-tools: Bash(dotnet:*) Read Glob Grep AskUserQuestion
+allowed-tools: Bash(dotnet:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
 ---
 
 Analyze and configure a .NET project or solution for Native AOT compatibility, applying source generators and AOT settings.

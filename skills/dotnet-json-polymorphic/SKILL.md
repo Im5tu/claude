@@ -6,7 +6,7 @@ metadata:
   author: Im5tu
   version: "1.0"
   repositoryUrl: https://github.com/im5tu/dotnet-skills
-allowed-tools: Bash(dotnet:*) Read Glob Grep AskUserQuestion
+allowed-tools: Bash(dotnet:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
 ---
 
 Configure polymorphic JSON serialization using `[JsonPolymorphic]` and `[JsonDerivedType]` attributes for type-safe inheritance hierarchies.
@@ -16,7 +16,7 @@ Configure polymorphic JSON serialization using `[JsonPolymorphic]` and `[JsonDer
 - Serializing inheritance hierarchies with System.Text.Json
 - Adding type discriminators for polymorphic deserialization
 - Preparing polymorphic types for AOT-compatible JSON source generation
-- Replacing Newtonsoft.Json `TypeNameHandling` with modern attributes
+- Replacing Newtonsoft.Json `TypeNameHandling` with `[JsonPolymorphic]`/`[JsonDerivedType]`
 
 ## Requirements
 

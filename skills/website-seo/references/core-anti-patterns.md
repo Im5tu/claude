@@ -1,6 +1,6 @@
 # Core Anti-Patterns
 
-Banned practices and outdated tactics. This file is the guardrail — every recommendation in other reference files must pass through this filter. Loaded on every engagement.
+Banned practices and outdated tactics. Check every recommendation from the other reference files against this list before proposing it. Loaded on every engagement.
 
 ---
 

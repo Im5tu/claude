@@ -44,23 +44,20 @@ Sustained — confirmed strong in 2026; the grid format itself is no longer a di
 
 An emerging evolution of bento grid: Tinder-style card shuffle on scroll. Rather than a static grid, cards slide into view sequentially as the user scrolls — each card occupies the same position but layers over the previous one. This transforms bento from a static layout into a scroll-driven reveal sequence, maintaining the mixed-content-type logic while adding temporal pacing.
 
-**Implementation:**
-```js
-// Scroll-driven card stack (each card stacks over previous)
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+**Implementation:** Pure CSS, no JS. Each card's entrance is driven by `animation-timeline: view()`:
 
-const cards = document.querySelectorAll(".bento-scroll-card");
-
-cards.forEach((card, i) => {
-  ScrollTrigger.create({
-    trigger: card,
-    start: "top 80%",
-    onEnter: () => gsap.fromTo(card,
-      { x: "100%", opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }
-    ),
-  });
-});
+```css
+.bento-scroll-card {
+  opacity: 0;
+  translate: 100% 0;
+  animation: bsc-in 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 30%;
+}
+@keyframes bsc-in { to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .bento-scroll-card { animation: none; opacity: 1; translate: 0 0; }
+}
 ```
 
 Context: Use when the bento content has a natural reveal order — one insight leads to the next — and static simultaneous display reduces the impact of each item. Avoid when the content benefits from simultaneous comparison (all proof points visible at once) rather than sequential revelation.

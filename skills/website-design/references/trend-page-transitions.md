@@ -1,15 +1,25 @@
 # Trend: Page Transitions
 
 ## What It Is
-GSAP-powered transitions that fire on navigation: clip-path wipe (a panel wipes across the screen before the new page content enters), fade + translate (content fades and shifts 24px down while new content enters from above), curtain reveal (a full-screen overlay splits vertically to reveal the destination page). In Next.js App Router: managed via layout-level GSAP context or Framer Motion's `AnimatePresence`. The transition must feel like an extension of the brand — a luxury brand uses a slow, deliberate wipe (600–800ms); a studio brand uses a sharp cut (200ms) with a flash frame. Page transitions that take longer than 700ms are too slow and will be perceived as broken on fast connections.
+Native transitions between routes: clip-path wipe (a panel wipes across the screen before the new page content enters), fade + translate (content fades and shifts 24px down while new content enters from above), curtain reveal (a full-screen overlay splits vertically to reveal the destination page). The transition must feel like an extension of the brand — a luxury brand uses a slow, deliberate wipe (600–800ms); a studio brand uses a sharp cut (200ms) with a flash frame. Transitions over 700ms read as slow, not deliberate.
 
 ## Implementation
-```js
-// Layout-level GSAP timeline for page transition
-const tl = gsap.timeline();
-tl.to('.curtain', { scaleY: 1, duration: 0.4, ease: 'power3.in' })
-  .to('.curtain', { scaleY: 0, transformOrigin: 'top', duration: 0.4, ease: 'power3.out' });
+
+Astro's native **View Transitions API** via `<ClientRouter />` in `BaseLayout.astro` — no JS library required, no route-level plumbing:
+
+```astro
+---
+import { ClientRouter } from "astro:transitions";
+---
+<html>
+  <head>
+    <ClientRouter fallback="swap" />
+  </head>
+  <body><slot /></body>
+</html>
 ```
+
+Customise per-element via `transition:name="hero-image"` (shared element animation) or `transition:animate="slide"` / `transition:animate={customAnim}` for a curtain/wipe effect. For a branded curtain, define keyframes on `::view-transition-old(root)` / `::view-transition-new(root)` in `src/styles/global.css`. See `core-animation.md` §Astro View Transitions.
 
 ## Premium Signals
 - Page transitions that decelerate as they reach the new page (easing matches brand tempo, not a default linear)
@@ -24,4 +34,4 @@ Cross-aesthetic applications: A traditionally authoritative brand can use a slow
 Implementation threshold: total transition duration under 700ms. Transition colour is derived from a brand element (primary, accent, or background), never generic black.
 
 ## Longevity Signal
-Ascending — underused in Next.js App Router sites due to implementation friction. A differentiator when done correctly.
+Ascending — Astro's View Transitions API makes this low-friction; the differentiator is now taste in branding the transition, not implementation difficulty.

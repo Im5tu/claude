@@ -1,7 +1,7 @@
 # Trend: Split-Screen
 
 ## What It Is
-A vertical line divides the viewport into two contrasting halves. One side: text/brand content. Other side: image, video, or solid colour. The contrast between halves carries the design. Variations include: static split (both sides scroll together), independent scroll (each side scrolls at a different rate via GSAP ScrollTrigger), and animated split (the dividing line is itself a reveal mechanic). Works as a hero and as a comparison section (before/after, product A vs B).
+A vertical line divides the viewport into two contrasting halves. One side: text/brand content. Other side: image, video, or solid colour. The contrast between halves carries the design. Variations include: static split (both sides scroll together), independent scroll (each side scrolls at a different rate via CSS `position: sticky` on one half), and animated split (the dividing line is itself a reveal mechanic via `animation-timeline: view()`). Works as a hero and as a comparison section (before/after, product A vs B).
 
 ## Implementation
 ```css

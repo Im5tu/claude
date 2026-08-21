@@ -1,156 +1,100 @@
 # FullBleedVideoHero
 
-Full-screen video or high-quality looping image sequence. Dark overlay. Content anchored bottom-left. The video is purely atmospheric — it loops silently and creates kinetic energy the text alone cannot. Always include a poster image.
+Full-viewport looping video with headline overlay. Native `<video>`, muted + autoplay + playsinline + loop, MP4 + WebM sources, with a mandatory `poster` image that serves as LCP and the reduced-motion fallback.
 
-```
----
-component: FullBleedVideoHero
-category: heroes
-subtype: full-bleed-video
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: low
-  energy-restrained: low
-  energy-moderate: medium
-  energy-energetic: high
-  motion-minimal: low
-  motion-moderate: medium
-  motion-expressive: high
-  # escape (contrast-light + energy-moderate + technical): SaaS in the creative or media industry where video IS the medium being sold, or a human story where product UI would misrepresent the offering
-  # escape (contrast-light + energy-restrained + editorial): a single carefully art-directed video loop that functions as a moving photograph (no motion graphics, no cuts, no music) with text in a contained non-competing area
+- surface-depth: dark (default) — overlays read better on dark footage
+- motion-register: moderate, expressive
+- texture-appetite: low, medium
+- type-personality: any
+- notes: Never use for hospitality/property — a still photograph reads more considered. Good for agency showcase, product demo, studio reel.
 
-visual-weight: heavy
-content-density: sparse
-trend-alignment: trending
-motion-profile: high
+## Structure
 
-use-when:
-  - Brand has a high-quality video asset (studio-grade, not user footage)
-  - Bold Studio — kinetic energy as the defining brand signal
-  - Dark Luxury — slow, atmospheric video (landscapes, craft, material)
-  - Experiential brands, events, hospitality, architecture
+- `<section class="fb-video">` full-viewport, relative, overflow hidden; text pinned bottom-left via `place-items: end start`
+  - `<video class="fb-video__bg">` absolutely positioned cover video with `autoplay muted loop playsinline preload="metadata"`, a mandatory `poster`, an `aria-label` describing the footage, and `<source>` children (WebM first when available, then MP4)
+  - `.fb-video__scrim` absolutely positioned gradient overlay between video and text
+  - `.fb-video__inner` text block (z-index 2), max-width 80rem
+    - `<p class="fb-video__eyebrow">` optional eyebrow, `data-i="0"`
+    - `<h1 class="fb-video__headline">` headline, `data-i="1"`
+    - `<p class="fb-video__sub">` optional supporting paragraph, `data-i="2"`
+    - `.fb-video__cta` single CTA, `data-i="3"`
 
-avoid-when:
-  - Clean SaaS — video backgrounds distract from product clarity
-  - Editorial Minimal — motion contradicts the deliberate stillness
-  - When the video asset is low quality or shows product UI (use BentoHero)
-  - Mobile-only sites (video backgrounds are data-heavy; always fallback to poster)
+The CTA uses the HeroButton variant of the Button spec from component-chrome-button.md.
 
-pairs-well-with: [LogoStrip, FeaturedTestimonial, StatsStrip]
-pairs-poorly-with: [TypeHero — both are kinetic, one overwhelms the other]
----
-```
+## CSS
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { EASE, DURATION, STAGGER } from "@/lib/animations";
-
-interface FullBleedVideoHeroProps {
-  headline: string;
-  subline: string;
-  primaryCta: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
-  /** MP4 video source */
-  videoSrc: string;
-  /** Poster image — shown while video loads and on mobile where autoplay may be blocked */
-  posterImage: string;
-  /** Small label above headline */
-  label?: string;
+```css
+.fb-video {
+  position: relative;
+  min-height: 92vh;
+  display: grid;
+  place-items: end start;
+  overflow: hidden;
+  color: white;
 }
+.fb-video__bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.fb-video__scrim {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.15) 0%, rgb(0 0 0 / 0.55) 100%);
+}
+.fb-video__inner {
+  position: relative; z-index: 2;
+  max-width: 80rem; width: 100%;
+  padding: 3rem 1.5rem; margin: 0 auto;
+}
+.fb-video__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+  opacity: 0.75;
+}
+.fb-video__headline {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  margin-top: 1rem;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+.fb-video__sub { max-width: 48ch; margin-top: 1.25rem; opacity: 0.85; }
+.fb-video__cta { margin-top: 2rem; }
 
-export function FullBleedVideoHero({
-  headline,
-  subline,
-  primaryCta,
-  secondaryCta,
-  videoSrc,
-  posterImage,
-  label,
-}: FullBleedVideoHeroProps) {
-  const ref = useRef<HTMLElement>(null);
+/* load-time entrance */
+[data-i] {
+  opacity: 0; translate: 0 16px;
+  animation: fbv-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--d, 0) * 120ms);
+}
+[data-i="0"] { --d: 0; } [data-i="1"] { --d: 1; }
+[data-i="2"] { --d: 2; } [data-i="3"] { --d: 3; }
+@keyframes fbv-in { to { opacity: 1; translate: 0 0; } }
 
-  useGSAP(() => {
-    if (!ref.current) return;
-    const items = ref.current.querySelectorAll("[data-animate]");
-    gsap.set(items, { y: 32, opacity: 0 });
-    gsap.to(items, {
-      y: 0,
-      opacity: 1,
-      duration: DURATION.slow,
-      stagger: STAGGER.relaxed,
-      ease: EASE.enter,
-      delay: 0.6, // Let the video establish itself first
-    });
-  }, { scope: ref });
-
-  return (
-    <section
-      ref={ref}
-      id="hero"
-      className="relative min-h-screen flex items-end overflow-hidden"
-    >
-      {/* Video background */}
-      <div className="absolute inset-0">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={posterImage}
-          className="h-full w-full object-cover"
-          aria-hidden="true"
-        >
-          <source src={videoSrc} type="video/mp4" />
-        </video>
-        {/* Layered overlay: bottom-heavy for text, slight vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/15" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
-      </div>
-
-      {/* Content — bottom-left */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 lg:pb-28">
-        {label && (
-          <p
-            data-animate
-            className="mb-6 text-caption font-semibold text-white/50 tracking-widest uppercase"
-          >
-            {label}
-          </p>
-        )}
-        <h1
-          data-animate
-          className="max-w-[18ch] font-display font-bold text-display-xl leading-[1.05] tracking-tight text-white"
-        >
-          {headline}
-        </h1>
-        <p
-          data-animate
-          className="mt-5 max-w-[44ch] text-body-lg text-white/70 leading-relaxed"
-        >
-          {subline}
-        </p>
-        <div data-animate className="mt-8 flex flex-wrap gap-4">
-          <a
-            href={primaryCta.href}
-            className="inline-flex items-center rounded-lg bg-white px-7 py-3.5 text-body-sm font-semibold text-neutral-900 transition-all duration-200 hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            {primaryCta.label}
-          </a>
-          {secondaryCta && (
-            <a
-              href={secondaryCta.href}
-              className="inline-flex items-center rounded-lg border border-white/30 px-7 py-3.5 text-body-sm font-medium text-white transition-colors hover:bg-white/10 hover:border-white/50"
-            >
-              {secondaryCta.label}
-            </a>
-          )}
-        </div>
-      </div>
-    </section>
-  );
+@media (prefers-reduced-motion: reduce) {
+  .fb-video__bg { display: none; }
+  .fb-video::before {
+    content: "";
+    position: absolute; inset: 0; z-index: 0;
+    background-image: var(--poster-fallback, none);
+    background-size: cover; background-position: center;
+  }
+  [data-i] { animation: none; opacity: 1; translate: 0 0; }
 }
 ```
+
+## Notes
+
+- Content slots: poster (src + alt), video sources (mp4 required, webm optional), optional eyebrow, headline, optional sub paragraph, one CTA (label + href).
+- Video must be muted + playsinline for autoplay on iOS.
+- Provide both MP4 and WebM where possible.
+- Keep file size under 4MB; `preload="metadata"`, not `"auto"`.
+- Reduced-motion users see only the poster image — set `--poster-fallback: url(…)` at the section level so it appears.
+- Dimensional adaptation:
+  - Editorial / restrained: don't use this component; pick FullBleedImageHero instead.
+  - Technical: frame the video inside a laptop/device mockup rather than bleeding to edges.

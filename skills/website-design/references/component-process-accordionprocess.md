@@ -1,264 +1,81 @@
 # AccordionProcess
 
-Expandable steps — click a step number to expand its full description and optional visual. When one step is open, others collapse. GSAP height animation. For complex multi-step processes where showing everything at once would overwhelm.
+Expandable process steps. The default open state shows step 01; clicking another step transitions its body open while the previous closes. Needs JS behavior for the toggle and height animation.
 
-```
----
-component: AccordionProcess
-category: process
-subtype: accordion-steps
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: high
-  energy-energetic: low
-visual-weight: light
-content-density: rich
-trend-alignment: evergreen
-motion-profile: moderate
+- surface-depth: any
+- motion-register: any (animation is subtle)
+- texture-appetite: any
+- type-personality: any
+- notes: 3–6 steps. Large step bodies benefit from this component more than small ones.
 
-use-when:
-  - 4-7 complex steps where each has substantial sub-detail
-  - Clean SaaS onboarding that would be overwhelming as a full list
-  - Dark Luxury service delivery with discreet expand-to-reveal interaction
-  - Refined Professional engagement process with legal or compliance sub-content
+## Structure
 
-avoid-when:
-  - Bold Studio — static accordion conflicts with the kinetic personality
-  - Fewer than 4 steps (use NumberedSteps — the simplicity is the message)
-  - When each step needs a large image (the accordion content area is text-first)
+- `<div class="ap">` container, one row `<div>` per step
+  - `<button class="ap__head" aria-expanded aria-controls="ap-p-<i>">`
+    - `<span class="ap__num">` static number text ("01", "02", ...)
+    - `<span class="ap__title">`
+    - `<span class="ap__mark" aria-hidden="true">` plus/minus glyph drawn with pseudo-elements
+  - `<div class="ap__panel" id="ap-p-<i>">` collapsible wrapper (height animated)
+    - `<div class="ap__body">` with `<p>` body and optional `<ul class="ap__bullets">`
 
-pairs-well-with: [StatsStrip, TestimonialGrid, AlternatingRows]
-pairs-poorly-with: [HorizontalTimeline — both are sequential reveals, redundant if adjacent]
----
-```
+## CSS
 
-> **CRITICAL — STEP NUMBER RULES:**
-> - Step numbers (01, 02, 03...) in the accordion trigger are ALWAYS static text
-> - NEVER wrap accordion step numbers in `<CounterTicker>`
-> - GSAP animates the height of the content panel — not the number
-
-```tsx
-"use client";
-import { useRef, useState, type ReactNode } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
-
-gsap.registerPlugin(ScrollTrigger);
-
-interface AccordionStep {
-  title: string;
-  shortDescription: string;
-  fullDescription: string;
-  details: string[];
-  /** Optional visual — image or TSX node */
-  visual?: ReactNode;
+```css
+.ap { display: grid; border-top: 1px solid var(--color-border); }
+.ap > div { border-bottom: 1px solid var(--color-border); }
+.ap__head {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 1.5rem; align-items: baseline;
+  padding: 1.5rem 0; text-align: left; width: 100%;
 }
-
-interface AccordionProcessProps {
-  eyebrow?: string;
-  headline: string;
-  subline?: string;
-  steps: AccordionStep[];
-  /** Open the first step by default */
-  defaultOpen?: boolean;
+.ap__num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.14em;
+  color: var(--color-accent);
+  min-width: 2ch;
 }
-
-function AccordionItem({
-  step,
-  index,
-  isOpen,
-  onToggle,
-}: {
-  step: AccordionStep;
-  index: number;
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
-
-  // Animate height open/close
-  useGSAP(() => {
-    if (!panelRef.current || !innerRef.current) return;
-
-    if (isOpen) {
-      gsap.set(panelRef.current, { height: 0, overflow: "hidden" });
-      gsap.to(panelRef.current, {
-        height: innerRef.current.offsetHeight,
-        duration: 0.45,
-        ease: "power3.out",
-        onComplete: () => {
-          if (panelRef.current) panelRef.current.style.height = "auto";
-        },
-      });
-    } else {
-      gsap.to(panelRef.current, {
-        height: 0,
-        duration: 0.35,
-        ease: "power2.in",
-      });
-    }
-  }, { dependencies: [isOpen] });
-
-  return (
-    <div className="border-b border-border last:border-0">
-      {/* Trigger */}
-      <button
-        onClick={onToggle}
-        aria-expanded={isOpen}
-        className="flex w-full items-center gap-6 py-7 text-left transition-colors hover:text-accent group"
-      >
-        {/* Step number — static decorative text, NEVER CounterTicker */}
-        <span
-          className="shrink-0 font-display font-bold text-primary/20 leading-none select-none transition-colors duration-200 group-hover:text-accent/30"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)" }}
-          aria-hidden="true"
-        >
-          {String(index + 1).padStart(2, "0")}
-        </span>
-
-        <div className="flex-1 min-w-0">
-          <h3 className="font-display font-semibold text-h3 leading-tight text-primary group-hover:text-accent transition-colors duration-200">
-            {step.title}
-          </h3>
-          {!isOpen && (
-            <p className="mt-1 text-body-sm text-secondary truncate max-w-[60ch]">
-              {step.shortDescription}
-            </p>
-          )}
-        </div>
-
-        {/* Chevron */}
-        <span
-          className="shrink-0 text-secondary transition-transform duration-300"
-          style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-          aria-hidden="true"
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M5 7.5l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
-      </button>
-
-      {/* Content panel — GSAP height animation */}
-      <div ref={panelRef} style={{ height: 0, overflow: "hidden" }}>
-        <div ref={innerRef} className="pb-8">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-            <div>
-              <p className="text-body-lg text-secondary leading-relaxed max-w-[55ch]">
-                {step.fullDescription}
-              </p>
-              {step.details.length > 0 && (
-                <ul className="mt-6 space-y-3">
-                  {step.details.map((detail, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
-                      <span className="text-body text-secondary">{detail}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {step.visual && (
-              <div className="overflow-hidden rounded-xl border border-border">
-                {step.visual}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+.ap__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.125rem, 1.8vw, 1.5rem);
+  letter-spacing: -0.01em;
 }
+.ap__mark {
+  width: 1.25rem; height: 1.25rem; position: relative;
+}
+.ap__mark::before, .ap__mark::after {
+  content: ""; position: absolute; inset: 0; margin: auto;
+  background: currentColor;
+}
+.ap__mark::before { width: 100%; height: 1.5px; }
+.ap__mark::after { width: 1.5px; height: 100%; transition: scale 200ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.ap__head[aria-expanded="true"] .ap__mark::after { scale: 0; }
 
-export function AccordionProcess({
-  eyebrow,
-  headline,
-  subline,
-  steps,
-  defaultOpen = true,
-}: AccordionProcessProps) {
-  const ref = useRef<HTMLElement>(null);
-  const [openIndex, setOpenIndex] = useState<number | null>(defaultOpen ? 0 : null);
+.ap__panel { height: 0; overflow: hidden; }
+.ap__body {
+  padding: 0 0 1.5rem 3.5rem;
+  max-width: 60ch;
+  color: var(--color-text-secondary);
+}
+.ap__bullets { margin-top: 0.75rem; padding-left: 1rem; display: grid; gap: 0.25rem; }
 
-  // Section entrance
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    const header = ref.current.querySelectorAll("[data-header]");
-    gsap.set(header, { y: 20, opacity: 0 });
-    gsap.to(header, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.08,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    const items = ref.current.querySelectorAll(".accordion-item");
-    gsap.set(items, { y: 20, opacity: 0 });
-    gsap.to(items, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.07,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 72%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  function handleToggle(index: number) {
-    setOpenIndex(openIndex === index ? null : index);
-  }
-
-  return (
-    <section ref={ref} className="py-16 lg:py-24 bg-surface-primary">
-      <div className="mx-auto max-w-5xl px-6">
-        {/* Header */}
-        <div className="mb-12">
-          {eyebrow && (
-            <p data-header className="text-caption font-semibold text-accent tracking-widest uppercase mb-4">
-              {eyebrow}
-            </p>
-          )}
-          <h2 data-header className="font-display font-bold text-h1 leading-tight tracking-tight text-primary max-w-[36ch]">
-            {headline}
-          </h2>
-          {subline && (
-            <p data-header className="mt-4 text-body-lg text-secondary max-w-[55ch] leading-relaxed">
-              {subline}
-            </p>
-          )}
-        </div>
-
-        {/* Accordion steps */}
-        <div>
-          {steps.map((step, i) => (
-            <div key={i} className="accordion-item">
-              <AccordionItem
-                step={step}
-                index={i}
-                isOpen={openIndex === i}
-                onToggle={() => handleToggle(i)}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+@media (prefers-reduced-motion: reduce) {
+  .ap__mark::after { transition: none; }
 }
 ```
+
+## Behavior
+
+- Exactly one step (or none) is open at a time; the first step is open on initial render, its panel set to `height: auto`.
+- Clicking a closed step's header opens it and closes the previously open step; clicking the open step's header closes it, leaving all closed.
+- Each header button toggles its `aria-expanded` and points at its panel via `aria-controls`/`id`.
+- Height animation uses the Web Animations API on the panel: animate `height` between `0px` and the panel's `scrollHeight` over 340ms with easing `cubic-bezier(0.2, 0.8, 0.2, 1)`, fill forwards. On open completion, set `height: auto` so the panel reflows with content. Cancel any in-flight animation before starting a new one, and on teardown.
+- If `(prefers-reduced-motion: reduce)` matches, skip the animation and set `height` to `auto` or `0` directly.
+- The plus mark collapses to a minus purely in CSS via `[aria-expanded="true"]`.
+
+## Notes
+
+- Defer initializing the JS until the component is near the viewport if the page has many islands of behavior; nothing above depends on early execution.
+- Step numbers are static text, never animated counters.
+- Bullets are optional per step; the last step commonly omits them.

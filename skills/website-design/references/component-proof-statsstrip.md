@@ -1,175 +1,123 @@
 # StatsStrip
 
-Full-bleed contrasting background with 3-4 large animated metrics. CounterTicker for all numbers. The highest-impact credibility signal on the page — it stops the scroll and lands a punch.
+3–4 large numbers with labels. Each number animates with the CSS counter ticker below — a static "0+" on load is a banned pattern (it means the scroll timeline isn't firing).
 
-```
----
-component: StatsStrip
-category: proof
-subtype: stats-counter-strip
+## Dimensional fit
 
-dimension-fit:
-  contrast-dark: high
-  contrast-light: high
-  energy-restrained: high
-  energy-moderate: high
-  energy-energetic: high
-visual-weight: heavy
-content-density: sparse
-trend-alignment: evergreen
-motion-profile: moderate
+- surface-depth: any
+- motion-register: moderate, expressive
+- texture-appetite: low, medium
+- type-personality: geometric-sans, editorial-display
+- notes: Only include if numbers are genuinely impressive AND attributable. "3 projects, 2 years, 100% satisfaction" is desperate — omit.
 
-use-when:
-  - Brand has 3-4 real, impressive metrics to show
-  - Between content sections as a visual color break
-  - Any preset — StatsStrip adapts via background color choice
-  - When the numbers themselves are a credibility signal
+## Structure
 
-avoid-when:
-  - You don't have real metrics (placeholder stats destroy trust)
-  - Immediately after another dark/contrasting section (needs light section before it)
+- `<section class="ss">` centered container
+  - optional kicker `<p class="ss__kicker">` (e.g. "By the numbers")
+  - `<ul class="ss__row">`; one `<li>` per stat (1 column, 2 at >=640px, `--cols` at >=1024px, default 4)
+    - value `<p class="ss__value">` containing the counter ticker plus any suffix text ("m", ".99%", "+")
+    - label `<p class="ss__label">`
+    - optional caption `<p class="ss__caption">` ("since 2019", "last 24 months")
 
-pairs-well-with: [AlternatingRows, NumberedSteps, LogoStrip]
-pairs-poorly-with: [FeaturedTestimonial — both are "proof" moments, choose one for rhythm]
----
+Counter ticker markup (per value):
+
+```html
+<span class="ticker" style="--n-to: 47"><span class="ticker__static">47</span></span>
 ```
 
-> **CounterTicker rules for StatsStrip:**
-> - Each stat uses `<CounterTicker>` for the animated number
-> - Initial HTML renders the real target value (if GSAP fails, the number still shows)
-> - CounterTicker manages its own ScrollTrigger — do NOT wrap in `<ScrollReveal>`
-> - Wrap the ENTIRE section in a scroll-aware container (see implementation below)
+The final number appears twice: as `--n-to` (drives the animation) and as literal text (the static fallback).
 
-```tsx
-"use client";
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { EASE, DURATION } from "@/lib/animations";
-import { CounterTicker } from "@/components/animations/counter-ticker";
+## CSS
 
-gsap.registerPlugin(ScrollTrigger);
+```css
+.ss { max-width: 80rem; margin: 0 auto; padding: 4rem 1.5rem; }
+.ss__kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.ss__row {
+  list-style: none; padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  text-align: center;
+}
+@media (min-width: 640px) { .ss__row { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .ss__row { grid-template-columns: repeat(var(--cols, 4), 1fr); } }
 
-interface Stat {
-  value: number;
-  /** e.g. "+" or "%" */
-  suffix?: string;
-  /** e.g. "$" or "£" */
-  prefix?: string;
-  label: string;
-  /** Optional context line — e.g. "and growing" */
-  sublabel?: string;
+.ss__value {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--color-accent);
+}
+.ss__label {
+  font-size: 0.875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-top: 0.75rem;
+}
+.ss__caption {
+  font-size: 0.75rem;
+  opacity: 0.5;
+  margin-top: 0.25rem;
+  max-width: 22ch;
+  margin-inline: auto;
 }
 
-interface StatsStripProps {
-  stats: Stat[];
-  /** Section label above stats */
-  eyebrow?: string;
-  /** Background style — defaults to "dark" (bg-primary) */
-  variant?: "dark" | "accent" | "surface";
+/* entrance: scroll-driven stagger via per-item animation-range offsets
+   (never a time delay — those are ignored on scroll timelines) */
+@keyframes ss-in { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
+@supports (animation-timeline: view()) {
+  .ss__row li {
+    animation: ss-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+  .ss__row li:nth-child(2) { animation-range: entry 8% cover 38%; }
+  .ss__row li:nth-child(3) { animation-range: entry 16% cover 46%; }
+  .ss__row li:nth-child(4) { animation-range: entry 24% cover 54%; }
 }
 
-const variantClasses = {
-  dark: "bg-primary",
-  accent: "bg-accent",
-  surface: "bg-surface-secondary",
-};
-
-const textClasses = {
-  dark: { headline: "text-white", label: "text-white/60", eyebrow: "text-white/40" },
-  accent: { headline: "text-white", label: "text-white/70", eyebrow: "text-white/50" },
-  surface: { headline: "text-primary", label: "text-secondary", eyebrow: "text-accent" },
-};
-
-export function StatsStrip({ stats, eyebrow, variant = "dark" }: StatsStripProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  useGSAP(() => {
-    if (!ref.current) return;
-
-    // Eyebrow and stat labels fade in (CounterTicker handles its own animation)
-    const labels = ref.current.querySelectorAll("[data-stat-label]");
-    gsap.set(labels, { y: 16, opacity: 0 });
-    gsap.to(labels, {
-      y: 0, opacity: 1,
-      duration: DURATION.moderate,
-      stagger: 0.08,
-      ease: EASE.enter,
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-  }, { scope: ref });
-
-  const colors = textClasses[variant];
-
-  return (
-    <section ref={ref} className={`py-14 lg:py-20 ${variantClasses[variant]}`}>
-      <div className="mx-auto max-w-7xl px-6">
-        {eyebrow && (
-          <p
-            data-stat-label
-            className={`text-center text-caption font-semibold tracking-widest uppercase mb-10 ${colors.eyebrow}`}
-          >
-            {eyebrow}
-          </p>
-        )}
-
-        {/* Stats grid — CounterTicker is self-contained, do not nest in ScrollReveal */}
-        <div
-          className={`grid grid-cols-2 gap-10 lg:grid-cols-${Math.min(stats.length, 4)} lg:gap-0 lg:divide-x lg:divide-white/10`}
-        >
-          {stats.map((stat, i) => (
-            <div key={i} className="text-center lg:px-12">
-              {/* Animated number — CounterTicker manages its own ScrollTrigger */}
-              <div
-                className={`font-display font-bold leading-none tracking-tight ${colors.headline}`}
-                style={{ fontSize: "clamp(2.5rem, 5vw, 5rem)" }}
-              >
-                <CounterTicker
-                  target={stat.value}
-                  prefix={stat.prefix}
-                  suffix={stat.suffix}
-                  duration={1.4}
-                />
-              </div>
-
-              <p
-                data-stat-label
-                className={`mt-3 text-body-sm font-medium ${colors.label}`}
-              >
-                {stat.label}
-              </p>
-              {stat.sublabel && (
-                <p
-                  data-stat-label
-                  className={`mt-1 text-caption ${colors.eyebrow}`}
-                >
-                  {stat.sublabel}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+/* counter ticker: animatable @property integer rendered through a CSS counter.
+   Registration makes --n interpolate; counter() turns it into text. */
+@property --n {
+  syntax: "<integer>";
+  initial-value: 0;
+  inherits: false;
+}
+@keyframes tick-up { from { --n: 0; } to { --n: var(--n-to); } }
+@supports (animation-timeline: view()) {
+  .ticker {
+    counter-reset: tick calc(var(--n));
+    animation: tick-up 1200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 40%;
+  }
+  .ticker::before { content: counter(tick); }
+  .ticker__static { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ss__row li { animation: none; }
+  .ticker { animation: none; }
+  .ticker::before { content: none; }
+  .ticker__static { display: inline; }
 }
 ```
 
-**Usage:**
-```tsx
-<StatsStrip
-  eyebrow="Trusted at scale"
-  variant="dark"
-  stats={[
-    { value: 500, suffix: "+", label: "Clients served", sublabel: "across 18 countries" },
-    { value: 98, suffix: "%", label: "Retention rate" },
-    { value: 2, prefix: "$", suffix: "B+", label: "Assets managed" },
-    { value: 15, label: "Years in practice" },
-  ]}
-/>
-```
+## Behavior
+
+- No JS. The ticker is pure CSS: registered `--n` interpolates 0 → `--n-to` on the element's view timeline; `counter-reset: tick calc(var(--n))` plus `content: counter(tick)` renders the integer.
+- Engines supporting `animation-timeline: view()` also support `@property`, so the single `@supports` guard covers both; everywhere else the literal `.ticker__static` text shows unchanged.
+- Reduced motion disables the animation and restores the static number (otherwise the counter would freeze at 0).
+
+## Notes
+
+- Decimal or suffixed values ("99.99%", "47m"): animate only the integer part with the ticker and print the rest as literal text in `.ss__value` (e.g. ticker for 99, literal ".99%").
+- Captions are optional but useful — they contextualise the number ("since 2019", "last 24 months").
+- Example set: 47m lines of code reviewed (since 2019), 99.99% platform uptime (last 24 months), 312 pull requests shipped (this quarter), 8 people in the studio.

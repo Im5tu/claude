@@ -28,24 +28,25 @@ CSS implementation for simple shapes:
 
 SVG path morphing for complex shapes:
 
-```js
-// GSAP MorphSVGPlugin
-gsap.to('#icon-path', {
-  morphSVG: '#target-path',
-  duration: 0.4,
-  ease: 'power2.inOut'
-});
+```tsx
+// Solid island using Web Animations API — no GSAP
+import { onMount, onCleanup } from "solid-js";
 
-// With colour shift
-gsap.to('#icon-path', {
-  morphSVG: '#target-path',
-  fill: 'var(--color-success)',
-  duration: 0.4,
-  ease: 'power2.inOut'
-});
+export default function MorphIcon(props: { from: string; to: string }) {
+  let path: SVGPathElement | undefined;
+  onMount(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const anim = path!.animate(
+      [{ d: `path("${props.from}")` }, { d: `path("${props.to}")` }],
+      { duration: 320, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" },
+    );
+    onCleanup(() => anim.cancel());
+  });
+  return <svg viewBox="0 0 24 24"><path ref={path} d={props.from} /></svg>;
+}
 ```
 
-The paths should have the same number of points for smooth interpolation; use GSAP's built-in point matching if they differ. Duration: 200–300ms.
+Chromium/WebKit/Firefox support `d` as an interpolatable property via `@property --d { syntax: "<custom-ident>"; }` — in practice the WAAPI path form is more reliable. Paths must share the same command structure (same number of points) for smooth interpolation. Duration: 200–300ms.
 
 ## Premium Signals
 - The morph path is considered — the icon does not just cross-fade between states but physically transforms through a designed intermediate shape

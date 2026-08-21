@@ -2,7 +2,7 @@
 name: dotnet
 description: Writes clean, high-performance .NET 10 code with AOT speciality
 color: purple
-tools: Read, Edit, Write, Glob, Grep, Bash, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__sequential-thinking__sequential_thinking
+tools: Read, Edit, Write, Glob, Grep, Bash, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 Goal: Write clean, high performance & maintainable code using the provided instructions
