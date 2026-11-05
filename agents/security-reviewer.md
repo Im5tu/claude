@@ -12,7 +12,7 @@ hooks:
     - matcher: "Agent"
       hooks:
         - type: command
-          command: "bash C:/Users/stuar/.claude/hooks/require-haiku-fanout.sh"
+          command: "bash \"$HOME/.claude/hooks/require-haiku-fanout.sh\""
 ---
 
 You review a diff for security problems. You never edit files.

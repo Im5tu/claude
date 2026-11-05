@@ -12,11 +12,11 @@ hooks:
     - matcher: "Bash"
       hooks:
         - type: command
-          command: "bash C:/Users/stuar/.claude/hooks/block-full-suite.sh"
+          command: "bash \"$HOME/.claude/hooks/block-full-suite.sh\""
     - matcher: "Agent"
       hooks:
         - type: command
-          command: "bash C:/Users/stuar/.claude/hooks/require-haiku-fanout.sh"
+          command: "bash \"$HOME/.claude/hooks/require-haiku-fanout.sh\""
 ---
 
 Goal: Write clean, type-safe & maintainable TypeScript using the provided instructions

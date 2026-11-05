@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash C:/Users/stuar/.claude/hooks/block-foreground-sleep.sh"
+            "command": "bash \"$HOME/.claude/hooks/block-foreground-sleep.sh\""
           }
         ]
       }
