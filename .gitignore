@@ -19,6 +19,7 @@
 !commands/**
 !skills/
 !skills/**
+skills/synced
 # Present on disk (symlinked into ~/.claude) but NOT part of this config:
 # separately-distributed Claude Ads bundle
 agents/audit-*.md
