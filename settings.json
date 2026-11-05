@@ -58,6 +58,14 @@
     "mcp-server-dev@claude-plugins-official": false,
     "stripe@claude-plugins-official": false
   },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
   "effortLevel": "medium",
   "modelSettings": {
     "claude-opus-5-5": {
